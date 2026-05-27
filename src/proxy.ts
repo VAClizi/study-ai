@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 const publicRoutes = ["/", "/login"]
-const staticPattern = /\.(svg|png|jpg|jpeg|gif|ico|json|xml|txt|webmanifest)$/
+const staticPattern = /\.(svg|png|jpg|jpeg|gif|ico|json|xml|txt|html|webmanifest)$/
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
