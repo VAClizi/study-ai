@@ -30,8 +30,11 @@ function clearSessionCookie() {
 let currentUser: User | null = null
 
 export const mockAuthService: AuthService = {
-  async login(email: string, _password: string): Promise<User> {
+  async login(email: string, password: string): Promise<User> {
     await mockDelay(500, 1000)
+    if (!email.trim() || !password.trim()) {
+      throw new Error("邮箱和密码不能为空")
+    }
     currentUser = { ...MOCK_USER, email, id: `user-${randomId()}` }
     localStorage.setItem("studyai_user", JSON.stringify(currentUser))
     setSessionCookie()
@@ -46,8 +49,11 @@ export const mockAuthService: AuthService = {
     return currentUser
   },
 
-  async register(email: string, _password: string, name: string): Promise<User> {
+  async register(email: string, password: string, name: string): Promise<User> {
     await mockDelay(500, 1000)
+    if (!email.trim() || !password.trim() || !name.trim()) {
+      throw new Error("请填写所有必填字段")
+    }
     currentUser = { ...MOCK_USER, email, name, id: `user-${randomId()}` }
     localStorage.setItem("studyai_user", JSON.stringify(currentUser))
     setSessionCookie()

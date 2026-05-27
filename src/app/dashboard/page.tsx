@@ -3,7 +3,6 @@
 import { useAnalytics } from "@/hooks/use-analytics"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePlanStore } from "@/stores/plan-store"
-import { useAPIKeyStore } from "@/stores/api-key-store"
 import { StreakCard } from "@/components/dashboard/streak-card"
 import { CompletionChart } from "@/components/dashboard/completion-chart"
 import { FocusChart } from "@/components/dashboard/focus-chart"
@@ -43,13 +42,12 @@ export default function DashboardPage() {
   const { isAuthenticated, user } = useAuthStore()
   const { plans, loadPlans } = usePlanStore()
   const { stats, isLoading } = useAnalytics()
-  const { apiKey } = useAPIKeyStore()
 
   const [aiInsight, setAiInsight] = useState<string | null>(null)
   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
 
   const generateInsight = useCallback(async () => {
-    if (!stats || !apiKey || !user) return
+    if (!stats || !user) return
     const today = new Date().toISOString().split("T")[0]
     const cached = getCachedInsight(user.id)
     if (cached?.date === today) {
@@ -71,7 +69,6 @@ export default function DashboardPage() {
 请给出具体的、可操作的改进建议，语气鼓励但直接。不要重复数据，直接给出洞察。`
       const result = await chat(
         [{ role: "user", content: prompt }],
-        apiKey,
         { temperature: 0.7, maxTokens: 400 },
       )
       if (result) {
@@ -83,7 +80,7 @@ export default function DashboardPage() {
     } finally {
       setIsGeneratingInsight(false)
     }
-  }, [stats, apiKey, user])
+  }, [stats, user])
 
   useEffect(() => {
     if (user) loadPlans(user.id)

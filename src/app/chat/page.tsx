@@ -6,7 +6,6 @@ import type { ChatMode } from "@/types/chat"
 import { useChatStore } from "@/stores/chat-store"
 import { usePlanStore } from "@/stores/plan-store"
 import { useAuthStore } from "@/stores/auth-store"
-import { useAPIKeyStore } from "@/stores/api-key-store"
 import { ChatMessages } from "@/components/chat/chat-messages"
 import { ChatInput } from "@/components/chat/chat-input"
 import { ModeSelector } from "@/components/chat/mode-selector"
@@ -15,14 +14,13 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { extractChoices } from "@/lib/choice-parser"
-import { ArrowLeft, Plus, MessageSquare, Key, Zap } from "lucide-react"
+import { ArrowLeft, Plus, MessageSquare } from "lucide-react"
 import Link from "next/link"
 
 function ChatContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { isAuthenticated } = useAuthStore()
-  const { isConfigured } = useAPIKeyStore()
 
   const {
     messages, isStreaming, currentMode, currentSession, planContent,
@@ -160,12 +158,6 @@ function ChatContent() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {!isConfigured && (
-                <Link href="/settings" className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-500 transition-colors">
-                  <Key className="h-3 w-3" />
-                  配置 API Key
-                </Link>
-              )}
               <Button variant="ghost" size="sm" onClick={handleNewChat} className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
                 新对话
@@ -176,21 +168,6 @@ function ChatContent() {
 
         {/* Learning Plan Section */}
         {planContent && <PlanSection content={planContent} />}
-
-        {/* LLM not configured banner */}
-        {!isConfigured && messages.length <= 1 && (
-          <div className="max-w-3xl mx-auto w-full px-4 pt-3">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-sm">
-              <Zap className="h-4 w-4 text-amber-500 shrink-0" />
-              <span className="text-zinc-600 dark:text-zinc-300">
-                尚未配置 DeepSeek API Key，当前使用演示模式。
-              </span>
-              <Link href="/settings" className="shrink-0 text-purple-600 dark:text-purple-400 hover:text-purple-500 font-medium text-xs">
-                去配置 →
-              </Link>
-            </div>
-          </div>
-        )}
 
         {/* Messages */}
         <ChatMessages

@@ -11,10 +11,6 @@ export interface LLMOptions {
   maxTokens?: number
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_DEEPSEEK_API_URL
-  ? `${process.env.NEXT_PUBLIC_DEEPSEEK_API_URL}/chat/completions`
-  : "https://api.deepseek.com/v1/chat/completions"
-
 export class LLMError extends Error {
   constructor(
     message: string,
@@ -41,32 +37,25 @@ async function parseSSELine(line: string): Promise<string | null> {
 
 export async function* streamChat(
   messages: LLMMessage[],
-  apiKey: string,
   options?: LLMOptions,
 ): AsyncGenerator<string, void, unknown> {
-  const body = {
-    model: options?.model ?? "deepseek-chat",
-    messages,
-    temperature: options?.temperature ?? 0.7,
-    max_tokens: options?.maxTokens ?? 4096,
-    stream: true,
-  }
-
-  const response = await fetch(BASE_URL, {
+  const response = await fetch("/api/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages,
+      model: options?.model ?? "deepseek-chat",
+      temperature: options?.temperature ?? 0.7,
+      max_tokens: options?.maxTokens ?? 4096,
+      stream: true,
+    }),
   })
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
     throw new LLMError(
-      (error as { message?: string }).message || `API error: ${response.status}`,
+      (error as { error?: string }).error || `API error: ${response.status}`,
       response.status,
-      (error as { code?: string }).code,
     )
   }
 
@@ -90,7 +79,6 @@ export async function* streamChat(
     }
   }
 
-  // Process remaining buffer
   if (buffer.trim()) {
     const chunk = await parseSSELine(buffer.trim())
     if (chunk) yield chunk
@@ -99,64 +87,30 @@ export async function* streamChat(
 
 export async function chat(
   messages: LLMMessage[],
-  apiKey: string,
   options?: LLMOptions,
 ): Promise<string> {
-  const body = {
-    model: options?.model ?? "deepseek-chat",
-    messages,
-    temperature: options?.temperature ?? 0.7,
-    max_tokens: options?.maxTokens ?? 4096,
-    stream: false,
-  }
-
-  const response = await fetch(BASE_URL, {
+  const response = await fetch("/api/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages,
+      model: options?.model ?? "deepseek-chat",
+      temperature: options?.temperature ?? 0.7,
+      max_tokens: options?.maxTokens ?? 4096,
+      stream: false,
+    }),
   })
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
     throw new LLMError(
-      (error as { message?: string }).message || `API error: ${response.status}`,
+      (error as { error?: string }).error || `API error: ${response.status}`,
       response.status,
-      (error as { code?: string }).code,
     )
   }
 
   const data = await response.json()
-  return data.choices?.[0]?.message?.content || ""
-}
-
-export async function testConnection(apiKey: string): Promise<{ ok: boolean; error?: string }> {
-  try {
-    const response = await fetch(BASE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [{ role: "user", content: "hi" }],
-        max_tokens: 5,
-        stream: false,
-      }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      return { ok: false, error: (error as { message?: string }).message || `HTTP ${response.status}` }
-    }
-
-    return { ok: true }
-  } catch (e) {
-    return { ok: false, error: (e as Error).message }
-  }
+  return data.content || ""
 }
 
 export function buildSystemPrompt(
