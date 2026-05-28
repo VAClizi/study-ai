@@ -44,30 +44,6 @@ function isPromptLike(line: string): boolean {
   return false
 }
 
-/** Detect a pure choice block — 2+ consecutive A/B/C/D lines without a preceding prompt line. */
-function detectPureChoiceBlock(lines: string[], startIdx: number): { choices: ChoiceOption[]; count: number } | null {
-  const choices: ChoiceOption[] = []
-  let i = startIdx
-  while (i < lines.length) {
-    const raw = lines[i].replace(/^[-*]+\s*/, "").trim()
-    if (!raw) {
-      i++
-      continue
-    }
-    const choice = parseChoice(raw)
-    if (choice) {
-      choices.push(choice)
-      i++
-    } else {
-      break
-    }
-  }
-  if (choices.length >= 2) {
-    return { choices, count: i - startIdx }
-  }
-  return null
-}
-
 /** Parse inline choices: "问题？ A. xxx B. xxx C. xxx D. xxx" on one line */
 function parseInlineChoices(line: string): { choices: ChoiceOption[] } | null {
   const trimmed = line.trim()
@@ -220,23 +196,6 @@ export function extractChoices(content: string): {
 
       // If we found 1 choice but not 2+, stop scanning this prompt
       if (block.length === 1) break
-    }
-  }
-
-  // Phase 5: pure choice block — 2+ consecutive A/B/C/D lines without a prompt line,
-  // common when AI asks a follow-up question by just listing options.
-  if (!looksLikePlan(content)) {
-    for (let i = 0; i < lines.length; i++) {
-      const raw = lines[i].replace(/^[-*]+\s*/, "").trim()
-      if (!raw) continue
-      const choice = parseChoice(raw)
-      if (!choice) continue
-      const block = detectPureChoiceBlock(lines, i)
-      if (block) {
-        const resultLines = [...lines]
-        resultLines.splice(i, block.count)
-        return { choices: block.choices, textWithoutChoices: resultLines.join("\n") }
-      }
     }
   }
 
