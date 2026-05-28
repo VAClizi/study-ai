@@ -9,12 +9,13 @@ import { useAuthStore } from "@/stores/auth-store"
 import { ChatMessages } from "@/components/chat/chat-messages"
 import { ChatInput } from "@/components/chat/chat-input"
 import { ModeSelector } from "@/components/chat/mode-selector"
-import { PlanSection } from "@/components/chat/plan-section"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { extractChoices } from "@/lib/choice-parser"
-import { ArrowLeft, Plus, MessageSquare } from "lucide-react"
+import { parsePlanTextWithAI } from "@/services/plan-ai-parser"
+import { convertParsedPlanToExtractedData, extractPlanData, type ExtractedPlanData } from "@/lib/plan-parser"
+import { ArrowLeft, Plus, MessageSquare, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useT } from "@/lib/i18n"
 
@@ -29,13 +30,46 @@ function ChatContent() {
     createSession, sendMessage, setMode, resetChat, loadStoredSession, saveCurrentSession,
   } = useChatStore()
 
-  const { createPlanFromChat } = usePlanStore()
+  const { createPlanFromParsedData } = usePlanStore()
   const { user } = useAuthStore()
 
   const [hasStarted, setHasStarted] = useState(false)
-  const [generatedPlanId, setGeneratedPlanId] = useState<string | null>(null)
   const [isThinking, setIsThinking] = useState(false)
+  const [isParsingPlan, setIsParsingPlan] = useState(false)
+  const [parsedPlanData, setParsedPlanData] = useState<ExtractedPlanData | null>(null)
   const initialPromptSent = useRef(false)
+  const lastParsedContent = useRef<string | null>(null)
+
+  // When planContent is set, trigger AI parsing
+  useEffect(() => {
+    if (!planContent || planContent === lastParsedContent.current) return
+    lastParsedContent.current = planContent
+
+    let cancelled = false
+    setIsParsingPlan(true)
+    setParsedPlanData(null)
+
+    parsePlanTextWithAI(planContent).then((result) => {
+      if (cancelled) return
+      if (result) {
+        const extracted = convertParsedPlanToExtractedData(result)
+        setParsedPlanData(extracted)
+      } else {
+        // Fallback: extract from [PLAN_DATA] block directly
+        const fallback = extractPlanData(planContent)
+        if (fallback) setParsedPlanData(fallback)
+      }
+      setIsParsingPlan(false)
+    }).catch(() => {
+      if (cancelled) return
+      // Fallback on error too
+      const fallback = extractPlanData(planContent)
+      if (fallback) setParsedPlanData(fallback)
+      setIsParsingPlan(false)
+    })
+
+    return () => { cancelled = true }
+  }, [planContent])
 
   // Start chat from URL mode parameter
   useEffect(() => {
@@ -61,7 +95,6 @@ function ChatContent() {
     const promptParam = searchParams.get("prompt")
     if (promptParam && hasStarted && !initialPromptSent.current && messages.length <= 1) {
       initialPromptSent.current = true
-      // Small delay to let UI render first
       const timer = setTimeout(() => {
         handleSend(promptParam)
       }, 500)
@@ -82,12 +115,11 @@ function ChatContent() {
   }, [sendMessage])
 
   const handleGeneratePlan = useCallback(async () => {
-    if (!planContent || !user) return null
+    if (!parsedPlanData || !user) return null
     const mode = currentMode || "quick"
     const sessionId = currentSession?.id
-    const plan = await createPlanFromChat(planContent, user.id, mode, sessionId)
+    const plan = await createPlanFromParsedData(parsedPlanData, user.id, mode, sessionId)
     if (plan) {
-      // Link the session back to the plan and persist
       useChatStore.setState((s) => {
         if (s.currentSession) {
           s.currentSession = { ...s.currentSession, planId: plan.id }
@@ -98,22 +130,23 @@ function ChatContent() {
       router.push(`/plan/${plan.id}`)
     }
     return plan
-  }, [planContent, currentMode, user, currentSession, createPlanFromChat, saveCurrentSession, router])
+  }, [parsedPlanData, currentMode, user, currentSession, createPlanFromParsedData, saveCurrentSession, router])
 
   const handleNewChat = useCallback(() => {
     resetChat()
     setHasStarted(false)
-    setGeneratedPlanId(null)
+    setParsedPlanData(null)
+    lastParsedContent.current = null
     initialPromptSent.current = false
   }, [resetChat])
 
   // Extract choices from the last AI message (displayed outside the bubble)
   const lastChoices = useMemo(() => {
-    if (isStreaming || planContent) return null
+    if (isStreaming) return null
     const lastMsg = messages[messages.length - 1]
     if (!lastMsg || lastMsg.role !== "assistant" || !lastMsg.content) return null
     return extractChoices(lastMsg.content)
-  }, [messages, isStreaming, planContent])
+  }, [messages, isStreaming])
 
   // Not authenticated
   if (!isAuthenticated) {
@@ -168,9 +201,6 @@ function ChatContent() {
           </div>
         </div>
 
-        {/* Learning Plan Section */}
-        {planContent && <PlanSection content={planContent} />}
-
         {/* Messages */}
         <ChatMessages
           messages={messages}
@@ -202,33 +232,36 @@ function ChatContent() {
           </div>
         )}
 
-        {/* Input or Plan Actions */}
-        {planContent && !generatedPlanId ? (
-          <div className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-4">
-            <div className="max-w-md mx-auto text-center">
-              <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-3">{t("chat.planGenerated")}</p>
-              <Button
-                onClick={() => handleGeneratePlan()}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white gap-2"
-              >
-                {t("chat.saveToMyPlan")}
-              </Button>
-            </div>
+        {/* Plan parsing / save banner */}
+        {planContent && (
+          <div className="max-w-3xl mx-auto w-full px-4 pb-1">
+            {isParsingPlan ? (
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-purple-200/60 dark:border-purple-500/20 bg-purple-50/60 dark:bg-purple-500/5">
+                <Loader2 className="h-4 w-4 text-purple-500 animate-spin" />
+                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">
+                  {t("chat.parsingPlan")}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-xl border border-purple-200/60 dark:border-purple-500/20 bg-purple-50/60 dark:bg-purple-500/5">
+                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">
+                  {parsedPlanData ? t("chat.planReady") : t("chat.planParseFailed")}
+                </span>
+                <Button
+                  onClick={() => handleGeneratePlan()}
+                  size="sm"
+                  disabled={!parsedPlanData}
+                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs h-8 disabled:opacity-50"
+                >
+                  {t("chat.saveToMyPlan")}
+                </Button>
+              </div>
+            )}
           </div>
-        ) : generatedPlanId ? (
-          <div className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-4">
-            <div className="max-w-md mx-auto flex gap-2">
-              <Link href={`/plan/${generatedPlanId}`} className="flex-1 inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-                {t("chat.viewPlan")}
-              </Link>
-              <Link href="/today" className="flex-1 inline-flex items-center justify-center rounded-lg border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-                {t("chat.goCheckin")}
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <ChatInput onSend={handleSend} isStreaming={isStreaming} />
         )}
+
+        {/* Input */}
+        <ChatInput onSend={handleSend} isStreaming={isStreaming} />
       </div>
     </div>
   )
