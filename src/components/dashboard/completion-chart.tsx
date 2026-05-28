@@ -64,7 +64,7 @@ export function CompletionChart({
                 color: "#e4e4e7",
               }}
               formatter={(value: unknown) => [`${prefix}${value}${suffix}`, ""]}
-              labelFormatter={(label: unknown) => `日期: ${label}`}
+              labelFormatter={(label: unknown) => `${label}`}
             />
             <Area
               type="monotone"

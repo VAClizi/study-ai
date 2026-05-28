@@ -5,6 +5,7 @@ import type { ChatMessage } from "@/types/chat"
 import { ChatBubble } from "./chat-bubble"
 import { AIThinkingSteps } from "./ai-thinking-steps"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useT } from "@/lib/i18n"
 
 interface ChatMessagesProps {
   messages: ChatMessage[]
@@ -15,6 +16,7 @@ interface ChatMessagesProps {
 
 export function ChatMessages({ messages, isStreaming, isThinking, planContent }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const t = useT()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -38,9 +40,9 @@ export function ChatMessages({ messages, isStreaming, isThinking, planContent }:
                 <span className="text-purple-500 dark:text-purple-400 text-lg">?</span>
               </div>
             </div>
-            <h3 className="text-lg font-medium text-zinc-600 dark:text-zinc-300 mb-2">开始对话</h3>
+            <h3 className="text-lg font-medium text-zinc-600 dark:text-zinc-300 mb-2">{t("chat.startConversation")}</h3>
             <p className="text-sm text-zinc-400 dark:text-zinc-500 max-w-sm">
-              输入任何学习相关的问题，AI 教练会为你提供个性化的指导和建议。
+              {t("chat.emptyHint")}
             </p>
           </div>
         ) : (

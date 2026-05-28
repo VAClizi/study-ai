@@ -18,16 +18,18 @@ import {
 import { Menu, X, LayoutDashboard, CalendarCheck, ClipboardList, MessageSquare, Settings, LogOut, LogIn, ChevronRight } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/cn"
+import { useT } from "@/lib/i18n"
 
-const navItems = [
-  { href: "/chat", label: "AI 规划", icon: MessageSquare },
-  { href: "/plans", label: "我的计划", icon: ClipboardList },
-  { href: "/today", label: "今日任务", icon: CalendarCheck },
-  { href: "/dashboard", label: "数据面板", icon: LayoutDashboard },
+const navItemKeys = [
+  { href: "/chat", i18nKey: "nav.aiPlan", icon: MessageSquare },
+  { href: "/plans", i18nKey: "nav.myPlans", icon: ClipboardList },
+  { href: "/today", i18nKey: "nav.todayTasks", icon: CalendarCheck },
+  { href: "/dashboard", i18nKey: "nav.dashboard", icon: LayoutDashboard },
 ]
 
 export function Navbar() {
   const pathname = usePathname()
+  const t = useT()
   const { user, isAuthenticated, logout } = useAuthStore()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -39,8 +41,8 @@ export function Navbar() {
           <Logo size="sm" />
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="主导航">
-            {navItems.map((item) => (
+          <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label={t("nav.desktopNav")}>
+            {navItemKeys.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -52,7 +54,7 @@ export function Navbar() {
                 )}
               >
                 <item.icon className="h-3.5 w-3.5" />
-                {item.label}
+                {t(item.i18nKey)}
               </Link>
             ))}
           </nav>
@@ -65,7 +67,7 @@ export function Navbar() {
               <Link
                 href="/settings"
                 className="w-9 h-9 rounded-lg flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                title="设置"
+                title={t("nav.settings")}
               >
                 <Settings className="h-4 w-4" />
               </Link>
@@ -90,12 +92,12 @@ export function Navbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem render={<Link href="/settings" />}>
                     <Settings className="mr-2 h-4 w-4" />
-                    设置
+                    {t("nav.settings")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()} className="text-red-400 cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    退出登录
+                    {t("nav.logout")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -105,7 +107,7 @@ export function Navbar() {
                 className="inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium h-7 px-2.5 transition-all"
               >
                 <LogIn className="h-3.5 w-3.5" />
-                登录
+                {t("nav.login")}
               </Link>
             )}
 
@@ -125,8 +127,8 @@ export function Navbar() {
       {/* Mobile Nav */}
       {mobileOpen && (
         <div className="md:hidden border-t border-black/[0.04] dark:border-white/[0.04] bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-xl">
-          <nav className="px-4 py-3 space-y-1" role="navigation" aria-label="移动端导航">
-            {navItems.map((item) => (
+          <nav className="px-4 py-3 space-y-1" role="navigation" aria-label={t("nav.mobileNav")}>
+            {navItemKeys.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -140,7 +142,7 @@ export function Navbar() {
               >
                 <span className="flex items-center gap-2">
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  {t(item.i18nKey)}
                 </span>
                 <ChevronRight className="h-4 w-4" />
               </Link>
@@ -152,7 +154,7 @@ export function Navbar() {
             >
               <span className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                设置
+                {t("nav.settings")}
               </span>
               <ChevronRight className="h-4 w-4" />
             </Link>

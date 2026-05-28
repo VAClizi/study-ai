@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/cn"
 import { CheckCircle2, Circle, Clock } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface PlanTimelineProps {
   stages: Stage[]
@@ -12,6 +13,7 @@ interface PlanTimelineProps {
 }
 
 export function PlanTimeline({ stages, currentDayNumber = 1 }: PlanTimelineProps) {
+  const t = useT()
   return (
     <div className="relative">
       {/* Vertical line */}
@@ -49,14 +51,14 @@ export function PlanTimeline({ stages, currentDayNumber = 1 }: PlanTimelineProps
                     <Badge className={cn(
                       isPast ? "bg-green-600/20 text-green-400" : isCurrentStage ? "bg-purple-600/20 text-purple-600 dark:text-purple-300" : "bg-black/5 dark:bg-white/5 text-zinc-400 dark:text-zinc-500"
                     )}>
-                      {isPast ? "已完成" : isCurrentStage ? "进行中" : "待开始"}
+                      {isPast ? t("plans.completed") : isCurrentStage ? t("plans.active") : t("plans.paused")}
                     </Badge>
                   </div>
 
                   <div className="flex items-center gap-4 text-sm text-zinc-400 dark:text-zinc-500">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
-                      {stage.durationWeeks} 周
+                      {stage.durationWeeks} {t("planDetail.weeks")}
                     </span>
                     <span>{stage.goal}</span>
                   </div>

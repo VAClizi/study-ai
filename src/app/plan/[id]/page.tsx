@@ -15,22 +15,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, BookOpen, Calendar, Target, BarChart3, Lightbulb } from "lucide-react"
 import Link from "next/link"
+import { useT, useTF } from "@/lib/i18n"
 
 export default function PlanDetailPage() {
   const params = useParams()
   const planId = params.id as string
   const { isAuthenticated } = useAuthStore()
   const { currentPlan, isLoading, toggleTask } = usePlan(planId)
+  const t = useT()
+  const tf = useTF()
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
         <EmptyState
-          title="请先登录"
-          description="登录后查看你的学习计划"
+          title={t("common.pleaseLogin")}
+          description={t("common.loginToView")}
           action={
             <Link href="/login" className="inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-              去登录
+              {t("common.goLogin")}
             </Link>
           }
         />
@@ -41,7 +44,7 @@ export default function PlanDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
-        <LoadingSpinner size="lg" text="加载学习计划..." />
+        <LoadingSpinner size="lg" text={t("planDetail.loadingPlan")} />
       </div>
     )
   }
@@ -50,11 +53,11 @@ export default function PlanDetailPage() {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
         <EmptyState
-          title="计划不存在"
-          description="找不到这个学习计划，它可能已被删除。"
+          title={t("planDetail.planNotFound")}
+          description={t("planDetail.planNotFoundDesc")}
           action={
             <Link href="/chat" className="inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-              创建新计划
+              {t("planDetail.createNewPlan")}
             </Link>
           }
         />
@@ -83,10 +86,10 @@ export default function PlanDetailPage() {
     totalDays
   )
 
-  const statusMap: Record<string, { label: string; className: string }> = {
-    active: { label: "进行中", className: "bg-green-600/20 text-green-400" },
-    completed: { label: "已完成", className: "bg-blue-600/20 text-blue-400" },
-    paused: { label: "已暂停", className: "bg-zinc-600/20 text-zinc-400" },
+  const statusMap: Record<string, { labelKey: string; className: string }> = {
+    active: { labelKey: "planDetail.active", className: "bg-green-600/20 text-green-400" },
+    completed: { labelKey: "planDetail.completed", className: "bg-blue-600/20 text-blue-400" },
+    paused: { labelKey: "planDetail.paused", className: "bg-zinc-600/20 text-zinc-400" },
   }
   const statusInfo = statusMap[currentPlan.status] || statusMap.active
 
@@ -100,15 +103,15 @@ export default function PlanDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <Badge className={currentPlan.mode === "quick" ? "bg-blue-600/20 text-blue-400" : "bg-purple-600/20 text-purple-600 dark:text-purple-300"}>
-              {currentPlan.mode === "quick" ? "快速定制" : "深度规划"}
+              {currentPlan.mode === "quick" ? t("planDetail.quickMode") : t("planDetail.detailedMode")}
             </Badge>
-            <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
+            <Badge className={statusInfo.className}>{t(statusInfo.labelKey)}</Badge>
           </div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{currentPlan.title}</h1>
         </div>
         <div className="flex gap-2">
           <Link href="/today" className="inline-flex items-center justify-center rounded-lg border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium h-8 px-3 py-1 transition-all">
-            今日打卡
+            {t("planDetail.todayCheckin")}
           </Link>
         </div>
       </div>
@@ -119,7 +122,7 @@ export default function PlanDetailPage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Target className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">学习目标</span>
+              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">{t("planDetail.goal")}</span>
             </div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{currentPlan.goal.title}</p>
           </CardContent>
@@ -128,18 +131,18 @@ export default function PlanDetailPage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">课程周期</span>
+              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">{t("planDetail.duration")}</span>
             </div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{currentPlan.stages.length} 个阶段 · {totalDays} 天</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{tf("planDetail.stagesFormat", { stages: currentPlan.stages.length, days: totalDays })}</p>
           </CardContent>
         </Card>
         <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">科学理论</span>
+              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">{t("planDetail.theory")}</span>
             </div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{currentPlan.theories.length} 项理论支撑</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{tf("planDetail.theoryCount", { count: currentPlan.theories.length })}</p>
           </CardContent>
         </Card>
       </div>
@@ -157,11 +160,11 @@ export default function PlanDetailPage() {
         <TabsList className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.04]">
           <TabsTrigger value="timeline" className="data-[state=active]:bg-black/[0.06] dark:data-[state=active]:bg-white/[0.06] gap-1.5">
             <BarChart3 className="h-3.5 w-3.5" />
-            阶段规划
+            {t("planDetail.timeline")}
           </TabsTrigger>
           <TabsTrigger value="theory" className="data-[state=active]:bg-black/[0.06] dark:data-[state=active]:bg-white/[0.06] gap-1.5">
             <Lightbulb className="h-3.5 w-3.5" />
-            科学依据
+            {t("planDetail.scientificBasis")}
           </TabsTrigger>
         </TabsList>
 
@@ -173,7 +176,7 @@ export default function PlanDetailPage() {
             stage.weeks.map((week) => (
               <div key={`${stage.id}-${week.weekNumber}`} className="space-y-3">
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-                  第 {week.weekNumber} 周
+                  {tf("planDetail.weekNum", { num: week.weekNumber })}
                   <Badge className="bg-black/5 dark:bg-white/5 text-zinc-400 dark:text-zinc-500 text-xs font-normal">
                     {week.goal}
                   </Badge>
@@ -185,7 +188,7 @@ export default function PlanDetailPage() {
                         <CardTitle className="text-sm text-zinc-900 dark:text-white flex items-center justify-between">
                           Day {day.dayNumber}
                           <Badge className="bg-black/5 dark:bg-white/5 text-zinc-400 dark:text-zinc-500 text-[10px]">
-                            {day.totalMinutes} 分钟
+                            {day.totalMinutes} {t("planDetail.minutes")}
                           </Badge>
                         </CardTitle>
                       </CardHeader>

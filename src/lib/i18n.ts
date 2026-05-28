@@ -5,13 +5,18 @@ type TranslationMap = Record<string, Record<Language, string>>
 const translations: TranslationMap = {
   // 导航
   "nav.aiPlan": { "zh-CN": "AI 规划", en: "AI Plan" },
+  "nav.myPlans": { "zh-CN": "我的计划", en: "My Plans" },
   "nav.todayTasks": { "zh-CN": "今日任务", en: "Today" },
   "nav.dashboard": { "zh-CN": "数据面板", en: "Dashboard" },
   "nav.settings": { "zh-CN": "设置", en: "Settings" },
   "nav.login": { "zh-CN": "登录", en: "Login" },
+  "nav.logout": { "zh-CN": "退出登录", en: "Log Out" },
+  "nav.mobileNav": { "zh-CN": "移动端导航", en: "Mobile Navigation" },
+  "nav.desktopNav": { "zh-CN": "主导航", en: "Main Navigation" },
 
   // 首页
   "home.aiCoach": { "zh-CN": "AI 自律成长教练", en: "AI Discipline Coach" },
+  "home.your": { "zh-CN": "你的 ", en: "Your " },
   "home.subtitle": { "zh-CN": "通过认知科学与 AI 技术的融合，为你打造高度个性化、科学化的学习计划。", en: "Fusing cognitive science with AI to create highly personalized, scientifically-backed learning plans." },
   "home.subtitle2": { "zh-CN": "科学规划，而不是盲目努力。", en: "Plan scientifically, not blindly." },
   "home.startPlan": { "zh-CN": "开始规划", en: "Start Planning" },
@@ -45,6 +50,11 @@ const translations: TranslationMap = {
   "home.realTimeAdjust": { "zh-CN": "实时动态调整", en: "Real-time Adjustment" },
   "home.growthPreview": { "zh-CN": "你的成长概览", en: "Your Growth Preview" },
   "home.loginToView": { "zh-CN": "登录后可查看你的学习数据", en: "Log in to view your learning data" },
+  "home.returnHome": { "zh-CN": "返回首页", en: "Back to Home" },
+  "home.aiQuickChat": { "zh-CN": "AI 快速对话", en: "Quick AI Chat" },
+  "home.fullFeatures": { "zh-CN": "完整功能", en: "Full Features" },
+  "home.activating": { "zh-CN": "AI 正在激活...", en: "AI is activating..." },
+  "home.activatingDesc": { "zh-CN": "准备为你提供个性化学习指导", en: "Preparing personalized learning guidance" },
 
   // 登录
   "login.welcomeBack": { "zh-CN": "欢迎回来", en: "Welcome Back" },
@@ -56,9 +66,15 @@ const translations: TranslationMap = {
   "login.username": { "zh-CN": "用户名", en: "Username" },
   "login.email": { "zh-CN": "邮箱", en: "Email" },
   "login.password": { "zh-CN": "密码", en: "Password" },
-  "login.demoNote": { "zh-CN": "演示模式（随便输入即可登录）", en: "Demo mode (enter anything to login)" },
+  "login.namePlaceholder": { "zh-CN": "你的名字", en: "Your name" },
+  "login.emailPlaceholder": { "zh-CN": "your@email.com", en: "your@email.com" },
+  "login.passwordPlaceholder": { "zh-CN": "••••••••", en: "••••••••" },
   "login.googleLogin": { "zh-CN": "使用 Google 登录", en: "Sign in with Google" },
+  "login.orContinue": { "zh-CN": "或使用以下方式继续", en: "Or continue with" },
   "login.agreeTerms": { "zh-CN": "即表示同意我们的服务条款和隐私政策", en: "you agree to our Terms of Service and Privacy Policy" },
+  "login.clickAgree": { "zh-CN": "点击 {action} 即表示同意我们的服务条款和隐私政策", en: "By clicking {action}, you agree to our Terms of Service and Privacy Policy" },
+  "login.loginFailed": { "zh-CN": "登录失败，请稍后再试。", en: "Login failed, please try again." },
+  "login.googleFailed": { "zh-CN": "Google 登录失败", en: "Google login failed" },
 
   // 聊天
   "chat.startPlan": { "zh-CN": "开始 AI 规划", en: "Start AI Planning" },
@@ -74,7 +90,7 @@ const translations: TranslationMap = {
   "chat.goCheckin": { "zh-CN": "去打卡", en: "Check In" },
   "chat.loading": { "zh-CN": "加载中...", en: "Loading..." },
   "chat.startConversation": { "zh-CN": "开始对话", en: "Start Conversation" },
-  "chat.emptyHint": { "zh-CN": "选择规划模式后，AI 会引导你完成一系列问题，然后生成专属于你的学习计划。", en: "After selecting a planning mode, AI will guide you through questions and generate your personalized learning plan." },
+  "chat.emptyHint": { "zh-CN": "输入任何学习相关的问题，AI 教练会为你提供指导", en: "Ask any study-related question, and the AI coach will guide you" },
   "chat.enterYourAnswer": { "zh-CN": "输入你的回答...", en: "Type your answer..." },
   "chat.enterSend": { "zh-CN": "Enter 发送 · Shift + Enter 换行", en: "Enter to send · Shift + Enter for new line" },
   "chat.selectMode": { "zh-CN": "选择规划模式", en: "Select Planning Mode" },
@@ -82,13 +98,18 @@ const translations: TranslationMap = {
   "chat.selectModeDesc": { "zh-CN": "选择一种模式，AI 将引导你完成规划", en: "Choose a mode and AI will guide you through the planning" },
   "chat.selectQuick": { "zh-CN": "选择快速定制", en: "Choose Quick" },
   "chat.selectDetailed": { "zh-CN": "选择深度规划", en: "Choose Deep Plan" },
+  "chat.planSummaryTitle": { "zh-CN": "学习计划已生成", en: "Learning Plan Generated" },
+  "chat.planSummaryDesc": { "zh-CN": "AI 已根据你的需求生成了一份详细的学习计划。", en: "AI has generated a detailed learning plan based on your needs." },
+  "chat.scrollUp": { "zh-CN": "向上滚动查看", en: "Scroll up to view" },
+  "chat.learningPlan": { "zh-CN": "学习计划", en: "Learning Plan" },
+  "chat.modules": { "zh-CN": "个模块", en: "modules" },
 
   // 今日任务
   "today.title": { "zh-CN": "今日任务", en: "Today's Tasks" },
   "today.completed": { "zh-CN": "今日已完成", en: "Today Completed" },
   "today.checkedIn": { "zh-CN": "已打卡", en: "Checked In" },
-  "today.streakDays": { "zh-CN": "连续学习", en: "Streak" },
-  "today.days": { "zh-CN": "天", en: "days" },
+  "today.streakDays": { "zh-CN": "连续学习 {days} 天", en: "{days} days streak" },
+  "today.days": { "zh-CN": "天", en: "d" },
   "today.completeCheckin": { "zh-CN": "完成今日打卡", en: "Complete Check-in" },
   "today.noPlan": { "zh-CN": "还没有学习计划", en: "No Learning Plan Yet" },
   "today.noPlanDesc": { "zh-CN": "先和 AI 对话，生成你的第一份学习计划吧", en: "Chat with AI to generate your first learning plan" },
@@ -98,9 +119,6 @@ const translations: TranslationMap = {
   "today.aiCoachTip": { "zh-CN": "AI 教练提示", en: "AI Coach Tip" },
   "today.coachMessage": { "zh-CN": "今天的任务由易到难排列。先完成简单的建立信心，再攻克难关。根据认知科学，早晨完成最困难的任务效果最好。", en: "Today's tasks are ordered from easy to hard. Build confidence with simple tasks first, then tackle the difficult ones. Research shows morning is best for challenging work." },
   "today.aiCoachMessage": { "zh-CN": "AI 教练有话对你说：", en: "Your AI coach has a message:" },
-  "today.streakEncouragement": { "zh-CN": "你已经连续坚持了", en: "You've been consistent for" },
-  "today.streakEncouragement2": { "zh-CN": "天！习惯正在形成，继续保持！", en: "days! Habits are forming, keep it up!" },
-  "today.tomorrowEncouragement": { "zh-CN": "今天的努力是你明天的基础，明天继续加油！", en: "Today's effort is tomorrow's foundation. Keep going!" },
   "today.viewDashboard": { "zh-CN": "查看数据面板", en: "View Dashboard" },
   "today.viewFullPlan": { "zh-CN": "查看完整计划", en: "View Full Plan" },
 
@@ -109,6 +127,7 @@ const translations: TranslationMap = {
   "plan.notFoundDesc": { "zh-CN": "找不到这个学习计划，它可能已被删除。", en: "This learning plan could not be found. It may have been deleted." },
   "plan.createNew": { "zh-CN": "创建新计划", en: "Create New Plan" },
   "plan.active": { "zh-CN": "进行中", en: "Active" },
+  "plan.paused": { "zh-CN": "已暂停", en: "Paused" },
   "plan.learningGoal": { "zh-CN": "学习目标", en: "Learning Goal" },
   "plan.courseDuration": { "zh-CN": "课程周期", en: "Course Duration" },
   "plan.scienceTheory": { "zh-CN": "科学理论", en: "Scientific Theory" },
@@ -116,7 +135,8 @@ const translations: TranslationMap = {
   "plan.todayCheckin": { "zh-CN": "今日打卡", en: "Check In" },
   "plan.phasePlan": { "zh-CN": "阶段规划", en: "Phase Plan" },
   "plan.scienceBasis": { "zh-CN": "科学依据", en: "Scientific Basis" },
-  "plan.week": { "zh-CN": "周", en: "Week" },
+  "plan.week": { "zh-CN": "周", en: "Wk" },
+  "plan.weekFormat": { "zh-CN": "第 {n} 周", en: "Week {n}" },
   "plan.minutes": { "zh-CN": "分钟", en: "min" },
   "plan.completed": { "zh-CN": "已完成", en: "Completed" },
   "plan.inProgress": { "zh-CN": "进行中", en: "In Progress" },
@@ -124,6 +144,51 @@ const translations: TranslationMap = {
   "plan.aiBasis": { "zh-CN": "AI 规划依据", en: "AI Planning Basis" },
   "plan.theoryCount": { "zh-CN": "项科学理论", en: "Scientific Theories" },
   "plan.theoryDesc": { "zh-CN": "这个学习计划参考了以下科学理论，每个安排都有据可依：", en: "This learning plan references the following scientific theories — every arrangement has a basis:" },
+  "plan.loadingPlan": { "zh-CN": "加载学习计划...", en: "Loading plan..." },
+  "plan.days": { "zh-CN": "天", en: "days" },
+  "plan.totalDays": { "zh-CN": "天", en: "days" },
+  "plan.stages": { "zh-CN": "个阶段", en: "stages" },
+
+  // 计划详情
+  "planDetail.quickMode": { "zh-CN": "快速定制", en: "Quick Customize" },
+  "planDetail.detailedMode": { "zh-CN": "深度规划", en: "Deep Plan" },
+  "planDetail.active": { "zh-CN": "进行中", en: "Active" },
+  "planDetail.completed": { "zh-CN": "已完成", en: "Completed" },
+  "planDetail.paused": { "zh-CN": "已暂停", en: "Paused" },
+  "planDetail.todayCheckin": { "zh-CN": "今日打卡", en: "Check In" },
+  "planDetail.goal": { "zh-CN": "学习目标", en: "Learning Goal" },
+  "planDetail.duration": { "zh-CN": "课程周期", en: "Duration" },
+  "planDetail.stagesFormat": { "zh-CN": "{stages} 个阶段 · {days} 天", en: "{stages} stages · {days} days" },
+  "planDetail.theory": { "zh-CN": "科学理论", en: "Scientific Theory" },
+  "planDetail.theoryCount": { "zh-CN": "{count} 项理论支撑", en: "{count} theories" },
+  "planDetail.timeline": { "zh-CN": "阶段规划", en: "Timeline" },
+  "planDetail.scientificBasis": { "zh-CN": "科学依据", en: "Scientific Basis" },
+  "planDetail.weekNum": { "zh-CN": "第 {num} 周", en: "Week {num}" },
+  "planDetail.weeks": { "zh-CN": "周", en: "wks" },
+  "planDetail.minutes": { "zh-CN": "分钟", en: "min" },
+  "planDetail.planNotFound": { "zh-CN": "计划不存在", en: "Plan Not Found" },
+  "planDetail.planNotFoundDesc": { "zh-CN": "找不到这个学习计划，它可能已被删除。", en: "This learning plan cannot be found. It may have been deleted." },
+  "planDetail.createNewPlan": { "zh-CN": "创建新计划", en: "Create New Plan" },
+  "planDetail.loadingPlan": { "zh-CN": "加载学习计划...", en: "Loading plan..." },
+
+  // 计划列表
+  "plans.title": { "zh-CN": "我的计划", en: "My Plans" },
+  "plans.subtitle": { "zh-CN": "你的 AI 生成学习计划", en: "Your AI-generated learning plans" },
+  "plans.loading": { "zh-CN": "加载计划...", en: "Loading plans..." },
+  "plans.quickMode": { "zh-CN": "快速定制", en: "Quick Customize" },
+  "plans.detailedMode": { "zh-CN": "深度规划", en: "Deep Plan" },
+  "plans.active": { "zh-CN": "进行中", en: "Active" },
+  "plans.completed": { "zh-CN": "已完成", en: "Completed" },
+  "plans.paused": { "zh-CN": "已暂停", en: "Paused" },
+  "plans.expired": { "zh-CN": "对话已过期", en: "Conversation expired" },
+  "plans.continueChat": { "zh-CN": "继续对话", en: "Continue Chat" },
+  "plans.viewPlan": { "zh-CN": "查看计划", en: "View Plan" },
+  "plans.noPlans": { "zh-CN": "还没有学习计划", en: "No Learning Plans Yet" },
+  "plans.noPlansDesc": { "zh-CN": "和 AI 对话，生成你的第一份学习计划", en: "Chat with AI to create your first learning plan" },
+  "plans.startPlan": { "zh-CN": "开始 AI 规划", en: "Start AI Planning" },
+  "plans.tasks": { "zh-CN": "任务", en: "tasks" },
+  "plans.days": { "zh-CN": "天", en: "d" },
+  "plans.completion": { "zh-CN": "完成", en: "Done" },
 
   // 仪表盘
   "dashboard.title": { "zh-CN": "成长数据", en: "Growth Data" },
@@ -131,22 +196,27 @@ const translations: TranslationMap = {
   "dashboard.currentStreak": { "zh-CN": "当前连续天数", en: "Current Streak" },
   "dashboard.longestStreak": { "zh-CN": "最长连续记录", en: "Longest Streak" },
   "dashboard.totalDays": { "zh-CN": "累计学习天数", en: "Total Study Days" },
-  "dashboard.totalHours": { "zh-CN": "总学习时长", en: "Total Study Time" },
+  "dashboard.totalHours": { "zh-CN": "总学习时长", en: "Total Hours" },
   "dashboard.avgCompletion": { "zh-CN": "平均完成率", en: "Avg Completion" },
   "dashboard.avgFocus": { "zh-CN": "平均专注度", en: "Avg Focus" },
   "dashboard.aiRating": { "zh-CN": "AI 综合评分", en: "AI Rating" },
   "dashboard.aiEvaluation": { "zh-CN": "AI 综合评估", en: "AI Evaluation" },
-  "dashboard.evaluationText": { "zh-CN": "根据你过去", en: "Based on your" },
-  "dashboard.evaluationText2": { "zh-CN": "天的学习数据，你的学习习惯正在稳步建立。", en: "days of learning data, your study habits are steadily forming." },
-  "dashboard.currentStreakDays": { "zh-CN": "当前连续打卡", en: "Current streak:" },
-  "dashboard.avgCompletionRate": { "zh-CN": "平均完成率", en: "Avg completion rate:" },
+  "dashboard.generatingInsight": { "zh-CN": "正在生成个性化分析...", en: "Generating personalized insights..." },
   "dashboard.highCompletion": { "zh-CN": "你的完成率很高，可以考虑适当增加学习难度。", en: "Your completion rate is high — consider increasing difficulty." },
   "dashboard.midCompletion": { "zh-CN": "你的完成率不错，保持现有节奏，重点提升学习深度。", en: "Good completion rate. Maintain your rhythm and focus on depth." },
   "dashboard.lowCompletion": { "zh-CN": "建议关注任务完成质量而非数量，适当降低单日任务量。", en: "Focus on quality over quantity. Consider reducing daily tasks." },
   "dashboard.noPlan": { "zh-CN": "还没有学习计划，先创建一个吧", en: "No learning plan yet. Create one!" },
-  "dashboard.weeklyCompletion": { "zh-CN": "周完成率趋势", en: "Weekly Completion Trend" },
-  "dashboard.monthlyHours": { "zh-CN": "月度学习时长趋势", en: "Monthly Study Hours Trend" },
-  "dashboard.focus7Days": { "zh-CN": "专注度趋势（近7天）", en: "Focus Trend (Last 7 Days)" },
+  "dashboard.startPlan": { "zh-CN": "开始 AI 规划", en: "Start AI Planning" },
+  "dashboard.weeklyCompletion": { "zh-CN": "周完成率趋势", en: "Weekly Completion" },
+  "dashboard.monthlyHours": { "zh-CN": "月度学习时长趋势", en: "Monthly Study Hours" },
+  "dashboard.focus7Days": { "zh-CN": "专注度趋势（近7天）", en: "Focus (7 Days)" },
+  "dashboard.date": { "zh-CN": "日期", en: "Date" },
+  "dashboard.focus": { "zh-CN": "专注度", en: "Focus" },
+  "dashboard.loadingData": { "zh-CN": "加载数据面板...", en: "Loading dashboard..." },
+  "dashboard.understanding": { "zh-CN": "对你的了解", en: "Understanding of You" },
+  "dashboard.memoriesCount": { "zh-CN": "基于对话提取的 {count} 条记忆", en: "Based on {count} memories from conversations" },
+  "dashboard.confidence": { "zh-CN": "置信度", en: "Confidence" },
+  "dashboard.minutes": { "zh-CN": " 分钟", en: " min" },
 
   // 设置
   "settings.title": { "zh-CN": "设置", en: "Settings" },
@@ -166,9 +236,14 @@ const translations: TranslationMap = {
   "settings.chinese": { "zh-CN": "中文（简体）", en: "Chinese (Simplified)" },
   "settings.english": { "zh-CN": "English", en: "English" },
   "settings.weeklyGoal": { "zh-CN": "每周学习目标", en: "Weekly Study Goal" },
-  "settings.weeklyGoalDesc": { "zh-CN": "20 小时", en: "20 hours" },
-  "settings.aiCoachMode": { "zh-CN": "AI 教练模式", en: "AI Coach Mode" },
-  "settings.aiCoachModeDesc": { "zh-CN": "主动模式（AI会主动提醒和鼓励）", en: "Active mode (AI proactively reminds and encourages)" },
+  "settings.weeklyGoalDesc": { "zh-CN": "设定每周学习时长目标", en: "Set your weekly study time goal" },
+  "settings.hoursPerWeek": { "zh-CN": "小时/周", en: "hrs/wk" },
+  "settings.aiCoachPersona": { "zh-CN": "AI 教练人格", en: "AI Coach Persona" },
+  "settings.aiCoachPersonaDesc": { "zh-CN": "选择与你最匹配的 AI 教练风格", en: "Choose the AI coach style that fits you best" },
+  "settings.current": { "zh-CN": "当前", en: "Current" },
+  "settings.aiMemory": { "zh-CN": "AI 记忆管理", en: "AI Memory" },
+  "settings.aiMemoryDesc": { "zh-CN": "AI 对你的了解都存储在这里。清除记忆会让 AI 忘记你的学习偏好和历史。", en: "Everything AI knows about you is stored here. Clearing memories will reset AI's understanding of your preferences and history." },
+  "settings.clearMemory": { "zh-CN": "清除所有 AI 记忆", en: "Clear All AI Memories" },
   "settings.dangerZone": { "zh-CN": "危险操作", en: "Danger Zone" },
   "settings.logout": { "zh-CN": "退出登录", en: "Log Out" },
   "settings.saveChanges": { "zh-CN": "保存修改", en: "Save Changes" },
@@ -176,21 +251,218 @@ const translations: TranslationMap = {
   "settings.loginPrompt": { "zh-CN": "请先登录", en: "Please Login First" },
   "settings.loginPromptDesc": { "zh-CN": "登录后进行设置", en: "Log in to access settings" },
 
+  // 模式选择器
+  "mode.coachTitle": { "zh-CN": "选择你的 AI 教练", en: "Choose Your AI Coach" },
+  "mode.coachDesc": { "zh-CN": "不同风格的教练将陪伴你的学习之旅", en: "Different coaching styles to accompany your learning journey" },
+  "mode.step1": { "zh-CN": "第 1 步", en: "Step 1" },
+  "mode.step2": { "zh-CN": "第 2 步", en: "Step 2" },
+  "mode.nextStep": { "zh-CN": "下一步", en: "Next Step" },
+  "mode.backToCoach": { "zh-CN": "返回选择教练", en: "Back to Coach" },
+  "mode.step2Title": { "zh-CN": "选择规划模式", en: "Choose Planning Mode" },
+  "mode.step2Desc": { "zh-CN": "你的 AI 教练已就位，选择一种规划方式开始对话", en: "Your AI coach is ready. Choose a planning mode to start" },
+  "mode.selectQuick": { "zh-CN": "选择快速定制", en: "Choose Quick" },
+  "mode.selectDetailed": { "zh-CN": "选择深度规划", en: "Choose Deep Plan" },
+  "mode.currentCoach": { "zh-CN": "当前教练：{icon} {name}", en: "Current Coach: {icon} {name}" },
+  "mode.quickDesc1": { "zh-CN": "聚焦核心目标", en: "Focus on core goals" },
+  "mode.quickDesc2": { "zh-CN": "快速梳理需求", en: "Quickly sort out needs" },
+  "mode.quickDesc3": { "zh-CN": "即刻生成学习计划", en: "Generate learning plan instantly" },
+  "mode.detailedDesc1": { "zh-CN": "全方位分析学习模式", en: "Analyze learning patterns comprehensively" },
+  "mode.detailedDesc2": { "zh-CN": "深度挖掘潜在需求", en: "Deep-dive into potential needs" },
+  "mode.detailedDesc3": { "zh-CN": "更科学更个性化", en: "More scientific & personalized" },
+  "mode.step1Label": { "zh-CN": "第一步：选择教练风格", en: "Step 1: Choose Coach Style" },
+  "mode.step2Label": { "zh-CN": "第二步：选择规划模式", en: "Step 2: Choose Planning Mode" },
+
+  // 计划分区
+  "planSection.learningPlan": { "zh-CN": "学习计划", en: "Learning Plan" },
+  "planSection.modules": { "zh-CN": "{count} 个模块", en: "{count} modules" },
+
+  // 聊天气泡
+  "chatBubble.planGenerated": { "zh-CN": "学习计划已生成", en: "Learning Plan Generated" },
+  "chatBubble.aiPersonalizedPlan": { "zh-CN": "AI 已根据你的情况完成个性化计划", en: "AI has completed a personalized plan for you" },
+  "chatBubble.planDetailsHint": { "zh-CN": "详细计划已展示在页面顶部的「学习计划」分区中，包含阶段规划、每周安排、理论依据和实用建议。", en: "The detailed plan is displayed in the \"Learning Plan\" section at the top, including phases, weekly schedules, theory foundations, and practical tips." },
+  "chatBubble.scrollUpHint": { "zh-CN": "向上滚动查看", en: "Scroll up to view" },
+
+  // 聊天输入
+  "chatInput.placeholder": { "zh-CN": "输入你的回答...", en: "Type your answer..." },
+  "chatInput.keyboardHint": { "zh-CN": "Enter 发送 · Shift + Enter 换行", en: "Enter to send · Shift + Enter for new line" },
+
+  // 首页 Hero
+  "home.quickChat": { "zh-CN": "AI 快速对话", en: "AI Quick Chat" },
+
+  // 基础知识
+  "footer.tagline": { "zh-CN": "AI驱动的智能学习规划与自律成长平台。科学规划，而非盲目努力。", en: "AI-powered intelligent learning planning and discipline growth platform. Plan scientifically, not blindly." },
+  "footer.product": { "zh-CN": "产品", en: "Product" },
+  "footer.about": { "zh-CN": "关于", en: "About" },
+  "footer.aiPlan": { "zh-CN": "AI 规划", en: "AI Plan" },
+  "footer.myPlans": { "zh-CN": "我的计划", en: "My Plans" },
+  "footer.today": { "zh-CN": "今日任务", en: "Today" },
+  "footer.dashboard": { "zh-CN": "数据面板", en: "Dashboard" },
+  "footer.aboutUs": { "zh-CN": "关于我们", en: "About Us" },
+  "footer.terms": { "zh-CN": "服务条款", en: "Terms of Service" },
+  "footer.privacy": { "zh-CN": "隐私政策", en: "Privacy Policy" },
+  "footer.contact": { "zh-CN": "联系我们", en: "Contact Us" },
+
+  // 错误页面
+  "error.notFound": { "zh-CN": "页面不存在", en: "Page Not Found" },
+  "error.notFoundDesc": { "zh-CN": "你访问的页面不存在或已被移除。", en: "The page you're looking for doesn't exist or has been removed." },
+  "error.backHome": { "zh-CN": "返回首页", en: "Back to Home" },
+  "error.aiPlan": { "zh-CN": "AI 规划", en: "AI Plan" },
+  "error.somethingWrong": { "zh-CN": "出了点问题", en: "Something Went Wrong" },
+  "error.somethingWrongDesc": { "zh-CN": "请稍后再试。如果问题持续出现，请联系我们。", en: "Please try again later. If the problem persists, contact us." },
+  "error.retry": { "zh-CN": "重试", en: "Retry" },
+  "error.unexpectedError": { "zh-CN": "页面加载时发生了意外错误，请尝试刷新页面。", en: "An unexpected error occurred. Please try refreshing the page." },
+  "error.criticalError": { "zh-CN": "严重错误", en: "Critical Error" },
+  "error.criticalErrorDesc": { "zh-CN": "应用遇到了一个严重错误，请尝试刷新页面。如果问题持续，请联系我们。", en: "The application encountered a critical error. Please refresh the page. If the problem persists, contact us." },
+  "error.refresh": { "zh-CN": "刷新页面", en: "Refresh Page" },
+
+  // 理论面板
+  "theory.basis": { "zh-CN": "AI 规划依据", en: "AI Planning Basis" },
+  "theory.desc": { "zh-CN": "这个学习计划参考了以下科学理论，每个安排都有据可依：", en: "This learning plan is based on the following scientific theories. Every arrangement has evidence-based support:" },
+  "theory.application": { "zh-CN": "应用", en: "Application" },
+
+  // 签到
+  "checkin.aiReview": { "zh-CN": "AI 复盘", en: "AI Review" },
+  "checkin.dailyReview": { "zh-CN": "今日学习复盘", en: "Daily Learning Review" },
+  "checkin.helpingAI": { "zh-CN": "帮助 AI 更好地理解你的学习状态", en: "Help AI better understand your learning state" },
+  "checkin.focusQuestion": { "zh-CN": "今天的专注度如何？", en: "How was your focus today?" },
+  "checkin.cannotFocus": { "zh-CN": "无法集中", en: "Can't Focus" },
+  "checkin.optimalState": { "zh-CN": "状态极佳", en: "Optimal State" },
+  "checkin.adjustPlan": { "zh-CN": "明天需要 AI 调整计划吗？", en: "Should AI adjust the plan for tomorrow?" },
+  "checkin.complete": { "zh-CN": "完成复盘", en: "Complete Review" },
+  "checkin.generating": { "zh-CN": "生成中...", en: "Generating..." },
+  "checkin.enterAnswer": { "zh-CN": "请输入你的回答...", en: "Type your answer..." },
+  "checkin.summary": { "zh-CN": "总结与反思", en: "Summary & Reflection" },
+  "checkin.next": { "zh-CN": "下一步", en: "Next" },
+  "checkin.stuckPoints": { "zh-CN": "今天遇到了哪些困难或卡点？", en: "What difficulties or blockers did you encounter today?" },
+  "checkin.difficulties": { "zh-CN": "哪些内容理解起来比较困难？", en: "Which content was difficult to understand?" },
+  "checkin.tomorrowGoal": { "zh-CN": "明天你最想完成的一件事是什么？", en: "What's the one thing you most want to accomplish tomorrow?" },
+  "checkin.todayTasks": { "zh-CN": "今日任务", en: "Today's Tasks" },
+  "checkin.completionRate": { "zh-CN": "完成率", en: "Completion" },
+  "checkin.focusScore": { "zh-CN": "专注度", en: "Focus" },
+  "checkin.state": { "zh-CN": "状态", en: "State" },
+  "checkin.todaySummary": { "zh-CN": "今日总结", en: "Today's Summary" },
+  "checkin.checkedIn": { "zh-CN": "已打卡", en: "Checked In" },
+
+  // 进度条
+  "progress.overall": { "zh-CN": "总体进度", en: "Overall Progress" },
+  "progress.time": { "zh-CN": "时间进度", en: "Time Progress" },
+  "progress.taskComplete": { "zh-CN": "任务完成", en: "Task Completion" },
+
+  // 优先级与难度
+  "priority.high": { "zh-CN": "高优先", en: "High" },
+  "priority.medium": { "zh-CN": "中优先", en: "Medium" },
+  "priority.low": { "zh-CN": "低优先", en: "Low" },
+  "difficulty.easy": { "zh-CN": "简单", en: "Easy" },
+  "difficulty.medium": { "zh-CN": "中等", en: "Medium" },
+  "difficulty.hard": { "zh-CN": "困难", en: "Hard" },
+
+  // 成长预览
+  "growth.aiMemory": { "zh-CN": "AI 记忆", en: "AI Memory" },
+  "growth.aiObserving": { "zh-CN": "AI 观察", en: "AI Observations" },
+  "growth.basedOnData": { "zh-CN": "基于你的使用数据", en: "Based on your usage data" },
+  "growth.chatAboutThis": { "zh-CN": "和 AI 教练聊聊这些观察", en: "Discuss these observations with your AI coach" },
+  "growth.aiLearning": { "zh-CN": "AI 还在了解你...", en: "AI is still getting to know you..." },
+  "growth.startChat": { "zh-CN": "开始对话", en: "Start Chat" },
+  "growth.streakObservation": { "zh-CN": "连续 {days} 天坚持学习，习惯正在形成", en: "{days} consecutive days of learning — habits are forming" },
+
+  // 关于
+  "about.title": { "zh-CN": "关于我们", en: "About Us" },
+  "about.mission": { "zh-CN": "我们的使命", en: "Our Mission" },
+  "about.missionDesc": { "zh-CN": "StudyAI 致力于通过 AI 技术和认知科学，帮助每个人建立高效的学习习惯，实现自我成长。", en: "StudyAI is dedicated to helping everyone build effective learning habits and achieve self-growth through AI technology and cognitive science." },
+  "about.corePhilosophy": { "zh-CN": "核心哲学", en: "Core Philosophy" },
+  "about.scienceLearning": { "zh-CN": "科学学习", en: "Science-Based Learning" },
+  "about.scienceLearningDesc": { "zh-CN": "我们基于间隔重复、深度工作、刻意练习等认知科学理论构建学习系统，让你的每一分钟学习都有效。", en: "We build our learning system on cognitive science theories like spaced repetition, deep work, and deliberate practice — making every minute of learning count." },
+  "about.personalization": { "zh-CN": "AI 个性化", en: "AI Personalization" },
+  "about.personalizationDesc": { "zh-CN": "每个学习者都是独特的。我们的 AI 系统深入理解你的学习风格、知识背景和时间约束，生成真正适合你的计划。", en: "Every learner is unique. Our AI deeply understands your learning style, knowledge background, and time constraints to generate plans that truly fit you." },
+  "about.sustainability": { "zh-CN": "可持续发展", en: "Sustainability" },
+  "about.sustainabilityDesc": { "zh-CN": "我们不追求短期冲刺，而是帮你建立可长期坚持的学习节奏。小步前进，持续进步。", en: "We don't pursue short-term sprints. Instead, we help you build a sustainable learning rhythm. Small steps, consistent progress." },
+  "about.techDriven": { "zh-CN": "技术驱动", en: "Tech-Driven" },
+  "about.techDrivenDesc": { "zh-CN": "采用最新的大语言模型技术，结合精心设计的提示词系统，让 AI 教练真正理解你的需求并给出有效指导。", en: "Using the latest large language model technology with carefully designed prompt systems, our AI coach truly understands your needs and provides effective guidance." },
+  "about.contact": { "zh-CN": "联系我们", en: "Contact Us" },
+  "about.contactDesc": { "zh-CN": "如有任何问题或建议，欢迎通过以下方式联系我们：", en: "For any questions or suggestions, feel free to reach out:" },
+  "about.backHome": { "zh-CN": "返回首页", en: "Back to Home" },
+
+  // 服务条款
+  "terms.title": { "zh-CN": "服务条款", en: "Terms of Service" },
+  "terms.lastUpdated": { "zh-CN": "最后更新：2026年5月", en: "Last updated: May 2026" },
+  "terms.intro": { "zh-CN": "欢迎使用 StudyAI。使用本服务即表示您同意以下条款。请仔细阅读。", en: "Welcome to StudyAI. By using our service, you agree to the following terms. Please read carefully." },
+  "terms.serviceDesc": { "zh-CN": "服务说明", en: "Service Description" },
+  "terms.serviceDescText": { "zh-CN": "StudyAI 是一个基于 AI 的学习规划平台。我们利用人工智能技术为用户生成个性化的学习计划和建议。虽然我们努力提供高质量的指导，但学习成果最终取决于用户的执行和投入。", en: "StudyAI is an AI-powered learning planning platform. We use AI technology to generate personalized learning plans and suggestions. While we strive to provide high-quality guidance, learning outcomes ultimately depend on user execution and commitment." },
+  "terms.userAccount": { "zh-CN": "用户账户", en: "User Account" },
+  "terms.userAccountText": { "zh-CN": "您需要提供准确的注册信息并对其保密。您对账户下的所有活动负责。", en: "You must provide accurate registration information and keep it confidential. You are responsible for all activities under your account." },
+  "terms.useRestrictions": { "zh-CN": "使用限制", en: "Use Restrictions" },
+  "terms.useRestrictionsText": { "zh-CN": "您同意不会：(a) 将服务用于任何非法目的；(b) 尝试干扰或破坏服务；(c) 未经授权访问服务的任何部分。", en: "You agree not to: (a) use the service for any illegal purpose; (b) attempt to interfere with or disrupt the service; (c) access any part of the service without authorization." },
+  "terms.intellectualProperty": { "zh-CN": "知识产权", en: "Intellectual Property" },
+  "terms.intellectualPropertyText": { "zh-CN": "StudyAI 的名称、标志、界面设计和代码均为我们的知识产权。AI 生成的学习计划内容归用户所有。", en: "The StudyAI name, logo, interface design, and code are our intellectual property. AI-generated learning plan content belongs to the user." },
+  "terms.disclaimer": { "zh-CN": "免责声明", en: "Disclaimer" },
+  "terms.disclaimerText": { "zh-CN": "本服务按\"现状\"提供。我们不保证服务无中断、无错误。AI 生成的内容仅供参考，不应被视为专业教育建议。", en: "This service is provided \"as is\". We do not guarantee uninterrupted or error-free service. AI-generated content is for reference only and should not be considered professional educational advice." },
+  "terms.changes": { "zh-CN": "条款变更", en: "Terms Changes" },
+  "terms.changesText": { "zh-CN": "我们可能会不时更新这些条款。重大变更将通过网站通知或电子邮件告知。", en: "We may update these terms from time to time. Significant changes will be communicated via website notice or email." },
+
+  // 隐私政策
+  "privacy.title": { "zh-CN": "隐私政策", en: "Privacy Policy" },
+  "privacy.lastUpdated": { "zh-CN": "最后更新：2026年5月", en: "Last updated: May 2026" },
+  "privacy.intro": { "zh-CN": "我们重视您的隐私。本隐私政策说明了我们如何收集、使用和保护您的信息。", en: "We value your privacy. This Privacy Policy explains how we collect, use, and protect your information." },
+  "privacy.dataCollection": { "zh-CN": "信息收集", en: "Information Collection" },
+  "privacy.dataCollectionText": { "zh-CN": "我们收集的信息包括：(a) 您提供的账户信息（邮箱、用户名）；(b) 您与 AI 的对话内容；(c) 使用数据（学习计划、学习进度、打卡记录）。", en: "Information we collect includes: (a) account information you provide (email, username); (b) your conversations with AI; (c) usage data (learning plans, progress, check-in records)." },
+  "privacy.dataUse": { "zh-CN": "信息使用", en: "Information Use" },
+  "privacy.dataUseText": { "zh-CN": "我们使用您的信息来：(a) 提供和改善 AI 学习规划服务；(b) 个性化您的学习体验；(c) 分析和优化系统性能。我们不会出售您的个人数据。", en: "We use your information to: (a) provide and improve AI learning planning services; (b) personalize your learning experience; (c) analyze and optimize system performance. We do not sell your personal data." },
+  "privacy.dataStorage": { "zh-CN": "数据存储", en: "Data Storage" },
+  "privacy.dataStorageText": { "zh-CN": "您的数据存储在安全的服务器上。我们采取合理的技术措施保护您的数据安全。", en: "Your data is stored on secure servers. We take reasonable technical measures to protect your data security." },
+  "privacy.cookies": { "zh-CN": "Cookie 使用", en: "Cookie Usage" },
+  "privacy.cookiesText": { "zh-CN": "我们使用必要的 Cookie 来维持您的登录状态和语言偏好。我们不会使用跟踪 Cookie 或第三方分析 Cookie。", en: "We use essential cookies to maintain your login state and language preferences. We do not use tracking cookies or third-party analytics cookies." },
+  "privacy.userRights": { "zh-CN": "用户权利", en: "User Rights" },
+  "privacy.userRightsText": { "zh-CN": "您有权：(a) 访问和导出您的数据；(b) 删除您的账户和相关数据；(c) 随时清除 AI 对话记忆。", en: "You have the right to: (a) access and export your data; (b) delete your account and related data; (c) clear AI conversation memories at any time." },
+  "privacy.changes": { "zh-CN": "政策变更", en: "Policy Changes" },
+  "privacy.changesText": { "zh-CN": "我们可能会不时更新此隐私政策。重大变更将通过网站通知告知。", en: "We may update this Privacy Policy from time to time. Significant changes will be communicated via website notice." },
+
   // 通用
+  "common.skipToContent": { "zh-CN": "跳转到主要内容", en: "Skip to main content" },
+  "common.toggleTheme": { "zh-CN": "切换主题", en: "Toggle theme" },
   "common.pleaseLogin": { "zh-CN": "请先登录", en: "Please Login First" },
   "common.loginToView": { "zh-CN": "登录后查看", en: "Log in to view" },
   "common.goLogin": { "zh-CN": "去登录", en: "Go to Login" },
   "common.loading": { "zh-CN": "加载中...", en: "Loading..." },
-  "common.aiThinking": { "zh-CN": "AI 正在思考...", en: "AI is thinking..." },
+  "common.aiThinking": { "zh-CN": "AI 正在思考中...", en: "AI is thinking..." },
+  "common.backHome": { "zh-CN": "返回首页", en: "Back to Home" },
+  "common.retry": { "zh-CN": "重试", en: "Retry" },
+
+  // 元数据
+  "meta.default.title": { "zh-CN": "StudyAI - AI 智能学习规划平台", en: "StudyAI - AI-Powered Learning Planner" },
+  "meta.default.description": { "zh-CN": "通过认知科学与 AI 技术，为您打造个性化的学习计划。科学规划，而非盲目努力。", en: "Personalized learning plans powered by cognitive science and AI. Plan scientifically, not blindly." },
+  "meta.chat.title": { "zh-CN": "AI 规划 - StudyAI", en: "AI Plan - StudyAI" },
+  "meta.dashboard.title": { "zh-CN": "数据面板 - StudyAI", en: "Dashboard - StudyAI" },
+  "meta.plans.title": { "zh-CN": "我的计划 - StudyAI", en: "My Plans - StudyAI" },
+  "meta.today.title": { "zh-CN": "今日任务 - StudyAI", en: "Today - StudyAI" },
+  "meta.settings.title": { "zh-CN": "设置 - StudyAI", en: "Settings - StudyAI" },
+  "meta.login.title": { "zh-CN": "登录 - StudyAI", en: "Login - StudyAI" },
+  "meta.planDetail.title": { "zh-CN": "计划详情 - StudyAI", en: "Plan Details - StudyAI" },
 }
 
 export function useT() {
   const language = useLanguageStore((s) => s.language)
   return (key: string): string => {
-    return translations[key]?.[language] ?? key
+    const entry = translations[key]
+    if (!entry) return key
+    return entry[language] ?? entry["zh-CN"] ?? key
+  }
+}
+
+export function useTF() {
+  const t = useT()
+  return (key: string, params?: Record<string, string | number>): string => {
+    let result = t(key)
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        result = result.replace(`{${k}}`, String(v))
+      }
+    }
+    return result
   }
 }
 
 export function getTranslation(key: string, language: Language): string {
-  return translations[key]?.[language] ?? key
+  const entry = translations[key]
+  if (!entry) return key
+  return entry[language] ?? entry["zh-CN"] ?? key
 }

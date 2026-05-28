@@ -5,6 +5,7 @@ import { DayTaskCard } from "@/components/plan/day-task-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlanProgressBar } from "@/components/plan/progress-bar"
 import { CalendarCheck, TrendingUp } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface TaskChecklistProps {
   tasks: DayTask[]
@@ -15,6 +16,7 @@ interface TaskChecklistProps {
 }
 
 export function TaskChecklist({ tasks, dayNumber, date, onToggleTask, totalDays = 56 }: TaskChecklistProps) {
+  const t = useT()
   const completed = tasks.filter(t => t.completed).length
   const completionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0
 
@@ -48,7 +50,7 @@ export function TaskChecklist({ tasks, dayNumber, date, onToggleTask, totalDays 
 
       {/* Task list */}
       <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 px-1">
-        今日任务 ({completed}/{tasks.length})
+        {t("checkin.todayTasks")} ({completed}/{tasks.length})
       </h3>
 
       <div className="space-y-2">

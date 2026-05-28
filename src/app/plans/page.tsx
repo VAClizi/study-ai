@@ -16,6 +16,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/cn"
+import { useT, useTF } from "@/lib/i18n"
+import { useLanguageStore } from "@/stores/language-store"
 
 function calcPlanStats(plan: LearningPlan) {
   let totalTasks = 0
@@ -42,20 +44,20 @@ function calcPlanStats(plan: LearningPlan) {
   return { totalTasks, completedTasks, totalMinutes, completionRate, totalDays }
 }
 
-function getModeBadge(mode: "quick" | "detailed") {
+function getModeBadge(mode: "quick" | "detailed", t: (key: string) => string) {
   return mode === "quick"
-    ? { label: "快速定制", icon: Zap, color: "bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20" }
-    : { label: "深度规划", icon: BookOpen, color: "bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20" }
+    ? { label: t("plans.quickMode"), icon: Zap, color: "bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20" }
+    : { label: t("plans.detailedMode"), icon: BookOpen, color: "bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20" }
 }
 
-function getStatusBadge(status: "active" | "completed" | "paused") {
+function getStatusBadge(status: "active" | "completed" | "paused", t: (key: string) => string) {
   switch (status) {
     case "active":
-      return { label: "进行中", color: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" }
+      return { label: t("plans.active"), color: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" }
     case "completed":
-      return { label: "已完成", color: "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" }
+      return { label: t("plans.completed"), color: "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" }
     case "paused":
-      return { label: "已暂停", color: "bg-zinc-100 dark:bg-zinc-500/20 text-zinc-500 dark:text-zinc-400" }
+      return { label: t("plans.paused"), color: "bg-zinc-100 dark:bg-zinc-500/20 text-zinc-500 dark:text-zinc-400" }
   }
 }
 
@@ -63,6 +65,8 @@ export default function PlansPage() {
   const { user, isAuthenticated } = useAuthStore()
   const { plans, isLoading, loadPlans } = usePlanStore()
   const [storedSessionIds, setStoredSessionIds] = useState<Set<string>>(new Set())
+  const t = useT()
+  const language = useLanguageStore((s) => s.language)
 
   useEffect(() => {
     if (user) {
@@ -79,11 +83,11 @@ export default function PlansPage() {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
         <EmptyState
-          title="请先登录"
-          description="登录后查看你的学习计划"
+          title={t("common.pleaseLogin")}
+          description={t("common.loginToView")}
           action={
             <Link href="/login" className="inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-              登录 / 注册
+              {t("chat.loginRegister")}
             </Link>
           }
         />
@@ -99,9 +103,9 @@ export default function PlansPage() {
           <ClipboardList className="h-5 w-5 text-purple-600 dark:text-purple-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">我的计划</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("plans.title")}</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            所有 AI 生成的学习计划，可随时回到当时的对话继续讨论
+            {t("plans.subtitle")}
           </p>
         </div>
       </div>
@@ -109,7 +113,7 @@ export default function PlansPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-20">
-          <LoadingSpinner size="lg" text="加载计划..." />
+          <LoadingSpinner size="lg" text={t("plans.loading")} />
         </div>
       )}
 
@@ -118,8 +122,8 @@ export default function PlansPage() {
         <div className="grid grid-cols-1 gap-4">
           {plans.map((plan) => {
             const stats = calcPlanStats(plan)
-            const modeBadge = getModeBadge(plan.mode)
-            const statusBadge = getStatusBadge(plan.status)
+            const modeBadge = getModeBadge(plan.mode, t)
+            const statusBadge = getStatusBadge(plan.status, t)
             const hasSession = plan.chatSessionId && storedSessionIds.has(plan.chatSessionId)
             const ModeIcon = modeBadge.icon
 
@@ -153,15 +157,15 @@ export default function PlansPage() {
                       <div className="flex items-center gap-4 text-xs text-zinc-400 dark:text-zinc-500">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(plan.createdAt).toLocaleDateString("zh-CN")}
+                          {new Date(plan.createdAt).toLocaleDateString(language)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Target className="h-3 w-3" />
-                          {stats.totalDays} 天 · {stats.totalTasks} 任务
+                          {stats.totalDays} {t("plans.days")} · {stats.totalTasks} {t("plans.tasks")}
                         </span>
                         <span className="flex items-center gap-1">
                           <BarChart3 className="h-3 w-3" />
-                          {stats.completionRate}% 完成
+                          {stats.completionRate}% {t("plans.completion")}
                         </span>
                       </div>
 
@@ -184,18 +188,18 @@ export default function PlansPage() {
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium transition-all"
                         >
                           <MessageSquare className="h-3.5 w-3.5" />
-                          继续对话
+                          {t("plans.continueChat")}
                         </Link>
                       ) : (
                         <span className="text-[10px] text-zinc-400 dark:text-zinc-500 italic">
-                          对话已过期
+                          {t("plans.expired")}
                         </span>
                       )}
                       <Link
                         href={`/plan/${plan.id}`}
                         className="inline-flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
                       >
-                        查看计划 <ArrowRight className="h-3 w-3" />
+                        {t("plans.viewPlan")} <ArrowRight className="h-3 w-3" />
                       </Link>
                     </div>
                   </div>
@@ -210,11 +214,11 @@ export default function PlansPage() {
       {!isLoading && plans.length === 0 && (
         <div className="py-20">
           <EmptyState
-            title="还没有学习计划"
-            description="通过 AI 对话生成你的第一个学习计划，然后回到这里查看和管理"
+            title={t("plans.noPlans")}
+            description={t("plans.noPlansDesc")}
             action={
               <Link href="/chat" className="inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-                开始 AI 规划
+                {t("plans.startPlan")}
               </Link>
             }
           />

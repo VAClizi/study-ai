@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Send, Loader2 } from "lucide-react"
 import { cn } from "@/lib/cn"
+import { useT } from "@/lib/i18n"
 
 interface ChatInputProps {
   onSend: (message: string) => void
@@ -17,6 +18,8 @@ export function ChatInput({ onSend, isStreaming, disabled, placeholder }: ChatIn
   const [value, setValue] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const t = useT()
+  const defaultPlaceholder = placeholder || t("chatInput.placeholder")
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -59,7 +62,7 @@ export function ChatInput({ onSend, isStreaming, disabled, placeholder }: ChatIn
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder={placeholder || "输入你的回答..."}
+            placeholder={defaultPlaceholder}
             disabled={isStreaming || disabled}
             rows={1}
             className="flex-1 bg-transparent border-0 resize-none text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[200px] py-2 px-2"
@@ -83,7 +86,7 @@ export function ChatInput({ onSend, isStreaming, disabled, placeholder }: ChatIn
           </Button>
         </div>
         <p className="text-[10px] text-zinc-400 dark:text-zinc-600 text-center mt-2">
-          Enter 发送 · Shift + Enter 换行
+          {t("chatInput.keyboardHint")}
         </p>
       </div>
     </div>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/collapsible"
 import { useState } from "react"
 import { ChevronDown, Brain, BookOpen, Clock, Zap, Layers, Sun, Repeat, Lightbulb } from "lucide-react"
+import { useT, useTF } from "@/lib/i18n"
 
 interface TheoryPanelProps {
   theories: PlanTheory[]
@@ -28,6 +29,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export function TheoryPanel({ theories }: TheoryPanelProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const t = useT()
+  const tf = useTF()
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -37,10 +40,10 @@ export function TheoryPanel({ theories }: TheoryPanelProps) {
             <div className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-purple-500 dark:text-purple-400" />
               <CardTitle className="text-base text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
-                AI 规划依据
+                {t("theory.basis")}
               </CardTitle>
               <Badge className="bg-purple-600/20 text-purple-600 dark:text-purple-300 text-xs">
-                {theories.length} 项科学理论
+                {tf("planDetail.theoryCount", { count: theories.length })}
               </Badge>
             </div>
             <ChevronDown className="h-4 w-4 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white transition-all data-[state=open]:rotate-180" />
@@ -50,7 +53,7 @@ export function TheoryPanel({ theories }: TheoryPanelProps) {
         <CollapsibleContent>
           <CardContent className="pt-0 pb-4">
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              这个学习计划参考了以下科学理论，每个安排都有据可依：
+              {t("theory.desc")}
             </p>
             <div className="space-y-3">
               {theories.map((theory, i) => {
@@ -67,7 +70,7 @@ export function TheoryPanel({ theories }: TheoryPanelProps) {
                       <h5 className="text-sm font-medium text-zinc-900 dark:text-white">{theory.name}</h5>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{theory.description}</p>
                       <p className="text-xs text-purple-500/80 dark:text-purple-400/70 mt-1">
-                        应用：{theory.application}
+                        {t("theory.application")}：{theory.application}
                       </p>
                     </div>
                   </div>

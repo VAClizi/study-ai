@@ -4,6 +4,7 @@ import type { GrowthMetrics } from "@/types/checkin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import { Brain } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface FocusChartProps {
   data: GrowthMetrics[]
@@ -11,13 +12,14 @@ interface FocusChartProps {
 
 export function FocusChart({ data }: FocusChartProps) {
   const weeklyData = data.slice(-7)
+  const t = useT()
 
   return (
     <Card className="border-white/[0.04] bg-white/[0.01]">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Brain className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-          <CardTitle className="text-sm text-white">专注度趋势（近7天）</CardTitle>
+          <CardTitle className="text-sm text-white">{t("dashboard.focus7Days")}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
@@ -45,7 +47,7 @@ export function FocusChart({ data }: FocusChartProps) {
                 fontSize: "12px",
                 color: "#e4e4e7",
               }}
-              formatter={(value: unknown) => [`${value}/10`, "专注度"]}
+              formatter={(value: unknown) => [`${value}/10`, t("dashboard.focus")]}
             />
             <Bar dataKey="focusScore" radius={[4, 4, 0, 0]} maxBarSize={32}>
               {weeklyData.map((entry, i) => (

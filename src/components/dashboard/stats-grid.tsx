@@ -4,22 +4,24 @@ import type { UserStats } from "@/types/checkin"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Clock, Star, Sparkles, Activity } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface StatsGridProps {
   stats: UserStats
 }
 
 export function StatsGrid({ stats }: StatsGridProps) {
+  const t = useT()
   const statItems = [
     {
-      label: "总学习时长",
+      label: t("dashboard.totalHours"),
       value: `${Math.floor(stats.totalMinutes / 60)}h ${stats.totalMinutes % 60}m`,
       icon: Clock,
       color: "text-blue-400",
       bgColor: "bg-blue-500/10",
     },
     {
-      label: "平均完成率",
+      label: t("dashboard.avgCompletion"),
       value: `${stats.averageCompletion}%`,
       icon: Activity,
       color: "text-green-400",
@@ -28,7 +30,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
       progressColor: "bg-green-500",
     },
     {
-      label: "平均专注度",
+      label: t("dashboard.avgFocus"),
       value: `${stats.averageFocus}/10`,
       icon: Sparkles,
       color: "text-purple-500 dark:text-purple-400",
@@ -37,7 +39,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
       progressColor: "bg-purple-500",
     },
     {
-      label: "AI 综合评分",
+      label: t("dashboard.aiRating"),
       value: `${stats.aiRating}/100`,
       icon: Star,
       color: "text-amber-400",

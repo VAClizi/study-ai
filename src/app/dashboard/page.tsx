@@ -17,6 +17,8 @@ import { useEffect, useState, useCallback } from "react"
 import { useMemoryStore } from "@/stores/memory-store"
 import { usePersonaStore } from "@/stores/persona-store"
 import { chat } from "@/services/llm"
+import { useT, useTF } from "@/lib/i18n"
+import { useLanguageStore } from "@/stores/language-store"
 
 function getCacheKey(userId: string) {
   return `studyai-dashboard-insight-${userId}`
@@ -42,6 +44,7 @@ export default function DashboardPage() {
   const { isAuthenticated, user } = useAuthStore()
   const { plans, loadPlans } = usePlanStore()
   const { stats, isLoading } = useAnalytics()
+  const t = useT()
 
   const [aiInsight, setAiInsight] = useState<string | null>(null)
   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
@@ -94,11 +97,11 @@ export default function DashboardPage() {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
         <EmptyState
-          title="请先登录"
-          description="登录后查看你的学习数据面板"
+          title={t("common.pleaseLogin")}
+          description={t("common.loginToView")}
           action={
             <Link href="/login" className="inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-              去登录
+              {t("common.goLogin")}
             </Link>
           }
         />
@@ -109,7 +112,7 @@ export default function DashboardPage() {
   if (isLoading || !stats) {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
-        <LoadingSpinner size="lg" text="加载数据面板..." />
+        <LoadingSpinner size="lg" text={t("dashboard.loadingData")} />
       </div>
     )
   }
@@ -118,8 +121,8 @@ export default function DashboardPage() {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">成长数据</h1>
-        <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">你的学习足迹和成长轨迹</p>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("dashboard.title")}</h1>
+        <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">{t("dashboard.subtitle")}</p>
       </div>
 
       {/* Streak */}
@@ -136,7 +139,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <CompletionChart
           data={stats.weeklyGrowth}
-          title="周完成率趋势"
+          title={t("dashboard.weeklyCompletion")}
           dataKey="completionRate"
           color="#a855f7"
         />
@@ -145,10 +148,10 @@ export default function DashboardPage() {
 
       <CompletionChart
         data={stats.monthlyGrowth}
-        title="月度学习时长趋势"
+        title={t("dashboard.monthlyHours")}
         dataKey="totalMinutes"
         color="#6366f1"
-        suffix=" 分钟"
+        suffix={t("dashboard.minutes")}
         height={220}
       />
 
@@ -167,21 +170,18 @@ export default function DashboardPage() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-zinc-900 dark:text-white font-semibold mb-2">AI 综合评估</h3>
+              <h3 className="text-zinc-900 dark:text-white font-semibold mb-2">{t("dashboard.aiEvaluation")}</h3>
               {isGeneratingInsight ? (
-                <p className="text-sm text-zinc-400 dark:text-zinc-500">正在生成个性化分析...</p>
+                <p className="text-sm text-zinc-400 dark:text-zinc-500">{t("dashboard.generatingInsight")}</p>
               ) : aiInsight ? (
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{aiInsight}</p>
               ) : (
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  根据你过去 {stats.totalDays} 天的学习数据，你的学习习惯正在稳步建立。
-                  当前连续打卡 <span className="text-purple-500 dark:text-purple-400 font-semibold">{stats.currentStreak}</span> 天，
-                  平均完成率 <span className="text-green-400 font-semibold">{stats.averageCompletion}%</span>。
                   {stats.averageCompletion >= 80
-                    ? "你的完成率很高，可以考虑适当增加学习难度。"
+                    ? t("dashboard.highCompletion")
                     : stats.averageCompletion >= 60
-                      ? "你的完成率不错，保持现有节奏，重点提升学习深度。"
-                      : "建议关注任务完成质量而非数量，适当降低单日任务量。"}
+                      ? t("dashboard.midCompletion")
+                      : t("dashboard.lowCompletion")}
                 </p>
               )}
             </div>
@@ -191,10 +191,10 @@ export default function DashboardPage() {
 
       {plans.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-zinc-400 dark:text-zinc-500 text-sm mb-4">还没有学习计划，先创建一个吧</p>
+          <p className="text-zinc-400 dark:text-zinc-500 text-sm mb-4">{t("dashboard.noPlan")}</p>
           <Link href="/chat" className="inline-flex items-center justify-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
             <Sparkles className="h-4 w-4" />
-            开始 AI 规划
+            {t("dashboard.startPlan")}
           </Link>
         </div>
       )}
@@ -205,6 +205,9 @@ export default function DashboardPage() {
 function AIObservations() {
   const { entries } = useMemoryStore()
   const { config } = usePersonaStore()
+  const t = useT()
+  const tf = useTF()
+  const language = useLanguageStore((s) => s.language)
 
   if (entries.length === 0) return null
 
@@ -221,10 +224,10 @@ function AIObservations() {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
-              {config.name["zh-CN"]} 对你的了解
+              {config.name[language]} {t("dashboard.understanding")}
             </h3>
             <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-              基于对话提取的 {entries.length} 条记忆
+              {tf("dashboard.memoriesCount", { count: entries.length })}
             </p>
           </div>
         </div>
@@ -242,7 +245,7 @@ function AIObservations() {
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">{entry.type}</span>
                   <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
-                    {Math.round(entry.confidence * 100)}% 置信度
+                    {Math.round(entry.confidence * 100)}% {t("dashboard.confidence")}
                   </span>
                 </div>
               </div>

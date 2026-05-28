@@ -4,6 +4,8 @@ import type { ChatMessage } from "@/types/chat"
 import { cn } from "@/lib/cn"
 import { Brain, User, Target, ArrowUp } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+import { useT } from "@/lib/i18n"
+import { useLanguageStore } from "@/stores/language-store"
 
 interface ChatBubbleProps {
   message: ChatMessage
@@ -27,6 +29,8 @@ const PROSE_CLASSES = [
 
 export function ChatBubble({ message, isStreaming, isPlanMessage }: ChatBubbleProps) {
   const isUser = message.role === "user"
+  const t = useT()
+  const language = useLanguageStore((s) => s.language)
 
   return (
     <div className={cn("flex gap-3 px-4 py-4", isUser ? "justify-end" : "justify-start")}>
@@ -51,17 +55,17 @@ export function ChatBubble({ message, isStreaming, isPlanMessage }: ChatBubblePr
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">
-                    学习计划已生成
+                    {t("chatBubble.planGenerated")}
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    AI 已根据你的情况完成个性化计划
+                    {t("chatBubble.aiPersonalizedPlan")}
                   </p>
                 </div>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                详细计划已展示在页面顶部的「学习计划」分区中，包含阶段规划、每周安排、理论依据和实用建议。
+                {t("chatBubble.planDetailsHint")}
                 <span className="inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium ml-1">
-                  向上滚动查看 <ArrowUp className="h-3 w-3" />
+                  {t("chatBubble.scrollUpHint")} <ArrowUp className="h-3 w-3" />
                 </span>
               </p>
             </div>
@@ -96,7 +100,7 @@ export function ChatBubble({ message, isStreaming, isPlanMessage }: ChatBubblePr
 
         {/* Timestamp */}
         <p className={cn("text-[10px] text-zinc-400 dark:text-zinc-600 mt-1", isUser ? "text-right" : "text-left")}>
-          {new Date(message.timestamp).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
+          {new Date(message.timestamp).toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" })}
         </p>
       </div>
 

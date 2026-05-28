@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Flame, Trophy, Target } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface StreakCardProps {
   currentStreak: number
@@ -10,6 +11,7 @@ interface StreakCardProps {
 }
 
 export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCardProps) {
+  const t = useT()
   return (
     <div className="grid grid-cols-3 gap-3">
       <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01] relative overflow-hidden">
@@ -21,7 +23,7 @@ export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCa
             </div>
           </div>
           <span className="text-2xl font-bold text-zinc-900 dark:text-white block">{currentStreak}</span>
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">当前连续天数</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("dashboard.currentStreak")}</span>
         </CardContent>
       </Card>
 
@@ -34,7 +36,7 @@ export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCa
             </div>
           </div>
           <span className="text-2xl font-bold text-zinc-900 dark:text-white block">{longestStreak}</span>
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">最长连续记录</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("dashboard.longestStreak")}</span>
         </CardContent>
       </Card>
 
@@ -47,7 +49,7 @@ export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCa
             </div>
           </div>
           <span className="text-2xl font-bold text-zinc-900 dark:text-white block">{totalDays}</span>
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">累计学习天数</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("dashboard.totalDays")}</span>
         </CardContent>
       </Card>
     </div>

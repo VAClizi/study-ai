@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { cn } from "@/lib/cn"
 import { ChevronDown, ChevronUp, Target, Calendar, Lightbulb, BookOpen, Clock, GripVertical } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+import { useT, useTF } from "@/lib/i18n"
 
 interface PlanSectionProps {
   content: string
@@ -79,6 +80,8 @@ function parseTable(body: string): { headers: string[]; rows: string[][] } | nul
 
 export function PlanSection({ content }: PlanSectionProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const t = useT()
+  const tf = useTF()
 
   const segments = useMemo(() => parsePlanSegments(content), [content])
 
@@ -97,10 +100,10 @@ export function PlanSection({ content }: PlanSectionProps) {
             <Target className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
           </div>
           <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
-            学习计划
+            {t("planSection.learningPlan")}
           </span>
           <span className="text-xs text-zinc-400 dark:text-zinc-500">
-            {segments.length} 个模块
+            {tf("planSection.modules", { count: segments.length })}
           </span>
         </div>
         <div className="flex items-center gap-1 text-zinc-400 dark:text-zinc-500">
@@ -130,12 +133,12 @@ function PlanSegmentCard({ segment }: { segment: PlanSegment }) {
 
   // Choose icon based on heading keywords
   const icon = (() => {
-    const h = segment.heading
-    if (h.includes("概述") || h.includes("概览")) return <Target className="h-3.5 w-3.5" />
-    if (h.includes("阶段") || h.includes("规划")) return <GripVertical className="h-3.5 w-3.5" />
-    if (h.includes("周") || h.includes("Day") || h.includes("天") || h.includes("计划")) return <Calendar className="h-3.5 w-3.5" />
-    if (h.includes("理论") || h.includes("依据")) return <BookOpen className="h-3.5 w-3.5" />
-    if (h.includes("建议") || h.includes("给")) return <Lightbulb className="h-3.5 w-3.5" />
+    const h = segment.heading.toLowerCase()
+    if (h.includes("概述") || h.includes("概览") || h.includes("overview") || h.includes("summary")) return <Target className="h-3.5 w-3.5" />
+    if (h.includes("阶段") || h.includes("规划") || h.includes("phase") || h.includes("stage")) return <GripVertical className="h-3.5 w-3.5" />
+    if (h.includes("周") || h.includes("day") || h.includes("天") || h.includes("计划") || h.includes("week")) return <Calendar className="h-3.5 w-3.5" />
+    if (h.includes("理论") || h.includes("依据") || h.includes("theory") || h.includes("basis")) return <BookOpen className="h-3.5 w-3.5" />
+    if (h.includes("建议") || h.includes("给") || h.includes("tip") || h.includes("recommend")) return <Lightbulb className="h-3.5 w-3.5" />
     return <Clock className="h-3.5 w-3.5" />
   })()
 

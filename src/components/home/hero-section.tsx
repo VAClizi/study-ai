@@ -104,14 +104,14 @@ export function HeroSection() {
             className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            返回首页
+            {t("common.backHome")}
           </button>
-          <span className="text-sm font-medium text-zinc-900 dark:text-white">AI 快速对话</span>
+          <span className="text-sm font-medium text-zinc-900 dark:text-white">{t("home.quickChat")}</span>
           <button
             onClick={() => router.push("/chat")}
             className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
-            完整功能
+            {t("home.fullFeatures")}
             <ExternalLink className="h-3 w-3" />
           </button>
         </div>
@@ -177,9 +177,9 @@ export function HeroSection() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}
         >
-          <span className="text-zinc-900 dark:text-white">你的 </span>
+          <span className="text-zinc-900 dark:text-white">{t("home.your")}</span>
           <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent animate-glow">
-            AI 自律成长教练
+            {t("home.aiCoach")}
           </span>
         </h1>
 
@@ -191,7 +191,7 @@ export function HeroSection() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}
         >
-          通过认知科学与 AI 技术的融合，为你打造高度个性化、科学化的学习计划
+          {t("home.subtitle")}
         </p>
 
         {/* ===== ChatGPT-Style Input ===== */}
@@ -329,10 +329,10 @@ export function HeroSection() {
             <div className="absolute -inset-2 rounded-2xl bg-purple-500/10 blur-xl animate-pulse" />
           </div>
           <p className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
-            AI 正在激活...
+            {t("home.activating")}
           </p>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            准备为你提供个性化学习指导
+            {t("home.activatingDesc")}
           </p>
           <div className="flex gap-1.5 mt-6">
             {[0, 1, 2].map((i) => (

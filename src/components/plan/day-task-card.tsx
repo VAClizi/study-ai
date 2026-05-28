@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/cn"
 import { Clock, Gauge, Flag } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface DayTaskCardProps {
   task: DayTask
@@ -13,19 +14,21 @@ interface DayTaskCardProps {
   disabled?: boolean
 }
 
-const priorityConfig = {
-  high: { label: "高优先", color: "text-red-500 dark:text-red-400 bg-red-500/10" },
-  medium: { label: "中优先", color: "text-yellow-500 dark:text-yellow-400 bg-yellow-500/10" },
-  low: { label: "低优先", color: "text-zinc-500 dark:text-zinc-400 bg-black/5 dark:bg-white/5" },
-}
-
-const difficultyConfig = {
-  easy: { label: "简单", stars: "⭐" },
-  medium: { label: "中等", stars: "⭐⭐" },
-  hard: { label: "困难", stars: "⭐⭐⭐" },
-}
-
 export function DayTaskCard({ task, onToggle, disabled }: DayTaskCardProps) {
+  const t = useT()
+
+  const priorityConfig = {
+    high: { label: t("priority.high"), color: "text-red-500 dark:text-red-400 bg-red-500/10" },
+    medium: { label: t("priority.medium"), color: "text-yellow-500 dark:text-yellow-400 bg-yellow-500/10" },
+    low: { label: t("priority.low"), color: "text-zinc-500 dark:text-zinc-400 bg-black/5 dark:bg-white/5" },
+  }
+
+  const difficultyConfig = {
+    easy: { label: t("difficulty.easy"), stars: "⭐" },
+    medium: { label: t("difficulty.medium"), stars: "⭐⭐" },
+    hard: { label: t("difficulty.hard"), stars: "⭐⭐⭐" },
+  }
+
   const priority = priorityConfig[task.priority]
   const difficulty = difficultyConfig[task.difficulty]
 
@@ -67,7 +70,7 @@ export function DayTaskCard({ task, onToggle, disabled }: DayTaskCardProps) {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
                 <Clock className="h-3 w-3" />
-                {task.durationMinutes} 分钟
+                {task.durationMinutes} {t("planDetail.minutes")}
               </span>
 
               <Badge className={cn("text-[10px] px-1.5 py-0", priority.color)}>

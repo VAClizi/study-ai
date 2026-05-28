@@ -3,6 +3,8 @@
 import { useState } from "react"
 import type { ChatMode } from "@/types/chat"
 import { usePersonaStore, PERSONAS } from "@/stores/persona-store"
+import { useLanguageStore } from "@/stores/language-store"
+import { useT, useTF } from "@/lib/i18n"
 import { cn } from "@/lib/cn"
 import { Zap, Microscope, ArrowRight, Sparkles, ArrowLeft } from "lucide-react"
 
@@ -16,6 +18,9 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
   const [hovered, setHovered] = useState<ChatMode | null>(null)
   const [step, setStep] = useState<"persona" | "mode">("persona")
   const { persona, setPersona } = usePersonaStore()
+  const language = useLanguageStore((s) => s.language)
+  const t = useT()
+  const tf = useTF()
 
   // ===== Step 1: Select coach persona =====
   if (step === "persona") {
@@ -24,10 +29,10 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-600/10 border border-purple-500/20 text-purple-600 dark:text-purple-300 text-sm mb-6 backdrop-blur-sm">
             <Sparkles className="h-3.5 w-3.5" />
-            第一步：选择教练风格
+            {t("mode.step1Label")}
           </div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">谁来做你的学习教练？</h2>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm">不同教练会带来完全不同的学习体验</p>
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">{t("mode.coachTitle")}</h2>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm">{t("mode.coachDesc")}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl mb-10">
@@ -46,10 +51,10 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
               >
                 <div className="text-3xl mb-3">{p.icon}</div>
                 <h3 className="text-base font-semibold text-zinc-900 dark:text-white mb-1.5">
-                  {p.name["zh-CN"]}
+                  {p.name[language]}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  {p.description["zh-CN"]}
+                  {p.description[language]}
                 </p>
                 {isActive && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-purple-600 flex items-center justify-center">
@@ -67,7 +72,7 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
           onClick={() => setStep("mode")}
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-all shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 active:scale-95"
         >
-          下一步：选择规划模式
+          {t("mode.nextStep")}：{t("mode.step2Title")}
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
@@ -83,17 +88,17 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
         className="self-start mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        返回选择教练
+        {t("mode.backToCoach")}
       </button>
 
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-600/10 border border-purple-500/20 text-purple-600 dark:text-purple-300 text-sm mb-6 backdrop-blur-sm">
           <Sparkles className="h-3.5 w-3.5" />
-          第二步：选择规划模式
+          {t("mode.step2Label")}
         </div>
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">开始你的 AI 学习规划</h2>
+        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">{t("mode.step2Title")}</h2>
         <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-          当前教练：<span className="font-medium text-zinc-700 dark:text-zinc-300">{PERSONAS[persona].icon} {PERSONAS[persona].name["zh-CN"]}</span>
+          {tf("mode.currentCoach", { name: PERSONAS[persona].name[language], icon: PERSONAS[persona].icon })}
         </p>
       </div>
 
@@ -114,14 +119,14 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
             <div className="w-10 h-10 rounded-xl bg-purple-600/10 flex items-center justify-center mb-4">
               <Zap className="h-5 w-5 text-purple-500 dark:text-purple-400" />
             </div>
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">快速定制</h3>
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{t("chat.quickPlan")}</h3>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              聚焦核心目标<br />
-              快速梳理需求<br />
-              即刻生成学习计划
+              {t("mode.quickDesc1")}<br />
+              {t("mode.quickDesc2")}<br />
+              {t("mode.quickDesc3")}
             </p>
             <div className="flex items-center gap-1 text-purple-500 dark:text-purple-400 text-sm font-medium group-hover:gap-2 transition-all">
-              选择快速定制 <ArrowRight className="h-3.5 w-3.5" />
+              {t("mode.selectQuick")} <ArrowRight className="h-3.5 w-3.5" />
             </div>
           </div>
         </button>
@@ -142,14 +147,14 @@ export function ModeSelector({ onSelect }: ModeSelectorProps) {
             <div className="w-10 h-10 rounded-xl bg-purple-600/10 flex items-center justify-center mb-4">
               <Microscope className="h-5 w-5 text-purple-500 dark:text-purple-400" />
             </div>
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">深度规划</h3>
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{t("chat.detailedPlan")}</h3>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              全方位分析学习模式<br />
-              深度挖掘潜在需求<br />
-              更科学更个性化
+              {t("mode.detailedDesc1")}<br />
+              {t("mode.detailedDesc2")}<br />
+              {t("mode.detailedDesc3")}
             </p>
             <div className="flex items-center gap-1 text-purple-500 dark:text-purple-400 text-sm font-medium group-hover:gap-2 transition-all">
-              选择深度规划 <ArrowRight className="h-3.5 w-3.5" />
+              {t("mode.selectDetailed")} <ArrowRight className="h-3.5 w-3.5" />
             </div>
           </div>
         </button>

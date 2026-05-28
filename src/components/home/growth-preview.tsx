@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCheckinStore } from "@/stores/checkin-store"
 import { useMemoryStore } from "@/stores/memory-store"
-import { useT } from "@/lib/i18n"
+import { useT, useTF } from "@/lib/i18n"
 import { Card, CardContent } from "@/components/ui/card"
 import { Flame, Target, Brain, ArrowRight, Sparkles, Lightbulb, Eye, TrendingUp } from "lucide-react"
 import Link from "next/link"
@@ -16,6 +16,7 @@ export function GrowthPreview() {
   const { entries, getMemoriesByType } = useMemoryStore()
   const t = useT()
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const tf = useTF()
   const [observations, setObservations] = useState<string[]>([])
 
   useEffect(() => {
@@ -25,7 +26,6 @@ export function GrowthPreview() {
     const goals = getMemoriesByType("goal")
     const habits = getMemoriesByType("habit")
     const preferences = getMemoriesByType("preference")
-    const patterns = getMemoriesByType("pattern")
 
     if (goals.length > 0) {
       obs.push(goals[goals.length - 1].content)
@@ -39,16 +39,16 @@ export function GrowthPreview() {
 
     // Add streak observation
     if (streak >= 7) {
-      obs.push(`连续 ${streak} 天坚持学习，习惯正在形成`)
+      obs.push(tf("growth.streakObservation", { days: streak }))
     } else if (streak >= 3) {
-      obs.push(`已连续学习 ${streak} 天，继续保持`)
+      obs.push(tf("growth.streakObservation", { days: streak }))
     }
 
     // Add auto-generated insights if we have data
     if (obs.length > 0) {
       setObservations(obs)
     }
-  }, [entries, streak, getMemoriesByType])
+  }, [entries, streak, getMemoriesByType, tf])
 
   if (!isAuthenticated) {
     return (
@@ -103,7 +103,7 @@ export function GrowthPreview() {
       icon: Brain,
       value: `${Math.min(entries.length, 99)}`,
       unit: "",
-      label: "AI 记忆",
+      label: t("growth.aiMemory"),
       bgColor: "bg-emerald-500/10",
       iconColor: "text-emerald-500 dark:text-emerald-400",
     },
@@ -171,10 +171,10 @@ export function GrowthPreview() {
                   <Eye className="h-3.5 w-3.5 text-purple-500 dark:text-purple-400" />
                 </div>
                 <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">
-                  AI 观察
+                  {t("growth.aiObserving")}
                 </span>
                 <span className="text-[10px] text-zinc-400 dark:text-zinc-500 ml-auto">
-                  基于你的使用数据
+                  {t("growth.basedOnData")}
                 </span>
               </div>
 
@@ -195,7 +195,7 @@ export function GrowthPreview() {
                 href="/chat"
                 className="inline-flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors font-medium"
               >
-                和 AI 教练聊聊这些观察
+                {t("growth.chatAboutThis")}
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </CardContent>
@@ -207,14 +207,14 @@ export function GrowthPreview() {
           <Card className="border-dashed border-black/[0.06] dark:border-white/[0.06] bg-transparent">
             <CardContent className="p-5 text-center">
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-3">
-                AI 还在了解你。开始对话让 AI 记住你的学习偏好和目标。
+                {t("growth.aiLearning")}
               </p>
               <Link
                 href="/chat"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Sparkles className="h-4 w-4" />
-                开始对话
+                {t("growth.startChat")}
               </Link>
             </CardContent>
           </Card>

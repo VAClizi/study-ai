@@ -16,10 +16,12 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { extractChoices } from "@/lib/choice-parser"
 import { ArrowLeft, Plus, MessageSquare } from "lucide-react"
 import Link from "next/link"
+import { useT } from "@/lib/i18n"
 
 function ChatContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const t = useT()
   const { isAuthenticated } = useAuthStore()
 
   const {
@@ -121,12 +123,12 @@ function ChatContent() {
           <div className="w-16 h-16 rounded-2xl bg-purple-600/10 flex items-center justify-center mx-auto mb-4">
             <MessageSquare className="h-8 w-8 text-purple-500 dark:text-purple-400" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">开始 AI 规划</h2>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">{t("chat.startPlan")}</h2>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
-            登录后即可与 AI 对话，生成专属于你的学习计划
+            {t("chat.loginPrompt")}
           </p>
           <Link href="/login" className="inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-            登录 / 注册
+            {t("chat.loginRegister")}
           </Link>
         </Card>
       </div>
@@ -150,17 +152,17 @@ function ChatContent() {
               </Button>
               <div>
                 <h2 className="text-sm font-medium text-zinc-900 dark:text-white">
-                  {currentMode === "quick" ? "快速定制" : "深度规划"}
+                  {currentMode === "quick" ? t("chat.quickPlan") : t("chat.detailedPlan")}
                 </h2>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                  {messages.length} 条消息
+                  {messages.length} {t("chat.messages")}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={handleNewChat} className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
-                新对话
+                {t("chat.newChat")}
               </Button>
             </div>
           </div>
@@ -204,12 +206,12 @@ function ChatContent() {
         {planContent && !generatedPlanId ? (
           <div className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-4">
             <div className="max-w-md mx-auto text-center">
-              <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-3">计划已生成！</p>
+              <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-3">{t("chat.planGenerated")}</p>
               <Button
                 onClick={() => handleGeneratePlan()}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white gap-2"
               >
-                保存到我的计划
+                {t("chat.saveToMyPlan")}
               </Button>
             </div>
           </div>
@@ -217,10 +219,10 @@ function ChatContent() {
           <div className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-4">
             <div className="max-w-md mx-auto flex gap-2">
               <Link href={`/plan/${generatedPlanId}`} className="flex-1 inline-flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-                查看完整计划
+                {t("chat.viewPlan")}
               </Link>
               <Link href="/today" className="flex-1 inline-flex items-center justify-center rounded-lg border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium h-9 px-4 py-2 transition-all">
-                去打卡
+                {t("chat.goCheckin")}
               </Link>
             </div>
           </div>
@@ -233,10 +235,11 @@ function ChatContent() {
 }
 
 export default function ChatPage() {
+  const t = useT()
   return (
     <Suspense fallback={
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
-        <LoadingSpinner size="lg" text="加载中..." />
+        <LoadingSpinner size="lg" text={t("chat.loading")} />
       </div>
     }>
       <ChatContent />

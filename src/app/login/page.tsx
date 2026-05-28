@@ -11,9 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useT, useTF } from "@/lib/i18n"
 
 export default function LoginPage() {
   const router = useRouter()
+  const t = useT()
+  const tf = useTF()
   const { login, register, loginWithGoogle, isAuthenticated } = useAuthStore()
 
   const [mode, setMode] = useState<"login" | "register">("login")
@@ -42,7 +45,7 @@ export default function LoginPage() {
       }
       router.push("/chat")
     } catch {
-      setError("登录失败，请稍后再试。")
+      setError(t("login.loginFailed"))
     } finally {
       setLoading(false)
     }
@@ -54,7 +57,7 @@ export default function LoginPage() {
       await loginWithGoogle()
       router.push("/chat")
     } catch {
-      setError("Google 登录失败")
+      setError(t("login.googleFailed"))
     } finally {
       setLoading(false)
     }
@@ -73,12 +76,10 @@ export default function LoginPage() {
             <Logo size="lg" showText={false} />
           </div>
           <CardTitle className="text-2xl text-zinc-900 dark:text-white">
-            {mode === "login" ? "欢迎回来" : "创建账号"}
+            {mode === "login" ? t("login.welcomeBack") : t("login.createAccount")}
           </CardTitle>
           <CardDescription className="text-zinc-400 dark:text-zinc-500">
-            {mode === "login"
-              ? "登录你的 StudyAI 账号，继续你的学习之旅"
-              : "开始你的 AI 智能学习规划之旅"}
+            {mode === "login" ? t("login.desc") : t("login.createDesc")}
           </CardDescription>
         </CardHeader>
 
@@ -86,24 +87,24 @@ export default function LoginPage() {
           <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "register")}>
             <TabsList className="w-full bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.04]">
               <TabsTrigger value="login" className="flex-1 data-[state=active]:bg-black/[0.06] dark:data-[state=active]:bg-white/[0.06]">
-                登录
+                {t("login.login")}
               </TabsTrigger>
               <TabsTrigger value="register" className="flex-1 data-[state=active]:bg-black/[0.06] dark:data-[state=active]:bg-white/[0.06]">
-                注册
+                {t("login.register")}
               </TabsTrigger>
             </TabsList>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               {mode === "register" && (
                 <div className="space-y-2">
-                  <label htmlFor="login-name" className="text-sm text-zinc-500 dark:text-zinc-400">用户名</label>
+                  <label htmlFor="login-name" className="text-sm text-zinc-500 dark:text-zinc-400">{t("login.username")}</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                     <Input
                       id="login-name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="你的名字"
+                      placeholder={t("login.namePlaceholder")}
                       className="pl-10 bg-black/[0.03] dark:bg-white/[0.03] border-black/[0.06] dark:border-white/[0.06] text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                       required
                     />
@@ -112,7 +113,7 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-2">
-                <label htmlFor="login-email" className="text-sm text-zinc-500 dark:text-zinc-400">邮箱</label>
+                <label htmlFor="login-email" className="text-sm text-zinc-500 dark:text-zinc-400">{t("login.email")}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                   <Input
@@ -128,7 +129,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="login-password" className="text-sm text-zinc-500 dark:text-zinc-400">密码</label>
+                <label htmlFor="login-password" className="text-sm text-zinc-500 dark:text-zinc-400">{t("login.password")}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                   <Input
@@ -158,7 +159,7 @@ export default function LoginPage() {
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    {mode === "login" ? "登录" : "注册"}
+                    {mode === "login" ? t("login.login") : t("login.register")}
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -168,7 +169,7 @@ export default function LoginPage() {
             <div className="relative my-6">
               <Separator className="bg-black/[0.06] dark:bg-white/[0.06]" />
               <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#0a0a0f] px-2 text-xs text-zinc-400 dark:text-zinc-600">
-                或使用以下方式继续
+                {t("login.orContinue")}
               </span>
             </div>
 
@@ -184,11 +185,11 @@ export default function LoginPage() {
                 <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              使用 Google 登录
+              {t("login.googleLogin")}
             </Button>
 
             <p className="text-center text-xs text-zinc-400 dark:text-zinc-600 mt-4">
-              点击 {mode === "login" ? "登录" : "注册"} 即表示同意我们的服务条款和隐私政策
+              {tf("login.clickAgree", { action: mode === "login" ? t("login.login") : t("login.register") })}
             </p>
           </Tabs>
         </CardContent>

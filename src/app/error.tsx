@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"
+import { useT } from "@/lib/i18n"
 
 interface ErrorPageProps {
   error: Error & { digest?: string }
@@ -10,6 +11,8 @@ interface ErrorPageProps {
 }
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
+  const t = useT()
+
   useEffect(() => {
     console.error("App error boundary caught:", error)
   }, [error])
@@ -20,13 +23,13 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         <AlertTriangle className="h-8 w-8 text-red-400" />
       </div>
       <h1 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">
-        出了点问题
+        {t("error.somethingWrong")}
       </h1>
       <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mb-6">
-        页面加载时发生了意外错误，请尝试刷新页面。
+        {t("error.unexpectedError")}
       </p>
       <Button onClick={reset} className="bg-purple-600 hover:bg-purple-700 text-white gap-2">
-        重试
+        {t("error.retry")}
       </Button>
       {process.env.NODE_ENV === "development" && (
         <pre className="mt-8 max-w-lg text-left text-xs text-red-400 bg-red-500/5 rounded-lg p-4 overflow-auto">

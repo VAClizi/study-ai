@@ -167,9 +167,9 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="text-zinc-900 dark:text-white text-lg flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-500" />
-            AI 教练人格
+            {t("settings.aiCoachPersona")}
           </CardTitle>
-          <CardDescription>选择与你最匹配的 AI 教练风格</CardDescription>
+          <CardDescription>{t("settings.aiCoachPersonaDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -200,7 +200,7 @@ export default function SettingsPage() {
                   </div>
                   {persona === pid && (
                     <Badge className="bg-purple-600/20 text-purple-500 dark:text-purple-400 border-purple-500/20 text-[10px]">
-                      当前
+                      {t("settings.current")}
                     </Badge>
                   )}
                 </button>
@@ -297,7 +297,7 @@ export default function SettingsPage() {
                 onChange={handleWeeklyGoalChange}
                 className="w-14 h-8 rounded-lg bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] text-center text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">小时/周</span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("settings.hoursPerWeek")}</span>
             </div>
           </div>
         </CardContent>
@@ -308,9 +308,9 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="text-zinc-900 dark:text-white text-lg flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-500" />
-            AI 记忆管理
+            {t("settings.aiMemory")}
           </CardTitle>
-          <CardDescription>AI 对你的了解都存储在这里。清除记忆会让 AI 忘记你的学习偏好和历史。</CardDescription>
+          <CardDescription>{t("settings.aiMemoryDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button
@@ -319,7 +319,7 @@ export default function SettingsPage() {
             className="border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 gap-2"
           >
             <Trash2 className="h-4 w-4" />
-            清除所有 AI 记忆
+            {t("settings.clearMemory")}
           </Button>
         </CardContent>
       </Card>
