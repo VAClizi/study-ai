@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         <h2>{t("footer.contact")}</h2>
         <p>
           {t("about.contactDesc")}{" "}
-          <a href="mailto:hello@studyai.app" className="text-purple-500 hover:text-purple-600">hello@studyai.app</a>
+          <a href="mailto:3427400856@qq.com" className="text-purple-500 hover:text-purple-600">3427400856@qq.com</a>
         </p>
       </article>
 

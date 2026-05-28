@@ -13,6 +13,9 @@ function getInitialLanguage(): Language {
   if (typeof window === "undefined") return "zh-CN"
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored === "zh-CN" || stored === "en") return stored
+  const m = document.cookie.match(/(?:^|;\s*)studyai-language=([^;]*)/)
+  const fromCookie = m?.[1]
+  if (fromCookie === "zh-CN" || fromCookie === "en") return fromCookie
   const browserLang = navigator.language
   return browserLang.startsWith("zh") ? "zh-CN" : "en"
 }

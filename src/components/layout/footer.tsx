@@ -20,7 +20,7 @@ const footerLinkGroups = [
       { i18nKey: "footer.aboutUs", href: "/about" },
       { i18nKey: "footer.terms", href: "/terms" },
       { i18nKey: "footer.privacy", href: "/privacy" },
-      { i18nKey: "footer.contact", href: "mailto:hello@studyai.app" },
+      { i18nKey: "footer.contact", href: "mailto:3427400856@qq.com" },
     ],
   },
 ]
