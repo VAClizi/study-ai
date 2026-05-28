@@ -193,6 +193,7 @@ function ChatContent() {
     lastParsedContent.current = null
     initialPromptSent.current = false
     setShowCheckinButton(false)
+    setShowCelebration(false)
   }, [resetChat])
 
   // Extract choices from the last AI message (displayed outside the bubble)
