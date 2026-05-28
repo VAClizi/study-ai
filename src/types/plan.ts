@@ -35,6 +35,14 @@ export interface DayTask {
   tags: string[]
 }
 
+export interface LearningResource {
+  id: string
+  title: string
+  url: string
+  type: "paper" | "video" | "code" | "article" | "book"
+  source: string
+}
+
 export interface WeekPlan {
   weekNumber: number
   goal: string
@@ -48,6 +56,7 @@ export interface DayPlan {
   tasks: DayTask[]
   totalMinutes: number
   notes: string
+  resources?: LearningResource[]
 }
 
 export interface Stage {
