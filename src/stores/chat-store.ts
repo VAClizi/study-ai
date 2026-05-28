@@ -4,6 +4,7 @@ import { mockChatService } from "@/services/chat.mock"
 import { streamChat, type LLMMessage } from "@/services/llm"
 import { usePersonaStore } from "./persona-store"
 import { useMemoryStore } from "./memory-store"
+import { useLanguageStore } from "./language-store"
 
 interface ChatState {
   sessions: ChatSession[]
@@ -119,6 +120,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     const personaStore = usePersonaStore.getState()
     const memoryStore = useMemoryStore.getState()
+    const languageStore = useLanguageStore.getState()
 
     const memoryContext = memoryStore.getContextString()
 
@@ -126,10 +128,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ? personaStore.config.quickSystemPrompt
       : personaStore.config.detailedSystemPrompt
 
-    const CHOICE_FORMAT_INSTRUCTION = `\n\n[回复格式] 当需要用户从选项中选择时，用 —————— 标记包裹选项区域：\n\n——————\n- A. 选项一\n- B. 选项二\n- C. 选项三\n——————\n\n每个选项以 "- A."、"- B." 等开头独占一行。不要在 —————— 标记内写其他文字。`
+    const CHOICE_FORMAT_INSTRUCTION = `\n\n[回复格式] 当需要用户做选择时，每个选项必须独占一行、不能挤在同一行：\n\n问题正文以？结尾\nA. 选项一\nB. 选项二\nC. 选项三\nD. 选项四\n\n严格遵守：问句独占一行，每个选项独占一行，以 "A." "B." "C." "D." 开头。`
+
+    const LANG_INSTRUCTION = languageStore.language === "en"
+      ? "\n\nIMPORTANT: The user is using the English interface. You MUST respond in English only. All questions, choices, and explanations must be in English."
+      : ""
+
+    const systemContent = modePrompt + CHOICE_FORMAT_INSTRUCTION + LANG_INSTRUCTION + "\n\n[系统功能] 生成完整学习计划后，对话将自动存档至「我的计划」页面，用户可随时回到当前对话继续讨论或调整计划。" + (memoryContext ? `\n\n[长期记忆]\n${memoryContext}` : "")
 
     const llmMessages: LLMMessage[] = [
-      { role: "system", content: modePrompt + CHOICE_FORMAT_INSTRUCTION + "\n\n[系统功能] 生成完整学习计划后，对话将自动存档至「我的计划」页面，用户可随时回到当前对话继续讨论或调整计划。" + (memoryContext ? `\n\n[长期记忆]\n${memoryContext}` : "") },
+      { role: "system", content: systemContent },
     ]
 
     const historyMessages = updatedMessages.slice(-20)

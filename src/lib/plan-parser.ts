@@ -1,4 +1,5 @@
 import type { LearningResource, PlanTheory, DayTask, DayPlan, WeekPlan, Stage } from "@/types/plan"
+import type { ParsedPlanResult } from "@/services/plan-ai-parser"
 
 // --- Incoming JSON shape from AI ---
 
@@ -323,4 +324,99 @@ function generateLegacyTasks(dayNumber: number): DayTask[] {
     })
   }
   return tasks
+}
+
+// --- Convert AI-parsed plan (new format) to internal types ---
+
+const PRIORITY_MAP: Record<string, DayTask["priority"]> = {
+  "高优先": "high",
+  "中优先": "medium",
+  "低优先": "low",
+  high: "high",
+  medium: "medium",
+  low: "low",
+}
+
+const DIFFICULTY_MAP: Record<string, DayTask["difficulty"]> = {
+  "简单": "easy",
+  "中等": "medium",
+  "困难": "hard",
+  easy: "easy",
+  medium: "medium",
+  hard: "hard",
+}
+
+export function convertParsedPlanToExtractedData(parsed: ParsedPlanResult): ExtractedPlanData {
+  const stages: Stage[] = []
+  let globalDayOffset = 0
+
+  for (const ps of parsed.stages) {
+    const weeks: WeekPlan[] = []
+
+    for (const wd of ps.weeks_detail ?? []) {
+      const days: DayPlan[] = []
+
+      for (const pd of wd.days ?? []) {
+        const tasks: DayTask[] = (pd.tasks ?? []).map((t, ti) => ({
+          id: nextTaskId(),
+          title: String(t.title ?? ""),
+          description: String(t.description ?? ""),
+          durationMinutes: typeof t.duration === "number" && t.duration > 0 ? t.duration : 25,
+          priority: PRIORITY_MAP[t.priority] ?? "medium",
+          difficulty: DIFFICULTY_MAP[typeof t.priority === "string" ? t.priority.toLowerCase() : ""] ?? "medium",
+          completed: false,
+          tags: ["学习"],
+        }))
+
+        const totalMinutes = tasks.reduce((sum, t) => sum + t.durationMinutes, 0)
+
+        const resources: LearningResource[] = (wd.resources ?? []).map((r, ri) => ({
+          id: nextResourceId(),
+          title: String(r.title ?? ""),
+          url: String(r.url ?? ""),
+          type: (["paper", "video", "code", "article", "book"].includes(r.type) ? r.type : "article") as LearningResource["type"],
+          source: String(r.source ?? ""),
+        }))
+
+        days.push({
+          date: `Day ${pd.day}`,
+          dayNumber: pd.day,
+          focus: "",
+          tasks,
+          totalMinutes,
+          notes: "",
+          resources: resources.length > 0 ? resources : undefined,
+        })
+      }
+
+      weeks.push({
+        weekNumber: wd.week,
+        goal: wd.name ?? `第${wd.week}周`,
+        days,
+      })
+    }
+
+    stages.push({
+      id: `stage-${ps.stage}`,
+      name: ps.name ?? `第${ps.stage}阶段`,
+      description: "",
+      durationWeeks: ps.weeks ?? weeks.length,
+      goal: "",
+      weeks,
+    })
+  }
+
+  const theories: PlanTheory[] = (parsed.theories ?? []).map((t) => ({
+    name: String(t.name ?? ""),
+    description: String(t.description ?? ""),
+    application: String(t.application ?? ""),
+    icon: (["brain", "focus", "timer", "zap", "layers", "sunrise", "repeat", "book"].includes(t.icon) ? t.icon : "brain") as PlanTheory["icon"],
+  }))
+
+  return {
+    title: parsed.title,
+    goal: parsed.stages[0]?.name ?? "",
+    stages,
+    theories,
+  }
 }

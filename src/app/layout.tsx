@@ -128,7 +128,7 @@ export default function RootLayout({
             <SkipToContent />
             <ParticleBackground />
             <Navbar />
-            <main id="main-content" className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1 flex flex-col">{children}</main>
             <Footer />
           </TooltipProvider>
           <Analytics />

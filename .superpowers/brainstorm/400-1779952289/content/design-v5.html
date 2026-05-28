@@ -1,0 +1,178 @@
+<h2>最终方案：资料面板跟随选中天变化</h2>
+<p class="subtitle">点击某一天 → 该天高亮 + 右侧资料面板切换为当天对应的学习资料</p>
+
+<div class="mockup">
+  <div class="mockup-header">计划详情页 — Day 23 被选中，右侧显示 YOLO 论文相关资源</div>
+  <div class="mockup-body">
+
+<!-- Header + Summary (same as before, compact) -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+  <div style="display:flex;align-items:center;gap:6px;">
+    <span style="color:#a78bfa;font-size:12px;">← 返回</span>
+    <span style="font-weight:700;font-size:14px;color:#e4e4e7;">计算机视觉学习计划</span>
+    <span style="font-size:8px;padding:2px 6px;border-radius:6px;background:rgba(147,51,234,0.15);color:#a78bfa;">快速定制</span>
+    <span style="font-size:8px;padding:2px 6px;border-radius:6px;background:rgba(34,197,94,0.15);color:#4ade80;">进行中</span>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+  <div style="padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);font-size:10px;color:#e4e4e7;"><span style="color:#71717a;">目标</span> 掌握CV核心算法</div>
+  <div style="padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);font-size:10px;color:#e4e4e7;"><span style="color:#71717a;">周期</span> 4阶段 · 8周 · 56天</div>
+  <div style="padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);font-size:10px;color:#a78bfa;"><span style="color:#71717a;">进度</span> 35% ▰▰▰▱▱▱▱▱▱</div>
+</div>
+
+<!-- Roadmap (compact) -->
+<div style="margin-bottom:14px;padding:14px;border-radius:12px;border:1px solid rgba(168,85,247,0.1);background:rgba(168,85,247,0.02);">
+  <div style="display:flex;align-items:center;gap:5px;margin-bottom:10px;">
+    <span>🗺️</span>
+    <span style="font-weight:700;font-size:12px;color:#e4e4e7;">学习路线图</span>
+  </div>
+  <div style="display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:2px 0;font-size:10px;">
+    <div style="flex-shrink:0;display:flex;align-items:flex-start;">
+      <div style="width:110px;padding:10px;border-radius:8px;border:1px solid rgba(34,197,94,0.2);background:rgba(34,197,94,0.03);"><span style="font-weight:600;color:#e4e4e7;">1. 基础搭建</span><br><span style="color:#4ade80;font-size:9px;">2周 · ✓</span></div>
+      <div style="width:16px;display:flex;align-items:flex-start;justify-content:center;padding-top:12px;"><span style="color:#52525b;">→</span></div>
+    </div>
+    <div style="flex-shrink:0;">
+      <div style="width:110px;padding:10px;border-radius:8px;border:2px solid rgba(168,85,247,0.45);background:rgba(168,85,247,0.08);box-shadow:0 0 14px rgba(168,85,247,0.08);"><span style="font-weight:600;color:#e4e4e7;">2. 能力提升</span><br><span style="color:#a78bfa;font-size:9px;">2周 · 40%</span></div>
+      <div style="margin-top:6px;margin-left:4px;display:flex;gap:5px;">
+        <div style="padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.01);font-size:9px;color:#a1a1aa;">第3周 ✓</div>
+        <div style="padding:6px 8px;border-radius:6px;border:2px solid rgba(250,204,21,0.3);background:rgba(250,204,21,0.04);font-size:9px;color:#facc15;font-weight:600;">★ 第4周</div>
+      </div>
+    </div>
+    <div style="width:16px;display:flex;align-items:flex-start;justify-content:center;padding-top:12px;"><span style="color:#3f3f46;">→</span></div>
+    <div style="flex-shrink:0;display:flex;align-items:flex-start;">
+      <div style="width:110px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.005);"><span style="font-weight:600;color:#71717a;">3. 巩固拓展</span><br><span style="color:#52525b;font-size:9px;">2周 · 待开始</span></div>
+      <div style="width:16px;display:flex;align-items:flex-start;justify-content:center;padding-top:12px;"><span style="color:#3f3f46;">→</span></div>
+    </div>
+    <div style="flex-shrink:0;">
+      <div style="width:110px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.002);"><span style="font-weight:600;color:#52525b;">4. 实战检验</span><br><span style="color:#3f3f46;font-size:9px;">2周 · 待开始</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN: Day list + Resources ===== -->
+<div style="display:flex;gap:14px;align-items:flex-start;">
+
+  <!-- LEFT: Day cards -->
+  <div style="flex:1;min-width:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <span style="font-size:13px;font-weight:700;color:#e4e4e7;">第 4 周 · 目标检测</span>
+        <span style="margin-left:6px;font-size:9px;color:#facc15;">⏳ 本周 2/5 完成</span>
+      </div>
+      <div style="display:flex;gap:3px;">
+        <span style="font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(168,85,247,0.1);color:#a78bfa;">时间线</span>
+        <span style="font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.03);color:#71717a;">理论依据</span>
+      </div>
+    </div>
+
+    <!-- Day 22 - not selected -->
+    <div style="margin-bottom:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.005);overflow:hidden;cursor:pointer;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:rgba(255,255,255,0.01);">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;font-weight:600;color:#a1a1aa;">Day 22</span>
+          <span style="font-size:9px;color:#52525b;">5/28 周一</span>
+          <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(59,130,246,0.1);color:#60a5fa;">新知</span>
+        </div>
+        <span style="font-size:9px;color:#4ade80;">✓ 3/3</span>
+      </div>
+    </div>
+
+    <!-- Day 23 - SELECTED (highlighted) -->
+    <div style="margin-bottom:8px;border-radius:10px;border:2px solid rgba(250,204,21,0.4);background:rgba(250,204,21,0.03);overflow:hidden;box-shadow:0 0 20px rgba(250,204,21,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(250,204,21,0.05);">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#facc15;"></div>
+          <span style="font-size:11px;font-weight:700;color:#facc15;">Day 23 · 今天</span>
+          <span style="font-size:9px;color:#a1a1aa;">5/29 周二</span>
+          <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(168,85,247,0.12);color:#a78bfa;">复习巩固</span>
+        </div>
+        <span style="font-size:9px;color:#facc15;">⏳ 0/3</span>
+      </div>
+      <div style="padding:4px 12px 8px;">
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;color:#e4e4e7;">
+          <input type="checkbox" style="accent-color:#a78bfa;width:13px;height:13px;">
+          <span>论文精读：You Only Look Once (YOLO)</span>
+          <span style="font-size:8px;color:#71717a;margin-left:auto;">30m</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;color:#e4e4e7;border-top:1px solid rgba(255,255,255,0.02);">
+          <input type="checkbox" style="accent-color:#a78bfa;width:13px;height:13px;">
+          <span>YOLOv3 vs SSD 对比分析</span>
+          <span style="font-size:8px;color:#71717a;margin-left:auto;">25m</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;color:#e4e4e7;border-top:1px solid rgba(255,255,255,0.02);">
+          <input type="checkbox" style="accent-color:#a78bfa;width:13px;height:13px;">
+          <span>搭建YOLOv3训练环境并跑通demo</span>
+          <span style="font-size:8px;color:#71717a;margin-left:auto;">35m</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day 24 - not selected -->
+    <div style="margin-bottom:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.003);overflow:hidden;cursor:pointer;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;font-weight:600;color:#71717a;">Day 24</span>
+          <span style="font-size:9px;color:#52525b;">5/30 周三</span>
+          <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(34,197,94,0.08);color:#4ade80;">实战</span>
+        </div>
+        <span style="font-size:9px;color:#52525b;">待开始</span>
+      </div>
+    </div>
+
+    <!-- Day 25-28 collapsed -->
+    <div style="padding:8px 12px;border-radius:8px;border:1px dashed rgba(255,255,255,0.03);text-align:center;font-size:10px;color:#52525b;">
+      Day 25 - Day 28 · 4天 · <span style="color:#a78bfa;cursor:pointer;">展开 ↓</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Resources panel — follows selected DAY -->
+  <div style="width:230px;flex-shrink:0;position:sticky;top:16px;">
+    <div style="border-radius:12px;border:1px solid rgba(250,204,21,0.12);background:rgba(250,204,21,0.02);padding:14px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#facc15;"></div>
+        <span style="font-size:11px;font-weight:700;color:#facc15;">Day 23 学习资料</span>
+      </div>
+      <div style="font-size:9px;color:#71717a;margin-bottom:10px;padding-left:12px;">YOLO论文 · 目标检测</div>
+
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:9px;color:#71717a;font-weight:600;text-transform:uppercase;padding-top:3px;">📄 必读论文</div>
+        <div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">
+          <div style="font-size:10px;color:#e4e4e7;">You Only Look Once: Unified, Real-Time Object Detection</div>
+          <div style="font-size:8px;color:#a78bfa;margin-top:2px;">arxiv.org/abs/1506.02640</div>
+        </div>
+        <div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">
+          <div style="font-size:10px;color:#e4e4e7;">YOLOv3: An Incremental Improvement</div>
+          <div style="font-size:8px;color:#a78bfa;margin-top:2px;">arxiv.org/abs/1804.02767</div>
+        </div>
+
+        <div style="font-size:9px;color:#71717a;font-weight:600;text-transform:uppercase;padding-top:3px;">🎥 视频讲解</div>
+        <div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">
+          <div style="font-size:10px;color:#e4e4e7;">C4W3: Object Detection</div>
+          <div style="font-size:8px;color:#a78bfa;margin-top:2px;">DeepLearning.AI · 吴恩达</div>
+        </div>
+
+        <div style="font-size:9px;color:#71717a;font-weight:600;text-transform:uppercase;padding-top:3px;">💻 配套代码</div>
+        <div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">
+          <div style="font-size:10px;color:#e4e4e7;">PyTorch YOLOv3 Implementation</div>
+          <div style="font-size:8px;color:#a78bfa;margin-top:2px;">github.com/eriklindernoren</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+</div>
+
+<!-- Interaction summary -->
+<div style="margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(250,204,21,0.04);border:1px solid rgba(250,204,21,0.08);">
+  <div style="font-size:11px;color:#facc15;font-weight:600;margin-bottom:4px;">交互行为（最终确认）</div>
+  <div style="font-size:10px;color:#a1a1aa;line-height:1.8;">
+    <div>1. <b>路线图</b> — 页面顶部横向展示 4 阶段节点，<b>点击阶段</b>展开/折叠周节点</div>
+    <div>2. <b>点击周</b> — 下方切换为该周的按天任务列表（默认展示当前周）</div>
+    <div>3. <b>点击天</b> — 该天卡片高亮选中 + <b>右侧资料面板切换为当天对应的学习资料</b></div>
+    <div>4. <b>勾选任务</b> — 完成任务后打勾，进度条实时更新</div>
+    <div>5. <b>资料面板</b> — 始终跟随当前选中的天，显示论文/视频/代码链接</div>
+  </div>
+</div>

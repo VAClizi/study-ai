@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import type { LearningPlan, DayTask } from "@/types/plan"
 import { mockPlanService } from "@/services/plan.mock"
+import type { ExtractedPlanData } from "@/lib/plan-parser"
 
 interface PlanState {
   plans: LearningPlan[]
@@ -11,6 +12,7 @@ interface PlanState {
   loadPlans: (userId: string) => Promise<void>
   loadPlan: (id: string) => Promise<void>
   createPlanFromChat: (chatContent: string, userId: string, mode: "quick" | "detailed", chatSessionId?: string) => Promise<LearningPlan>
+  createPlanFromParsedData: (extracted: ExtractedPlanData, userId: string, mode: "quick" | "detailed", chatSessionId?: string) => Promise<LearningPlan>
   updateTask: (planId: string, dayNumber: number, taskId: string, completed: boolean) => Promise<void>
   loadTodayTasks: (planId: string) => Promise<void>
   deletePlan: (id: string) => Promise<void>
@@ -36,6 +38,12 @@ export const usePlanStore = create<PlanState>((set, get) => ({
 
   createPlanFromChat: async (chatContent: string, userId: string, mode: "quick" | "detailed", chatSessionId?: string) => {
     const plan = await mockPlanService.createPlanFromChat(chatContent, userId, mode, chatSessionId)
+    set(state => ({ plans: [...state.plans, plan], currentPlan: plan }))
+    return plan
+  },
+
+  createPlanFromParsedData: async (extracted: ExtractedPlanData, userId: string, mode: "quick" | "detailed", chatSessionId?: string) => {
+    const plan = await mockPlanService.createPlanFromParsedData(extracted, userId, mode, chatSessionId)
     set(state => ({ plans: [...state.plans, plan], currentPlan: plan }))
     return plan
   },

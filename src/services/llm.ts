@@ -1,4 +1,4 @@
-export type LLMModel = "deepseek-chat" | "deepseek-reasoner"
+export type LLMModel = "deepseek-v4-pro" | "deepseek-v4-flash"
 
 export interface LLMMessage {
   role: "system" | "user" | "assistant"
@@ -44,7 +44,7 @@ export async function* streamChat(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       messages,
-      model: options?.model ?? "deepseek-chat",
+      model: options?.model ?? "deepseek-v4-pro",
       temperature: options?.temperature ?? 0.7,
       max_tokens: options?.maxTokens ?? 4096,
       stream: true,
@@ -94,7 +94,7 @@ export async function chat(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       messages,
-      model: options?.model ?? "deepseek-chat",
+      model: options?.model ?? "deepseek-v4-pro",
       temperature: options?.temperature ?? 0.7,
       max_tokens: options?.maxTokens ?? 4096,
       stream: false,

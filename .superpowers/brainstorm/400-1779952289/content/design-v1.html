@@ -1,0 +1,140 @@
+<h2>路线图设计预览</h2>
+<p class="subtitle">学习计划详情页 — 新增「路线图」Tab，横向阶段节点流程</p>
+
+<div class="mockup">
+  <div class="mockup-header">计划详情页 / 路线图 Tab</div>
+  <div class="mockup-body">
+
+<!-- Top bar -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span style="width:20px;height:20px;border-radius:6px;background:rgba(147,51,234,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;">←</span>
+    <span style="font-weight:600;font-size:15px;color:#e4e4e7;">计算机视觉学习计划</span>
+    <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(147,51,234,0.15);color:#a78bfa;">快速定制</span>
+    <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(34,197,94,0.15);color:#4ade80;">进行中</span>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div style="display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid rgba(255,255,255,0.06);">
+  <div style="padding:8px 16px;font-size:13px;color:#71717a;border-bottom:2px solid transparent;margin-bottom:-2px;">时间线</div>
+  <div style="padding:8px 16px;font-size:13px;color:#71717a;border-bottom:2px solid transparent;margin-bottom:-2px;">理论依据</div>
+  <div style="padding:8px 16px;font-size:13px;color:#a78bfa;border-bottom:2px solid #a78bfa;margin-bottom:-2px;font-weight:600;">路线图</div>
+</div>
+
+<!-- Roadmap: horizontal stage cards with arrows -->
+<div style="display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:24px 0;">
+  <!-- Stage 1 -->
+  <div style="flex-shrink:0;display:flex;align-items:center;">
+    <div style="width:180px;padding:20px 16px;border-radius:16px;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.05);position:relative;">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:#4ade80;font-size:14px;font-weight:700;">1</div>
+      <div style="font-weight:700;font-size:14px;color:#e4e4e7;margin-bottom:4px;">基础搭建</div>
+      <div style="font-size:11px;color:#71717a;margin-bottom:10px;">Foundation</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#a1a1aa;">Python</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#a1a1aa;">NumPy</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#a1a1aa;">OpenCV</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);"><div style="width:100%;height:100%;border-radius:2px;background:#4ade80;"></div></div>
+        <span style="font-size:10px;color:#4ade80;">✓ 完成</span>
+      </div>
+      <div style="position:absolute;top:-6px;right:-6px;width:12px;height:12px;border-radius:50%;background:#4ade80;border:2px solid #09090b;"></div>
+    </div>
+    <div style="width:40px;display:flex;align-items:center;justify-content:center;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+
+  <!-- Stage 2 -->
+  <div style="flex-shrink:0;display:flex;align-items:center;">
+    <div style="width:180px;padding:20px 16px;border-radius:16px;border:1px solid rgba(168,85,247,0.4);background:rgba(168,85,247,0.08);position:relative;box-shadow:0 0 20px rgba(168,85,247,0.1);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(168,85,247,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:#c084fc;font-size:14px;font-weight:700;">2</div>
+      <div style="font-weight:700;font-size:14px;color:#e4e4e7;margin-bottom:4px;">能力提升</div>
+      <div style="font-size:11px;color:#71717a;margin-bottom:10px;">Skill Building</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#a1a1aa;">CNN</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#a1a1aa;">YOLO</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#a1a1aa;">ResNet</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);"><div style="width:40%;height:100%;border-radius:2px;background:#a78bfa;"></div></div>
+        <span style="font-size:10px;color:#a78bfa;">40%</span>
+      </div>
+      <div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:#a78bfa;animation:pulse 2s infinite;"></div>
+      <div style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:rgba(168,85,247,0.3);"></div>
+    </div>
+    <div style="width:40px;display:flex;align-items:center;justify-content:center;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#52525b" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+
+  <!-- Stage 3 -->
+  <div style="flex-shrink:0;display:flex;align-items:center;">
+    <div style="width:180px;padding:20px 16px;border-radius:16px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.01);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:#52525b;font-size:14px;font-weight:700;">3</div>
+      <div style="font-weight:700;font-size:14px;color:#a1a1aa;margin-bottom:4px;">巩固拓展</div>
+      <div style="font-size:11px;color:#52525b;margin-bottom:10px;">Consolidation</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#52525b;">GAN</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.04);color:#52525b;">3D视觉</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);"><div style="width:0%;height:100%;border-radius:2px;background:#52525b;"></div></div>
+        <span style="font-size:10px;color:#52525b;">待开始</span>
+      </div>
+    </div>
+    <div style="width:40px;display:flex;align-items:center;justify-content:center;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#52525b" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+
+  <!-- Stage 4 -->
+  <div style="flex-shrink:0;">
+    <div style="width:180px;padding:20px 16px;border-radius:16px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.005);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:#3f3f46;font-size:14px;font-weight:700;">4</div>
+      <div style="font-weight:700;font-size:14px;color:#71717a;margin-bottom:4px;">实战检验</div>
+      <div style="font-size:11px;color:#3f3f46;margin-bottom:10px;">Practice</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.03);color:#3f3f46;">项目实战</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.04);"><div style="width:0%;height:100%;border-radius:2px;"></div></div>
+        <span style="font-size:10px;color:#52525b;">待开始</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Interaction hint -->
+<div style="margin-top:20px;padding:12px 16px;border-radius:12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.1);">
+  <div style="font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:4px;">交互说明</div>
+  <div style="font-size:11px;color:#a1a1aa;display:flex;gap:16px;flex-wrap:wrap;">
+    <span>🖱 点击阶段卡片 → 卡片下方展开周节点</span>
+    <span>🟢 绿色 = 已完成</span>
+    <span>🟣 紫色 = 进行中</span>
+    <span>⚪ 灰色 = 未开始</span>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<div class="pros-cons">
+  <div class="pros"><h4>优点</h4>
+    <ul>
+      <li>全貌一目了然，4 阶段路径清晰</li>
+      <li>进度可视化（进度条 + 颜色状态）</li>
+      <li>横向滚动适配移动端</li>
+      <li>点击展开可看详细周/日</li>
+      <li>与现有时间线 Tab 互补不冲突</li>
+    </ul>
+  </div>
+  <div class="cons"><h4>待确认</h4>
+    <ul>
+      <li>卡片上的标签内容从哪来？AI 生成还是模板？</li>
+      <li>是否需要标注阶段之间的依赖关系（箭头上的文字）？</li>
+      <li>移动端体验：横向滚动还是纵向堆叠？</li>
+    </ul>
+  </div>
+</div>

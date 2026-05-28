@@ -1,4 +1,4 @@
-const DEEPSEEK_BASE = "https://api.deepseek.com/v1/chat/completions"
+const DEEPSEEK_BASE = "https://api.deepseek.com/chat/completions"
 
 export async function POST(req: Request) {
   const apiKey = process.env.DEEPSEEK_API_KEY
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: body.model ?? "deepseek-chat",
+      model: body.model ?? "deepseek-v4-pro",
       messages: body.messages,
       temperature: body.temperature ?? 0.7,
       max_tokens: body.max_tokens ?? 4096,

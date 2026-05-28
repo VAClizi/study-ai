@@ -1,6 +1,6 @@
 import type { LearningPlan, DayTask, Stage, PlanTheory } from "@/types/plan"
 import { mockDelay, randomId } from "@/lib/mock-delay"
-import { extractPlanData } from "@/lib/plan-parser"
+import { extractPlanData, type ExtractedPlanData } from "@/lib/plan-parser"
 
 const MOCK_THEORIES: PlanTheory[] = [
   {
@@ -59,9 +59,54 @@ export interface MockPlanService {
   getPlans(userId: string): Promise<LearningPlan[]>
   getPlan(id: string): Promise<LearningPlan | null>
   createPlanFromChat(chatContent: string, userId: string, mode: "quick" | "detailed", chatSessionId?: string): Promise<LearningPlan>
+  createPlanFromParsedData(extracted: ExtractedPlanData, userId: string, mode: "quick" | "detailed", chatSessionId?: string): Promise<LearningPlan>
   updateTask(planId: string, dayNumber: number, taskId: string, completed: boolean): Promise<void>
   getTodayTasks(planId: string): Promise<{ date: string; dayNumber: number; tasks: DayTask[] } | null>
   deletePlan(id: string): Promise<void>
+}
+
+function buildPlan(
+  extracted: ExtractedPlanData,
+  userId: string,
+  mode: "quick" | "detailed",
+  chatSessionId?: string,
+): LearningPlan {
+  const now = new Date()
+
+  const stages: Stage[] = extracted.stages?.length ? extracted.stages : generateFallbackStages()
+
+  let totalDays = 0
+  for (const stage of stages) {
+    for (const week of stage.weeks) {
+      totalDays += week.days.length
+    }
+  }
+
+  const title = extracted.title ?? `${mode === "quick" ? "快速" : "深度"}学习计划`
+  const goalTitle = extracted.goal ?? "掌握目标技能"
+
+  return {
+    id: `plan-${randomId()}`,
+    userId,
+    title,
+    goal: {
+      title: goalTitle,
+      description: "通过系统化的学习计划达成学习目标",
+      deadline: new Date(now.getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      currentLevel: "初级",
+      targetLevel: "中高级",
+    },
+    mode,
+    stages,
+    theories: extracted.theories?.length ? extracted.theories : MOCK_THEORIES,
+    weeklyGoal: "完成本周所有学习任务，建立稳定的学习节奏",
+    monthlyGoal: "完成前两个阶段的学习，掌握核心基础知识和应用能力",
+    phaseGoal: "通过系统学习，从基础到实战，实现学习目标",
+    status: "active",
+    createdAt: now.toISOString(),
+    endDate: new Date(now.getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    chatSessionId,
+  }
 }
 
 export const mockPlanService: MockPlanService = {
@@ -77,60 +122,20 @@ export const mockPlanService: MockPlanService = {
 
   async createPlanFromChat(chatContent: string, userId: string, mode: "quick" | "detailed", chatSessionId?: string) {
     await mockDelay(800, 2000)
-    const now = new Date()
-
-    // Try to extract structured plan data from AI response
     const extracted = extractPlanData(chatContent)
-
-    // Use AI-generated stages if available, otherwise fall back to hardcoded template
-    const stages: Stage[] = (extracted?.stages?.length ? extracted.stages : null) ?? generateFallbackStages()
-
-    // Count total days
-    let totalDays = 0
-    for (const stage of stages) {
-      for (const week of stage.weeks) {
-        totalDays += week.days.length
-      }
-    }
-
-    // Extract title/goal from AI data or fall back to regex
-    const title = extracted?.title
-      || (() => {
-        const m = chatContent.match(/(?:目标|学习|掌握|达成)[：:]\s*(.+?)(?:\n|$)/i)
-            || chatContent.match(/为你制定.*?(?:学习|掌握)(.+?)(?:的|，)/)
-        const g = m ? m[1]?.trim().slice(0, 30) : null
-        return g ? `${g}${mode === "quick" ? "快速" : "深度"}学习计划` : `${mode === "quick" ? "快速" : "深度"}学习计划`
-      })()
-
-    const goalTitle = extracted?.goal
-      || (() => {
-        const m = chatContent.match(/(?:目标|学习|掌握|达成)[：:]\s*(.+?)(?:\n|$)/i)
-        return m ? m[1]?.trim().slice(0, 30) : null
-      })()
-      || "掌握目标技能"
-
-    const plan: LearningPlan = {
-      id: `plan-${randomId()}`,
+    const plan = buildPlan(
+      extracted ?? { stages: [], theories: [] },
       userId,
-      title,
-      goal: {
-        title: goalTitle,
-        description: "通过系统化的学习计划达成学习目标",
-        deadline: new Date(now.getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-        currentLevel: "初级",
-        targetLevel: "中高级",
-      },
       mode,
-      stages,
-      theories: extracted?.theories?.length ? extracted.theories : MOCK_THEORIES,
-      weeklyGoal: "完成本周所有学习任务，建立稳定的学习节奏",
-      monthlyGoal: "完成前两个阶段的学习，掌握核心基础知识和应用能力",
-      phaseGoal: "通过系统学习，从基础到实战，实现学习目标",
-      status: "active",
-      createdAt: now.toISOString(),
-      endDate: new Date(now.getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
       chatSessionId,
-    }
+    )
+    plans.push(plan)
+    return plan
+  },
+
+  async createPlanFromParsedData(extracted: ExtractedPlanData, userId: string, mode: "quick" | "detailed", chatSessionId?: string) {
+    await mockDelay(300, 600)
+    const plan = buildPlan(extracted, userId, mode, chatSessionId)
     plans.push(plan)
     return plan
   },
