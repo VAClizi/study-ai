@@ -4,6 +4,7 @@ import { useParams } from "next/navigation"
 import { usePlan } from "@/hooks/use-plan"
 import { useAuthStore } from "@/stores/auth-store"
 import { PlanTimeline } from "@/components/plan/plan-timeline"
+import { LearningRoadmap } from "@/components/plan/learning-roadmap"
 import { TheoryPanel } from "@/components/plan/theory-panel"
 import { PlanProgressBar } from "@/components/plan/progress-bar"
 import { DayTaskCard } from "@/components/plan/day-task-card"
@@ -153,6 +154,15 @@ export default function PlanDetailPage() {
         totalTasks={totalTasks}
         currentDay={currentDay}
         totalDays={totalDays}
+      />
+
+      {/* Learning Roadmap */}
+      <LearningRoadmap
+        stages={currentPlan.stages}
+        currentDay={currentDay}
+        onToggleTask={(dayNumber, taskId, completed) =>
+          toggleTask(currentPlan.id, dayNumber, taskId, completed)
+        }
       />
 
       {/* Tabs: Timeline vs Theory */}

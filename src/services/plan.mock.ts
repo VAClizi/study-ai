@@ -1,4 +1,4 @@
-import type { LearningPlan, DayTask, Stage, PlanTheory } from "@/types/plan"
+import type { LearningPlan, DayTask, Stage, PlanTheory, LearningResource } from "@/types/plan"
 import { mockDelay, randomId } from "@/lib/mock-delay"
 
 const MOCK_THEORIES: PlanTheory[] = [
@@ -153,6 +153,24 @@ export const mockPlanService: MockPlanService = {
   },
 }
 
+const SAMPLE_RESOURCES: Record<number, LearningResource[]> = {
+  22: [
+    { id: "r1", title: "ImageNet Classification with Deep CNNs (AlexNet)", url: "https://arxiv.org/abs/1404.5997", type: "paper", source: "arxiv.org" },
+    { id: "r2", title: "Very Deep Convolutional Networks (VGG)", url: "https://arxiv.org/abs/1409.1556", type: "paper", source: "arxiv.org" },
+    { id: "r3", title: "CNN Fundamentals", url: "https://www.deeplearning.ai/courses", type: "video", source: "DeepLearning.AI" },
+  ],
+  23: [
+    { id: "r4", title: "You Only Look Once: Unified, Real-Time Object Detection", url: "https://arxiv.org/abs/1506.02640", type: "paper", source: "arxiv.org" },
+    { id: "r5", title: "YOLOv3: An Incremental Improvement", url: "https://arxiv.org/abs/1804.02767", type: "paper", source: "arxiv.org" },
+    { id: "r6", title: "C4W3: Object Detection", url: "https://www.deeplearning.ai/courses", type: "video", source: "DeepLearning.AI" },
+    { id: "r7", title: "PyTorch YOLOv3 Implementation", url: "https://github.com/eriklindernoren/PyTorch-YOLOv3", type: "code", source: "GitHub" },
+  ],
+  24: [
+    { id: "r8", title: "COCO Dataset", url: "https://cocodataset.org", type: "article", source: "cocodataset.org" },
+    { id: "r9", title: "mAP (mean Average Precision) Explained", url: "https://github.com/rafaelpadilla/Object-Detection-Metrics", type: "code", source: "GitHub" },
+  ],
+}
+
 function generateStages(): Stage[] {
   return [
     {
@@ -204,6 +222,7 @@ function generateWeeks(startWeek: number, count: number) {
         tasks: generateMockDayTasks((weekNum - 1) * 7 + d + 1),
         totalMinutes: 60 + Math.floor(Math.random() * 30),
         notes: "",
+        resources: SAMPLE_RESOURCES[(weekNum - 1) * 7 + d + 1] ?? [],
       })),
     })
   }
