@@ -1,5 +1,6 @@
 import type { LearningPlan, DayTask, Stage, PlanTheory, LearningResource } from "@/types/plan"
 import { mockDelay, randomId } from "@/lib/mock-delay"
+import { extractPlanData } from "@/lib/plan-parser"
 
 const MOCK_THEORIES: PlanTheory[] = [
   {
@@ -83,6 +84,9 @@ export const mockPlanService: MockPlanService = {
       || chatContent.match(/为你制定.*?(?:学习|掌握)(.+?)(?:的|，)/)
     const extractedGoal = goalMatch ? goalMatch[1]?.trim().slice(0, 30) : null
 
+    // Extract structured plan data from AI response (resources + theories)
+    const extracted = extractPlanData(chatContent)
+
     const plan: LearningPlan = {
       id: `plan-${randomId()}`,
       userId,
@@ -95,8 +99,8 @@ export const mockPlanService: MockPlanService = {
         targetLevel: "中高级",
       },
       mode,
-      stages: generateStages(),
-      theories: MOCK_THEORIES,
+      stages: generateStages(extracted?.resourcesByDay),
+      theories: extracted?.theories?.length ? extracted.theories : MOCK_THEORIES,
       weeklyGoal: "完成本周所有学习任务，建立稳定的学习节奏",
       monthlyGoal: "完成前两个阶段的学习，掌握核心基础知识和应用能力",
       phaseGoal: "通过8周系统学习，从基础到实战，实现学习目标",
@@ -171,7 +175,7 @@ const SAMPLE_RESOURCES: Record<number, LearningResource[]> = {
   ],
 }
 
-function generateStages(): Stage[] {
+function generateStages(resourcesByDay?: Map<number, LearningResource[]> | null): Stage[] {
   return [
     {
       id: "stage-1",
@@ -179,7 +183,7 @@ function generateStages(): Stage[] {
       description: "建立学习节奏，掌握基础知识框架",
       durationWeeks: 2,
       goal: "完成基础知识学习，建立稳定的学习习惯",
-      weeks: generateWeeks(1, 2),
+      weeks: generateWeeks(1, 2, resourcesByDay),
     },
     {
       id: "stage-2",
@@ -187,7 +191,7 @@ function generateStages(): Stage[] {
       description: "深化理解，开始实际应用",
       durationWeeks: 2,
       goal: "掌握核心技能，能独立完成基础项目",
-      weeks: generateWeeks(3, 2),
+      weeks: generateWeeks(3, 2, resourcesByDay),
     },
     {
       id: "stage-3",
@@ -195,7 +199,7 @@ function generateStages(): Stage[] {
       description: "系统化知识，形成长期记忆",
       durationWeeks: 2,
       goal: "知识体系完整，能够灵活运用",
-      weeks: generateWeeks(5, 2),
+      weeks: generateWeeks(5, 2, resourcesByDay),
     },
     {
       id: "stage-4",
@@ -203,27 +207,36 @@ function generateStages(): Stage[] {
       description: "通过项目/考试检验成果",
       durationWeeks: 2,
       goal: "通过实战检验学习成果，达成最终目标",
-      weeks: generateWeeks(7, 2),
+      weeks: generateWeeks(7, 2, resourcesByDay),
     },
   ]
 }
 
-function generateWeeks(startWeek: number, count: number) {
+function generateWeeks(startWeek: number, count: number, resourcesByDay?: Map<number, LearningResource[]> | null) {
   const weeks = []
   for (let w = 0; w < count; w++) {
     const weekNum = startWeek + w
     weeks.push({
       weekNumber: weekNum,
       goal: `第${weekNum}周：${["建立基础习惯", "加强理解与应用", "系统化与深化", "综合实战与检验"][Math.min(weekNum - 1, 3)]}`,
-      days: Array.from({ length: 7 }, (_, d) => ({
-        date: `Day ${(weekNum - 1) * 7 + d + 1}`,
-        dayNumber: (weekNum - 1) * 7 + d + 1,
-        focus: getDayFocus((weekNum - 1) * 7 + d),
-        tasks: generateMockDayTasks((weekNum - 1) * 7 + d + 1),
-        totalMinutes: 60 + Math.floor(Math.random() * 30),
-        notes: "",
-        resources: SAMPLE_RESOURCES[(weekNum - 1) * 7 + d + 1] ?? [],
-      })),
+      days: Array.from({ length: 7 }, (_, d) => {
+        const dayNum = (weekNum - 1) * 7 + d + 1
+        // Priority: AI-parsed resources → hardcoded SAMPLE → empty
+        const aiResources = resourcesByDay?.get(dayNum)
+        const sampleResources = SAMPLE_RESOURCES[dayNum]
+        const dayResources = aiResources?.length ? aiResources
+          : sampleResources?.length ? sampleResources
+          : []
+        return {
+          date: `Day ${dayNum}`,
+          dayNumber: dayNum,
+          focus: getDayFocus((weekNum - 1) * 7 + d),
+          tasks: generateMockDayTasks(dayNum),
+          totalMinutes: 60 + Math.floor(Math.random() * 30),
+          notes: "",
+          resources: dayResources,
+        }
+      }),
     })
   }
   return weeks

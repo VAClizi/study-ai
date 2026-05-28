@@ -82,7 +82,57 @@ export const QUICK_MODE_RULES = `## 核心规则
 
 如果用户的问题与学习计划、学习资料、学习反馈、学习执行、自律提升有关，则正常回答。
 
-其余明显无关问题，统一回复："当前仅支持学习规划与学习督导相关内容。"`
+其余明显无关问题，统一回复："当前仅支持学习规划与学习督导相关内容。"
+
+### 8. 结构化数据输出规则
+
+当你输出完整学习计划后，必须在末尾附加一个结构化 JSON 数据块，供系统解析使用。这部分不会展示给用户，但对系统至关重要。
+
+**输出格式：**
+- 用独立一行的 [PLAN_DATA] 开头，独立一行的 [/PLAN_DATA] 结尾
+- 中间内容必须是合法的 JSON 对象，不要添加注释或额外说明文字
+
+**JSON 结构要求：**
+
+{
+  "resources": [
+    {
+      "week": 1,
+      "title": "具体论文/视频/课程名称",
+      "url": "https://...",
+      "type": "paper",
+      "source": "来源平台名"
+    }
+  ],
+  "theories": [
+    {
+      "name": "理论名称",
+      "description": "一句话描述该理论",
+      "application": "在本学习计划中如何应用该理论",
+      "icon": "brain"
+    }
+  ]
+}
+
+**字段说明：**
+- resources 数组中：
+  - week: 数字，表示该资源属于第几周
+  - title: 资源的具体名称（论文标题、课程名、视频标题等）
+  - url: 完整的 HTTPS 链接，确保链接真实有效
+  - type: 枚举值，可选 "paper"（论文）、"video"（视频）、"code"（代码）、"article"（文章）、"book"（书籍）
+  - source: 资源来源（如 arxiv.org、GitHub、DeepLearning.AI、bilibili 等）
+- theories 数组中：
+  - name: 理论名称（如"间隔重复"、"深度工作"、"番茄工作法"等）
+  - description: 一句话简述理论核心
+  - application: 该理论在本计划中的具体应用方式
+  - icon: 可选 "brain"、"focus"、"timer"、"zap"、"layers"、"sunrise"、"repeat"、"book"
+
+**要求：**
+- 每个周至少提供 1-2 个与该周主题直接相关的学习资源
+- 理论依据提供 3-5 个与计划相关的即可，不要堆砌
+- 所有 URL 必须是真实可访问的
+- JSON 必须合法可解析，字符串用双引号
+- 结合当前日期，优先推荐最新资源`
 
 // 深度模式核心规则
 export const DETAILED_MODE_RULES = `## 核心规则
@@ -168,4 +218,54 @@ export const DETAILED_MODE_RULES = `## 核心规则
 
 如果用户的问题与学习计划、学习资料、学习反馈、学习执行、自律提升有关，则正常回答。
 
-其余明显无关问题，统一回复："当前仅支持学习规划与学习督导相关内容。"`
+其余明显无关问题，统一回复："当前仅支持学习规划与学习督导相关内容。"
+
+### 8. 结构化数据输出规则
+
+当你输出完整学习计划后，必须在末尾附加一个结构化 JSON 数据块，供系统解析使用。这部分不会展示给用户，但对系统至关重要。
+
+**输出格式：**
+- 用独立一行的 [PLAN_DATA] 开头，独立一行的 [/PLAN_DATA] 结尾
+- 中间内容必须是合法的 JSON 对象，不要添加注释或额外说明文字
+
+**JSON 结构要求：**
+
+{
+  "resources": [
+    {
+      "week": 1,
+      "title": "具体论文/视频/课程名称",
+      "url": "https://...",
+      "type": "paper",
+      "source": "来源平台名"
+    }
+  ],
+  "theories": [
+    {
+      "name": "理论名称",
+      "description": "一句话描述该理论",
+      "application": "在本学习计划中如何应用该理论",
+      "icon": "brain"
+    }
+  ]
+}
+
+**字段说明：**
+- resources 数组中：
+  - week: 数字，表示该资源属于第几周
+  - title: 资源的具体名称（论文标题、课程名、视频标题等）
+  - url: 完整的 HTTPS 链接，确保链接真实有效
+  - type: 枚举值，可选 "paper"（论文）、"video"（视频）、"code"（代码）、"article"（文章）、"book"（书籍）
+  - source: 资源来源（如 arxiv.org、GitHub、DeepLearning.AI、bilibili 等）
+- theories 数组中：
+  - name: 理论名称（如"间隔重复"、"深度工作"、"番茄工作法"等）
+  - description: 一句话简述理论核心
+  - application: 该理论在本计划中的具体应用方式
+  - icon: 可选 "brain"、"focus"、"timer"、"zap"、"layers"、"sunrise"、"repeat"、"book"
+
+**要求：**
+- 每个周至少提供 1-2 个与该周主题直接相关的学习资源
+- 理论依据提供 3-5 个与计划相关的即可，不要堆砌
+- 所有 URL 必须是真实可访问的
+- JSON 必须合法可解析，字符串用双引号
+- 结合当前日期，优先推荐最新资源`

@@ -3,18 +3,14 @@
 import { useParams } from "next/navigation"
 import { usePlan } from "@/hooks/use-plan"
 import { useAuthStore } from "@/stores/auth-store"
-import { PlanTimeline } from "@/components/plan/plan-timeline"
 import { LearningRoadmap } from "@/components/plan/learning-roadmap"
 import { TheoryPanel } from "@/components/plan/theory-panel"
 import { PlanProgressBar } from "@/components/plan/progress-bar"
-import { DayTaskCard } from "@/components/plan/day-task-card"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { EmptyState } from "@/components/shared/empty-state"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, BookOpen, Calendar, Target, BarChart3, Lightbulb } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { ArrowLeft, BookOpen, Calendar, Target, Lightbulb } from "lucide-react"
 import Link from "next/link"
 import { useT, useTF } from "@/lib/i18n"
 
@@ -165,64 +161,14 @@ export default function PlanDetailPage() {
         }
       />
 
-      {/* Tabs: Timeline vs Theory */}
-      <Tabs defaultValue="timeline">
-        <TabsList className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.04]">
-          <TabsTrigger value="timeline" className="data-[state=active]:bg-black/[0.06] dark:data-[state=active]:bg-white/[0.06] gap-1.5">
-            <BarChart3 className="h-3.5 w-3.5" />
-            {t("planDetail.timeline")}
-          </TabsTrigger>
-          <TabsTrigger value="theory" className="data-[state=active]:bg-black/[0.06] dark:data-[state=active]:bg-white/[0.06] gap-1.5">
-            <Lightbulb className="h-3.5 w-3.5" />
-            {t("planDetail.scientificBasis")}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="timeline" className="mt-6 space-y-6">
-          <PlanTimeline stages={currentPlan.stages} />
-
-          {/* Week detail with tasks */}
-          {currentPlan.stages.map((stage) =>
-            stage.weeks.map((week) => (
-              <div key={`${stage.id}-${week.weekNumber}`} className="space-y-3">
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-                  {tf("planDetail.weekNum", { num: week.weekNumber })}
-                  <Badge className="bg-black/5 dark:bg-white/5 text-zinc-400 dark:text-zinc-500 text-xs font-normal">
-                    {week.goal}
-                  </Badge>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {week.days.map((day) => (
-                    <Card key={day.dayNumber} className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm text-zinc-900 dark:text-white flex items-center justify-between">
-                          Day {day.dayNumber}
-                          <Badge className="bg-black/5 dark:bg-white/5 text-zinc-400 dark:text-zinc-500 text-[10px]">
-                            {day.totalMinutes} {t("planDetail.minutes")}
-                          </Badge>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        {day.tasks.map((task) => (
-                          <DayTaskCard
-                            key={task.id}
-                            task={task}
-                            onToggle={(completed) => toggleTask(currentPlan.id, day.dayNumber, task.id, completed)}
-                          />
-                        ))}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </TabsContent>
-
-        <TabsContent value="theory" className="mt-6">
-          <TheoryPanel theories={currentPlan.theories} />
-        </TabsContent>
-      </Tabs>
+      {/* Scientific Basis */}
+      <div className="mt-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Lightbulb className="h-4 w-4 text-purple-400" />
+          <h2 className="text-sm font-bold text-zinc-200">{t("planDetail.scientificBasis")}</h2>
+        </div>
+        <TheoryPanel theories={currentPlan.theories} />
+      </div>
     </div>
   )
 }
