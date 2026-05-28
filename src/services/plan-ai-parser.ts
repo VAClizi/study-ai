@@ -45,6 +45,34 @@ export interface ParsedPlanResult {
   }[]
 }
 
+function extractJsonFromText(text: string): string {
+  const start = text.indexOf("{")
+  if (start === -1) return text
+
+  let depth = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+    if (inString) {
+      if (escaped) { escaped = false; continue }
+      if (ch === "\\") { escaped = true; continue }
+      if (ch === '"') { inString = false; continue }
+      continue
+    }
+    if (ch === '"') { inString = true; continue }
+    if (ch === "{") { depth++ }
+    else if (ch === "}") {
+      depth--
+      if (depth === 0) return text.slice(start, i + 1)
+    }
+  }
+
+  if (depth > 0) return text.slice(start) + "}".repeat(depth)
+  return text
+}
+
 const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任务是将给定的学习计划文本转换为结构化 JSON。
 
 **输出格式（严格按此 JSON Schema）：**
@@ -121,15 +149,28 @@ const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任
  */
 export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanResult | null> {
   try {
-    // Truncate to key content (first 6000 chars + last 500 chars for summary)
-    const truncated = planText.length > 7000
-      ? planText.slice(0, 6000) + "\n...(truncated)...\n" + planText.slice(-500)
-      : planText
+    // Prioritize [PLAN_DATA] section: keep intro context short, preserve full JSON block
+    let inputText: string
+    const planDataIdx = planText.indexOf("[PLAN_DATA]")
+    if (planDataIdx !== -1) {
+      const before = planText.slice(0, planDataIdx)
+      const after = planText.slice(planDataIdx)
+      // Keep last 500 chars of context before [PLAN_DATA] + the full block
+      const contextBefore = before.length > 500
+        ? "...(truncated)...\n" + before.slice(-500)
+        : before
+      inputText = contextBefore + "\n" + after
+    } else {
+      // No [PLAN_DATA] marker: truncate to reasonable size
+      inputText = planText.length > 7000
+        ? planText.slice(0, 6000) + "\n...(truncated)...\n" + planText.slice(-500)
+        : planText
+    }
 
     const response = await chat(
       [
         { role: "system", content: PARSE_SYSTEM_PROMPT },
-        { role: "user", content: `Convert the following learning plan text into structured JSON as specified:\n\n${truncated}` },
+        { role: "user", content: `Convert the following learning plan text into structured JSON as specified:\n\n${inputText}` },
       ],
       { model: "mimo-v2-flash", temperature: 0.1, maxTokens: 4096 },
     )
@@ -139,13 +180,15 @@ export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanR
     // Strip markdown code fences
     jsonText = jsonText.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "")
 
-    // If the response has text before/after JSON, try to extract just the JSON object
-    const jsonMatch = jsonText.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      jsonText = jsonMatch[0]
+    // Extract JSON using brace balancing (more robust than greedy regex)
+    const startBrace = jsonText.indexOf("{")
+    if (startBrace === -1) {
+      console.error("AI parsePlanTextWithAI: no JSON object found in response")
+      return null
     }
+    jsonText = extractJsonFromText(jsonText)
 
-    // Remove trailing commas before closing braces/brackets (common AI mistake)
+    // Remove trailing commas before closing braces/brackets
     jsonText = jsonText.replace(/,(\s*[}\]])/g, "$1")
 
     const parsed = JSON.parse(jsonText)
