@@ -1,7 +1,46 @@
-import type { CheckinRecord, CheckinFeedback, GrowthMetrics, UserStats } from "@/types/checkin"
+import type { CheckinRecord, CheckinFeedback } from "@/types/checkin"
 import { mockDelay, randomId } from "@/lib/mock-delay"
+import { getLocalDate, getLocalDateOffset } from "@/lib/date"
 
-const checkins: CheckinRecord[] = []
+const STORAGE_KEY = "studyai-checkins"
+
+function loadCheckins(): CheckinRecord[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function saveCheckins(records: CheckinRecord[]) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records))
+  } catch { /* storage full */ }
+}
+
+/** Compute current streak from sorted unique checkin dates */
+function computeStreak(dates: string[]): number {
+  if (dates.length === 0) return 0
+  const unique = [...new Set(dates)].sort().reverse()
+  const today = getLocalDate()
+
+  // Must have checked in today or yesterday to continue streak
+  if (unique[0] !== today && unique[0] !== getLocalDateOffset(-1)) return 0
+
+  let streak = unique[0] === today ? 1 : 0
+  for (let i = streak; i < unique.length; i++) {
+    const expected = getLocalDateOffset(-streak)
+    if (unique[i] === expected) {
+      streak++
+    } else {
+      break
+    }
+  }
+  return streak
+}
 
 export interface MockCheckinService {
   getTodayCheckin(userId: string, planId: string): Promise<CheckinRecord | null>
@@ -13,17 +52,19 @@ export interface MockCheckinService {
 export const mockCheckinService: MockCheckinService = {
   async getTodayCheckin(userId: string, planId: string) {
     await mockDelay(200, 400)
-    const today = new Date().toISOString().split("T")[0]
-    return checkins.find(c => c.userId === userId && c.planId === planId && c.date === today) || null
+    const today = getLocalDate()
+    const records = loadCheckins()
+    return records.find(c => c.userId === userId && c.planId === planId && c.date === today) || null
   },
 
   async submitCheckin(userId: string, planId: string, data) {
     await mockDelay(500, 1000)
+    const records = loadCheckins()
     const record: CheckinRecord = {
       id: `checkin-${randomId()}`,
       userId,
       planId,
-      date: new Date().toISOString().split("T")[0],
+      date: getLocalDate(),
       tasks: data.tasks.map(t => ({
         taskId: t.taskId,
         completed: t.completed,
@@ -35,18 +76,23 @@ export const mockCheckinService: MockCheckinService = {
       moodRating: data.moodRating,
       createdAt: new Date().toISOString(),
     }
-    checkins.push(record)
+    records.push(record)
+    saveCheckins(records)
     return record
   },
 
   async getCheckinHistory(userId: string, planId: string) {
     await mockDelay(300, 600)
-    return checkins.filter(c => c.userId === userId && c.planId === planId)
+    const records = loadCheckins()
+    return records.filter(c => c.userId === userId && c.planId === planId)
   },
 
-  async getStreak(_userId: string) {
+  async getStreak(userId: string) {
     await mockDelay(200, 400)
-    // 模拟连续打卡天数
-    return Math.floor(Math.random() * 14) + 1
+    const records = loadCheckins()
+    const dates = records
+      .filter(c => c.userId === userId)
+      .map(c => c.date)
+    return computeStreak(dates)
   },
 }

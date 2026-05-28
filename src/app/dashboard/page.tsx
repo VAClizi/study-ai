@@ -3,6 +3,7 @@
 import { useAnalytics } from "@/hooks/use-analytics"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePlanStore } from "@/stores/plan-store"
+import { getLocalDate } from "@/lib/date"
 import { StreakCard } from "@/components/dashboard/streak-card"
 import { CompletionChart } from "@/components/dashboard/completion-chart"
 import { FocusChart } from "@/components/dashboard/focus-chart"
@@ -35,7 +36,7 @@ function getCachedInsight(userId: string): { date: string; text: string } | null
 function setCachedInsight(userId: string, text: string) {
   if (typeof window === "undefined") return
   localStorage.setItem(getCacheKey(userId), JSON.stringify({
-    date: new Date().toISOString().split("T")[0],
+    date: getLocalDate(),
     text,
   }))
 }
@@ -51,7 +52,7 @@ export default function DashboardPage() {
 
   const generateInsight = useCallback(async () => {
     if (!stats || !user) return
-    const today = new Date().toISOString().split("T")[0]
+    const today = getLocalDate()
     const cached = getCachedInsight(user.id)
     if (cached?.date === today) {
       setAiInsight(cached.text)

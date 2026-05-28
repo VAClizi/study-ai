@@ -14,6 +14,7 @@ interface ChatState {
   currentMode: ChatMode | null
   planContent: string | null
   abortController: AbortController | null
+  checkinReportContext: string | null
 
   createSession: (mode: ChatMode) => Promise<void>
   sendMessage: (content: string) => Promise<void>
@@ -28,6 +29,7 @@ interface ChatState {
   appendToLastMessage: (chunk: string) => void
   finalizeLastMessage: () => void
   replaceLastMessage: (content: string) => void
+  setCheckinReportContext: (context: string | null) => void
 }
 
 const STORAGE_KEY = "studyai-chat-sessions"
@@ -64,6 +66,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   currentMode: null,
   planContent: null,
   abortController: null,
+  checkinReportContext: null,
 
   createSession: async (mode: ChatMode) => {
     const personaStore = usePersonaStore.getState()
@@ -123,10 +126,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const languageStore = useLanguageStore.getState()
 
     const memoryContext = memoryStore.getContextString()
+    const { checkinReportContext } = get()
 
     const modePrompt = currentMode === "quick"
       ? personaStore.config.quickSystemPrompt
       : personaStore.config.detailedSystemPrompt
+
+    const checkinContext = checkinReportContext
+      ? `\n\n[学习报告分析模式] ${checkinReportContext}\n\n请根据以上学习报告信息生成今日总结报告。\n\n【判断逻辑】\n若用户填写了困难内容，或状态自评为「很吃力/一般般」，则走【有待提升】分支：\n1. 简短肯定（1-2句，认可用户的努力）\n2. 困难点深度解析（分析根本原因，给出针对性建议）\n3. 生成今日补充学习小计划（使用 [MINI_PLAN] 标记包裹），包含2-3个可在30分钟内完成的微任务，每个任务包含：任务名、具体操作步骤、预计时长。格式如下：\n[MINI_PLAN]\n### 📋 今日补充练习\n- **任务1**：xxx（预计10分钟）\n- **任务2**：xxx（预计10分钟）\n- **任务3**：xxx（预计10分钟）\n[/MINI_PLAN]\n4. 在末尾明确要求用户完成补充计划后返回汇报，例如：「完成后回来告诉我你的练习情况，我会给你反馈 ✨」\n\n若用户没有困难且状态良好，则走【完成优秀】分支：\n1. 个性化祝贺语（1-2句）\n2. 今日亮点总结（2-3个亮点）\n3. 回复末尾包含 [CHECKIN_COMPLETE] 标记\n\n【重要规则】\n- 走【有待提升】分支时，不要使用A/B/C/D选项格式，不要输出任何选择题\n- 语气亲切、专业、有鼓励性\n- 不重复展示原始填写内容，直接输出分析报告`
+      : ""
 
     const CHOICE_FORMAT_INSTRUCTION = `\n\n[回复格式] 当需要用户做选择时，每个选项必须独占一行、不能挤在同一行：\n\n问题正文以？结尾\nA. 选项一\nB. 选项二\nC. 选项三\nD. 选项四\n\n严格遵守：问句独占一行，每个选项独占一行，以 "A." "B." "C." "D." 开头。`
 
@@ -134,7 +142,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ? "\n\nIMPORTANT: The user is using the English interface. You MUST respond in English only. All questions, choices, and explanations must be in English."
       : ""
 
-    const systemContent = modePrompt + CHOICE_FORMAT_INSTRUCTION + LANG_INSTRUCTION + "\n\n[系统功能] 生成完整学习计划后，对话将自动存档至「我的计划」页面，用户可随时回到当前对话继续讨论或调整计划。" + (memoryContext ? `\n\n[长期记忆]\n${memoryContext}` : "")
+    const choiceInstruction = checkinReportContext ? "" : CHOICE_FORMAT_INSTRUCTION
+    const systemContent = modePrompt + checkinContext + choiceInstruction + LANG_INSTRUCTION + "\n\n[系统功能] 生成完整学习计划后，对话将自动存档至「我的计划」页面，用户可随时回到当前对话继续讨论或调整计划。" + (memoryContext ? `\n\n[长期记忆]\n${memoryContext}` : "")
+
+    // Clear checkin context after injecting it
+    if (checkinReportContext) {
+      set({ checkinReportContext: null })
+    }
 
     const llmMessages: LLMMessage[] = [
       { role: "system", content: systemContent },
@@ -150,7 +164,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     try {
       let fullContent = ""
-      const generator = streamChat(llmMessages)
+      const generator = streamChat(llmMessages, {
+        model: currentMode === "detailed" ? "mimo-v2.5-pro" : "mimo-v2.5",
+      })
 
       for await (const chunk of generator) {
         fullContent += chunk
@@ -159,6 +175,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
           const lastMsg = msgs[msgs.length - 1]
           if (lastMsg && lastMsg.id === aiMsgId) {
             msgs[msgs.length - 1] = { ...lastMsg, content: fullContent }
+          }
+          return { messages: msgs }
+        })
+      }
+
+      // Strip [PLAN_DATA] block from displayed content so user doesn't see raw JSON
+      const planDataRegex = /\[PLAN_DATA\][\s\S]*?\[\/PLAN_DATA\]/
+      if (planDataRegex.test(fullContent)) {
+        const displayContent = fullContent.replace(planDataRegex, "").trim()
+        set((s) => {
+          const msgs = [...s.messages]
+          const lastMsg = msgs[msgs.length - 1]
+          if (lastMsg && lastMsg.id === aiMsgId) {
+            msgs[msgs.length - 1] = { ...lastMsg, content: displayContent }
           }
           return { messages: msgs }
         })
@@ -184,11 +214,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
         (hasTable ? 5 : 0) +
         Math.min(hasList, 8)
 
-      const isDetailedPlan =
+      // Direct [PLAN_DATA] detection (fast path) OR old heuristic detection (fallback)
+      const hasPlanData = /\[PLAN_DATA\]/.test(fullContent)
+      const isDetailedPlan = hasPlanData || (
         !isOutline &&
         fullContent.length > 800 &&
         structureScore >= 10 &&
         (timeMarkers >= 2 || tableRows >= 3)
+      )
       if (isDetailedPlan) {
         set({ planContent: fullContent })
         get().saveCurrentSession()
@@ -308,5 +341,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
       return { messages: msgs }
     })
+  },
+
+  setCheckinReportContext: (context: string | null) => {
+    set({ checkinReportContext: context })
   },
 }))

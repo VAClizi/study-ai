@@ -4,13 +4,10 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
   Sparkles, Brain, Zap, Clock, GraduationCap,
-  Globe, Send, Activity, Loader2, ArrowLeft, ExternalLink,
+  Globe, Send, Activity, Loader2,
 } from "lucide-react"
 import { useT } from "@/lib/i18n"
 import { useAuthStore } from "@/stores/auth-store"
-import { useChatStore } from "@/stores/chat-store"
-import { ChatMessages } from "@/components/chat/chat-messages"
-import { ChatInput } from "@/components/chat/chat-input"
 import { cn } from "@/lib/cn"
 
 const suggestions = [
@@ -39,13 +36,10 @@ export function HeroSection() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [isActivating, setIsActivating] = useState(false)
-  const [chatMode, setChatMode] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const t = useT()
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-
-  const { messages, isStreaming, createSession, sendMessage, resetChat } = useChatStore()
 
   useEffect(() => {
     setIsVisible(true)
@@ -58,72 +52,25 @@ export function HeroSection() {
     return () => clearInterval(timer)
   }, [])
 
-  const startChat = useCallback(async (userPrompt: string) => {
-    if (!userPrompt.trim() || isActivating) return
+  const handleSubmit = useCallback(() => {
+    if (!prompt.trim() || isActivating) return
     if (!isAuthenticated) { router.push("/login"); return }
 
     setIsActivating(true)
-    const minOverlay = new Promise<void>(r => setTimeout(r, 900))
-    try {
-      await Promise.all([
-        (async () => {
-          await createSession("quick")
-          await sendMessage(userPrompt.trim())
-        })(),
-        minOverlay,
-      ])
-      setPrompt("")
-    } finally {
+    setTimeout(() => {
       setIsActivating(false)
-      setChatMode(true)
-    }
-  }, [isActivating, isAuthenticated, createSession, sendMessage, router])
-
-  const exitChat = useCallback(() => {
-    resetChat()
-    setChatMode(false)
-  }, [resetChat])
-
-  const handleSubmit = useCallback(() => {
-    startChat(prompt)
-  }, [prompt, startChat])
+      setPrompt("")
+    }, 900)
+    router.push(`/chat?prompt=${encodeURIComponent(prompt.trim())}&mode=quick`)
+  }, [prompt, isActivating, isAuthenticated, router])
 
   const handleSuggestionClick = useCallback((key: string) => {
     if (!isAuthenticated) { router.push("/login"); return }
-    startChat(t(key))
-  }, [router, t, isAuthenticated, startChat])
+    setIsActivating(true)
+    setTimeout(() => setIsActivating(false), 900)
+    router.push(`/chat?prompt=${encodeURIComponent(t(key))}&mode=quick`)
+  }, [isAuthenticated, router, t])
 
-  // ===== Inline Chat Mode =====
-  if (chatMode) {
-    return (
-      <div className="flex flex-col h-[calc(100vh-3.5rem)] animate-fade-in-up">
-        {/* Chat header */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-black/[0.04] dark:border-white/[0.04] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
-          <button
-            onClick={exitChat}
-            className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t("common.backHome")}
-          </button>
-          <span className="text-sm font-medium text-zinc-900 dark:text-white">{t("home.quickChat")}</span>
-          <button
-            onClick={() => router.push("/chat")}
-            className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-          >
-            {t("home.fullFeatures")}
-            <ExternalLink className="h-3 w-3" />
-          </button>
-        </div>
-
-        <ChatMessages messages={messages} isStreaming={isStreaming} />
-
-        <ChatInput onSend={(msg) => sendMessage(msg)} isStreaming={isStreaming} />
-      </div>
-    )
-  }
-
-  // ===== Hero View =====
   return (
     <section className="relative min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-4 overflow-hidden">
       {/* ===== Animated Background ===== */}
@@ -319,7 +266,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* ===== AI Activation Overlay ===== */}
+      {/* ===== Navigation Overlay ===== */}
       {isActivating && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
           <div className="relative mb-8">

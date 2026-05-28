@@ -15,7 +15,9 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { extractChoices } from "@/lib/choice-parser"
 import { parsePlanTextWithAI } from "@/services/plan-ai-parser"
 import { convertParsedPlanToExtractedData, extractPlanData, type ExtractedPlanData } from "@/lib/plan-parser"
-import { ArrowLeft, Plus, MessageSquare, Loader2 } from "lucide-react"
+import { ArrowLeft, Plus, MessageSquare, Loader2, CheckCircle } from "lucide-react"
+import { StreakCelebration } from "@/components/checkin/streak-celebration"
+import { useCheckinStore } from "@/stores/checkin-store"
 import Link from "next/link"
 import { useT } from "@/lib/i18n"
 
@@ -37,14 +39,37 @@ function ChatContent() {
   const [isThinking, setIsThinking] = useState(false)
   const [isParsingPlan, setIsParsingPlan] = useState(false)
   const [parsedPlanData, setParsedPlanData] = useState<ExtractedPlanData | null>(null)
+  const [debugLog, setDebugLog] = useState<string[]>([])
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [celebrationStreakDays, setCelebrationStreakDays] = useState(0)
+  const isCheckinSource = searchParams.get("source") === "checkin"
   const initialPromptSent = useRef(false)
   const lastParsedContent = useRef<string | null>(null)
+  const lastStreamingRef = useRef(false)
 
-  // When planContent is set, trigger AI parsing
+  // When planContent is set, parse it into structured plan data
   useEffect(() => {
     if (!planContent || planContent === lastParsedContent.current) return
     lastParsedContent.current = planContent
 
+    const logs: string[] = []
+    const log = (msg: string) => { logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`) }
+    log(`planContent 已设置，长度=${planContent.length}`)
+    log(`含 [PLAN_DATA]: ${/\[PLAN_DATA\]/.test(planContent)}`)
+    log(`含 [/PLAN_DATA]: ${/\[\/PLAN_DATA\]/.test(planContent)}`)
+
+    // Fast path: direct [PLAN_DATA] extraction (instant, no API call)
+    const directExtract = extractPlanData(planContent)
+    if (directExtract) {
+      log(`直接提取成功: ${directExtract.title}, ${directExtract.stages.length} 个阶段`)
+      setParsedPlanData(directExtract)
+      setIsParsingPlan(false)
+      setDebugLog(logs)
+      return
+    }
+    log("直接提取失败，回退到 AI 解析...")
+
+    // Slow path: AI parsing fallback (only if AI didn't include [PLAN_DATA] block)
     let cancelled = false
     setIsParsingPlan(true)
     setParsedPlanData(null)
@@ -52,24 +77,53 @@ function ChatContent() {
     parsePlanTextWithAI(planContent).then((result) => {
       if (cancelled) return
       if (result) {
+        log(`AI 解析成功: ${result.title}`)
         const extracted = convertParsedPlanToExtractedData(result)
         setParsedPlanData(extracted)
       } else {
-        // Fallback: extract from [PLAN_DATA] block directly
+        log("AI 解析返回 null")
         const fallback = extractPlanData(planContent)
-        if (fallback) setParsedPlanData(fallback)
+        if (fallback) { log("回退提取成功"); setParsedPlanData(fallback) }
+        else log("回退提取也失败")
       }
       setIsParsingPlan(false)
-    }).catch(() => {
+      setDebugLog(logs)
+    }).catch((e) => {
       if (cancelled) return
-      // Fallback on error too
+      log(`AI 解析异常: ${(e as Error).message}`)
       const fallback = extractPlanData(planContent)
-      if (fallback) setParsedPlanData(fallback)
+      if (fallback) { log("异常回退提取成功"); setParsedPlanData(fallback) }
+      else log("异常回退提取也失败")
       setIsParsingPlan(false)
+      setDebugLog(logs)
     })
 
     return () => { cancelled = true }
   }, [planContent])
+
+  // Detect [CHECKIN_COMPLETE] marker in AI response for celebration
+  useEffect(() => {
+    const wasStreaming = lastStreamingRef.current
+    lastStreamingRef.current = isStreaming
+
+    if (wasStreaming && !isStreaming && isCheckinSource) {
+      const lastMsg = messages[messages.length - 1]
+      if (lastMsg?.role === "assistant" && lastMsg.content.includes("[CHECKIN_COMPLETE]")) {
+        // Strip the marker from displayed content
+        const cleaned = lastMsg.content.replace(/\[CHECKIN_COMPLETE\]/g, "").trim()
+        useChatStore.setState((s) => {
+          const msgs = [...s.messages]
+          const last = msgs[msgs.length - 1]
+          if (last) msgs[msgs.length - 1] = { ...last, content: cleaned }
+          return { messages: msgs }
+        })
+
+        const streakStore = useCheckinStore.getState()
+        setCelebrationStreakDays(streakStore.streak)
+        setShowCelebration(true)
+      }
+    }
+  }, [isStreaming, messages, isCheckinSource])
 
   // Start chat from URL mode parameter
   useEffect(() => {
@@ -141,12 +195,14 @@ function ChatContent() {
   }, [resetChat])
 
   // Extract choices from the last AI message (displayed outside the bubble)
+  // Skip choice extraction for checkin source — coach analysis should not be parsed as choices
   const lastChoices = useMemo(() => {
     if (isStreaming) return null
+    if (isCheckinSource) return null
     const lastMsg = messages[messages.length - 1]
     if (!lastMsg || lastMsg.role !== "assistant" || !lastMsg.content) return null
     return extractChoices(lastMsg.content)
-  }, [messages, isStreaming])
+  }, [messages, isStreaming, isCheckinSource])
 
   // Not authenticated
   if (!isAuthenticated) {
@@ -186,6 +242,7 @@ function ChatContent() {
               <div>
                 <h2 className="text-sm font-medium text-zinc-900 dark:text-white">
                   {currentMode === "quick" ? t("chat.quickPlan") : t("chat.detailedPlan")}
+                  <span className="text-[9px] text-zinc-400 ml-1 font-normal">v6</span>
                 </h2>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500">
                   {messages.length} {t("chat.messages")}
@@ -232,6 +289,23 @@ function ChatContent() {
           </div>
         )}
 
+        {/* Checkin complete button (shown for checkin source when AI finishes) */}
+        {isCheckinSource && !isStreaming && messages.length > 1 && (
+          <div className="max-w-3xl mx-auto w-full px-4 pb-2">
+            <button
+              onClick={() => {
+                const streakStore = useCheckinStore.getState()
+                setCelebrationStreakDays(streakStore.streak)
+                setShowCelebration(true)
+              }}
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold text-sm shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all active:scale-[0.98]"
+            >
+              <CheckCircle className="h-5 w-5" />
+              完成今日打卡
+            </button>
+          </div>
+        )}
+
         {/* Plan parsing / save banner */}
         {planContent && (
           <div className="max-w-3xl mx-auto w-full px-4 pb-1">
@@ -262,6 +336,33 @@ function ChatContent() {
 
         {/* Input */}
         <ChatInput onSend={handleSend} isStreaming={isStreaming} />
+
+        {/* Celebration overlay */}
+        <StreakCelebration
+          show={showCelebration}
+          streakDays={celebrationStreakDays}
+          userName={user?.name}
+          onComplete={() => {
+            setShowCelebration(false)
+            router.push("/today")
+          }}
+        />
+
+        {/* Debug Panel */}
+        {debugLog.length > 0 && (
+          <div className="max-w-3xl mx-auto w-full px-4 pb-3">
+            <details className="rounded-lg border border-amber-500/20 bg-amber-50/60 dark:bg-amber-500/5">
+              <summary className="px-3 py-1.5 text-[10px] text-amber-700 dark:text-amber-400 cursor-pointer font-mono select-none">
+                Debug: planContent={planContent ? `${planContent.length}chars` : "null"} | parsedPlanData={parsedPlanData ? "yes" : "null"} | isParsing={String(isParsingPlan)}
+              </summary>
+              <div className="px-3 pb-2 font-mono text-[10px] text-amber-800 dark:text-amber-300 space-y-0.5 max-h-40 overflow-y-auto">
+                {debugLog.map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
+              </div>
+            </details>
+          </div>
+        )}
       </div>
     </div>
   )

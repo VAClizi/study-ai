@@ -138,12 +138,14 @@ function normalizeTheory(t: ParsedTheory): PlanTheory {
 
 function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
   const tasks = parsedWeek.tasks ?? []
-  const resources = (parsedWeek.resources ?? []).map((r, i) => normalizeResource(r, weekNumber, i))
+  const allResources = (parsedWeek.resources ?? []).map((r, i) => normalizeResource(r, weekNumber, i))
 
   const days: DayPlan[] = Array.from({ length: 7 }, (_, d) => {
     const dayNumber = (weekNumber - 1) * 7 + d + 1
     const dayTasks = tasks.map((t, ti) => normalizeTask(t, dayNumber, ti))
     const totalMinutes = dayTasks.reduce((sum, t) => sum + t.durationMinutes, 0)
+    // Distribute resources across days instead of copying all to every day
+    const dayResources = allResources.filter((_, ri) => ri % 7 === d)
 
     return {
       date: `Day ${dayNumber}`,
@@ -152,7 +154,7 @@ function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
       tasks: dayTasks,
       totalMinutes,
       notes: "",
-      resources,
+      resources: dayResources.length > 0 ? dayResources : undefined,
     }
   })
 
@@ -189,31 +191,61 @@ function buildStage(parsedStage: ParsedStage, globalWeekOffset: number): { stage
 // --- Main extraction function ---
 
 export function extractPlanData(content: string): ExtractedPlanData | null {
-  const match = content.match(/\[PLAN_DATA\]\s*([\s\S]*?)\s*\[\/PLAN_DATA\]/)
+  // Try full [PLAN_DATA]...[/PLAN_DATA] markers first
+  let match = content.match(/\[PLAN_DATA\]\s*([\s\S]*?)\s*\[\/PLAN_DATA\]/)
+
+  // Fallback: [PLAN_DATA] exists but missing [/PLAN_DATA] (AI truncation)
+  if (!match) {
+    const startIdx = content.indexOf("[PLAN_DATA]")
+    if (startIdx !== -1) {
+      const raw = content.slice(startIdx + 11).trim()
+      const objMatch = raw.match(/(\{[\s\S]*\})/)
+      if (objMatch) {
+        match = ["", objMatch[1]]
+      }
+    }
+  }
+
   if (!match) return null
 
-  const jsonText = stripCodeFences(match[1])
+  let jsonText = stripCodeFences(match[1])
 
-  let parsed: ParsedPlanData | ParsedLegacyData
+  // Repair common AI JSON mistakes before parsing
+  jsonText = jsonText
+    .replace(/,(\s*[}\]])/g, "$1")       // trailing commas
+    .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // unquoted keys
+
+  let parsed: Record<string, unknown>
   try {
     parsed = JSON.parse(jsonText)
-  } catch {
+  } catch (e) {
+    console.error("extractPlanData JSON parse error:", e)
     return null
   }
 
-  // Check for legacy format (resources-only, no stages)
-  const isLegacy = !(parsed as ParsedPlanData).stages && (parsed as ParsedLegacyData).resources
+  // Detect new format: stages[0].weeks_detail (day-level detail)
+  const stages = parsed.stages as Array<Record<string, unknown>> | undefined
+  if (stages?.length && stages[0].weeks_detail) {
+    try {
+      return convertParsedPlanToExtractedData(parsed as unknown as ParsedPlanResult)
+    } catch {
+      // Fall through to old format
+    }
+  }
+
+  // Try old format: stages[0].weeks (week-level tasks)
+  const p = parsed as unknown as ParsedPlanData | ParsedLegacyData
+  const isLegacy = !(p as ParsedPlanData).stages && (p as ParsedLegacyData).resources
 
   const data: ExtractedPlanData = {
-    title: (parsed as ParsedPlanData).title,
-    goal: (parsed as ParsedPlanData).goal,
+    title: (p as ParsedPlanData).title,
+    goal: (p as ParsedPlanData).goal,
     stages: [],
     theories: [],
   }
 
-  // Build stages from AI data
-  if (!isLegacy && (parsed as ParsedPlanData).stages) {
-    const parsedStages = (parsed as ParsedPlanData).stages!
+  if (!isLegacy && (p as ParsedPlanData).stages) {
+    const parsedStages = (p as ParsedPlanData).stages!
     let weekOffset = 0
     for (const ps of parsedStages) {
       const { stage, weekCount } = buildStage(ps, weekOffset)
@@ -223,8 +255,7 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
       weekOffset += weekCount
     }
   } else if (isLegacy) {
-    // Legacy fallback: build stages from resources only
-    const legacy = parsed as ParsedLegacyData
+    const legacy = p as ParsedLegacyData
     const byWeek = new Map<number, LearningResource[]>()
     if (Array.isArray(legacy.resources)) {
       for (let i = 0; i < legacy.resources.length; i++) {
@@ -236,12 +267,10 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
         byWeek.set(r.week, list)
       }
     }
-    // Build stages with empty tasks but real resources from legacy format
     const legacyStages = buildLegacyStages(byWeek)
     data.stages = legacyStages
   }
 
-  // Parse theories
   if (Array.isArray(parsed.theories)) {
     for (const t of parsed.theories) {
       if (!t || !t.name) continue
@@ -249,7 +278,6 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
     }
   }
 
-  // Return null if nothing was parsed
   if (data.stages.length === 0 && data.theories.length === 0) return null
 
   return data
@@ -370,7 +398,9 @@ export function convertParsedPlanToExtractedData(parsed: ParsedPlanResult): Extr
 
         const totalMinutes = tasks.reduce((sum, t) => sum + t.durationMinutes, 0)
 
-        const resources: LearningResource[] = (wd.resources ?? []).map((r, ri) => ({
+        // Only use per-day resources — no week-level fallback
+        const rawResources = pd.resources ?? []
+        const resources: LearningResource[] = rawResources.map((r, ri) => ({
           id: nextResourceId(),
           title: String(r.title ?? ""),
           url: String(r.url ?? ""),

@@ -5,13 +5,14 @@ import type { UserStats, GrowthMetrics, CheckinRecord } from "@/types/checkin"
 import { useAuthStore } from "@/stores/auth-store"
 import { usePlanStore } from "@/stores/plan-store"
 import { mockCheckinService } from "@/services/checkin.mock"
+import { getLocalDate } from "@/lib/date"
 
 /** Compute consecutive-day streak from checkin dates (sorted desc) */
 function computeStreak(dates: string[]): { current: number; longest: number } {
   if (dates.length === 0) return { current: 0, longest: 0 }
 
   const unique = [...new Set(dates)].sort((a, b) => b.localeCompare(a))
-  const today = new Date().toISOString().split("T")[0]
+  const today = getLocalDate()
 
   let current = 0
   let longest = 0
@@ -59,8 +60,9 @@ function buildGrowthMetrics(records: CheckinRecord[], days: number): GrowthMetri
   }
 
   for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-    const key = date.toISOString().split("T")[0]
+    const d = new Date(now)
+    d.setDate(d.getDate() - i)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
     const dayRecords = byDate.get(key) || []
 
     let tasksCompleted = 0

@@ -1,6 +1,7 @@
 import type { LearningPlan, DayTask, Stage, PlanTheory } from "@/types/plan"
 import { mockDelay, randomId } from "@/lib/mock-delay"
 import { extractPlanData, type ExtractedPlanData } from "@/lib/plan-parser"
+import { getLocalDate } from "@/lib/date"
 
 const MOCK_THEORIES: PlanTheory[] = [
   {
@@ -170,7 +171,7 @@ export const mockPlanService: MockPlanService = {
       for (const week of stage.weeks) {
         for (const day of week.days) {
           if (day.dayNumber === dayNumber) {
-            return { date: now.toISOString().split("T")[0], dayNumber, tasks: day.tasks }
+            return { date: getLocalDate(), dayNumber, tasks: day.tasks }
           }
         }
       }

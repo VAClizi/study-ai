@@ -392,6 +392,34 @@ const translations: TranslationMap = {
   "growth.startChat": { "zh-CN": "开始对话", en: "Start Chat" },
   "growth.streakObservation": { "zh-CN": "连续 {days} 天坚持学习，习惯正在形成", en: "{days} consecutive days of learning — habits are forming" },
 
+  // 学习报告
+  "report.title": { "zh-CN": "今日学习报告", en: "Today's Learning Report" },
+  "report.description": { "zh-CN": "完成打卡前，先回顾一下今天的学习情况吧", en: "Before checking in, let's review today's learning" },
+  "report.aiCoachFeedback": { "zh-CN": "AI 教练反馈", en: "AI Coach Feedback" },
+  "report.learnedContent": { "zh-CN": "今日学习了哪些内容？", en: "What did you learn today?" },
+  "report.learnedContentPlaceholder": { "zh-CN": "例如：复习了第三章语法，练习了 20 道听力题", en: "e.g., Reviewed Chapter 3 grammar, practiced 20 listening exercises" },
+  "report.difficulties": { "zh-CN": "今天遇到了哪些困难或不懂的地方？", en: "What difficulties or confusion did you encounter?" },
+  "report.difficultiesPlaceholder": { "zh-CN": "例如：虚拟语气的用法还是搞不清楚", en: "e.g., Still confused about subjunctive mood" },
+  "report.selfRating": { "zh-CN": "今天的学习状态自评", en: "Self-assessment of today's learning" },
+  "report.ratingHard": { "zh-CN": "很吃力", en: "Struggling" },
+  "report.ratingMeh": { "zh-CN": "一般般", en: "So-so" },
+  "report.ratingGood": { "zh-CN": "还不错", en: "Pretty Good" },
+  "report.ratingGreat": { "zh-CN": "超级顺畅", en: "Excellent" },
+  "report.studyDuration": { "zh-CN": "今天大约学习了多长时间？", en: "How long did you study today?" },
+  "report.durationShort": { "zh-CN": "< 15 分钟", en: "< 15 min" },
+  "report.durationMedium": { "zh-CN": "15–30 分钟", en: "15–30 min" },
+  "report.durationLong": { "zh-CN": "30–60 分钟", en: "30–60 min" },
+  "report.durationLonger": { "zh-CN": "> 60 分钟", en: "> 60 min" },
+  "report.tomorrowFocus": { "zh-CN": "明天你希望重点练习什么？", en: "What would you like to focus on tomorrow?" },
+  "report.tomorrowFocusPlaceholder": { "zh-CN": "例如：虚拟语气专项练习", en: "e.g., Subjunctive mood practice" },
+  "report.submit": { "zh-CN": "提交并获取 AI 教练反馈", en: "Submit & Get AI Coach Feedback" },
+  "report.submitting": { "zh-CN": "正在生成反馈...", en: "Generating feedback..." },
+
+  // 连续打卡
+  "streak.checkedIn": { "zh-CN": "🔥 已连续打卡 {days} 天", en: "🔥 {days} days streak" },
+  "streak.notCheckedIn": { "zh-CN": "今日还未打卡，别让火焰熄灭！", en: "Haven't checked in today — don't let the flame go out!" },
+  "streak.tomorrowPreview": { "zh-CN": "明天将重点攻克『{goal}』，你已经准备好了 💪", en: "Tomorrow's focus: {goal}. You're ready! 💪" },
+
   // 关于
   "about.title": { "zh-CN": "关于我们", en: "About Us" },
   "about.mission": { "zh-CN": "我们的使命", en: "Our Mission" },

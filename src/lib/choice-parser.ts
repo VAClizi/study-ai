@@ -29,7 +29,7 @@ function isPromptLine(line: string): boolean {
   // Question mark ending
   if (/[？?]$/.test(stripped)) return true
   // Explicit invitation language
-  if (/请选择|请回答|请告诉|选一个|作出选择|你的选择|哪个选项|你的答案是|请挑选|choose|select|pick one|which (one|option)/i.test(stripped)) return true
+  if (/请选择|请回答|请告诉|告诉我|选一个|作出选择|你的选择|哪个选项|你的答案是|请挑选|以下|如下|choose|select|pick one|which (one|option)/i.test(stripped)) return true
   return false
 }
 
@@ -40,7 +40,7 @@ function isPromptLike(line: string): boolean {
   const stripped = stripMarkdownEmphasis(trimmed)
   if (!stripped) return false
   if (/[？?]/.test(stripped)) return true
-  if (/请选择|请回答|请告诉|选一个|作出选择|你的选择|哪个选项|你的答案是|请挑选|choose|select|pick one|which (one|option)/i.test(stripped)) return true
+  if (/请选择|请回答|请告诉|告诉我|选一个|作出选择|你的选择|哪个选项|你的答案是|请挑选|以下|如下|choose|select|pick one|which (one|option)/i.test(stripped)) return true
   return false
 }
 
@@ -196,6 +196,43 @@ export function extractChoices(content: string): {
 
       // If we found 1 choice but not 2+, stop scanning this prompt
       if (block.length === 1) break
+    }
+  }
+
+  // Phase 5: pure choice detection — consecutive choice-pattern lines at/near end
+  // of message (2-6 options). More permissive than before to handle MiMo output.
+  if (!looksLikePlan(content)) {
+    // Check last 12 non-empty lines for a choice block
+    const startLine = Math.max(0, lines.length - 12)
+    for (let i = startLine; i < lines.length; i++) {
+      const raw = lines[i].replace(/^[-*]+\s*/, "").trim()
+      if (!raw) continue
+
+      // Try inline: "xxx。 A. xxx B. xxx C. xxx"
+      const inline = parseInlineChoices(raw)
+      if (inline && inline.choices.length >= 2 && inline.choices.length <= 6) {
+        const resultLines = [...lines]
+        resultLines.splice(i, 1)
+        return { choices: inline.choices, textWithoutChoices: resultLines.join("\n") }
+      }
+
+      // Try multi-line: consecutive choice lines
+      const choice = parseChoice(raw)
+      if (!choice) continue
+      const block: ChoiceOption[] = [choice]
+      let k = i + 1
+      while (k < lines.length && block.length < 6) {
+        const s = lines[k].replace(/^[-*]+\s*/, "").trim()
+        const c = parseChoice(s)
+        if (c) { block.push(c); k++ }
+        else if (!s) { k++ }
+        else break
+      }
+      if (block.length >= 2) {
+        const resultLines = [...lines]
+        resultLines.splice(i, k - i)
+        return { choices: block, textWithoutChoices: resultLines.join("\n") }
+      }
     }
   }
 

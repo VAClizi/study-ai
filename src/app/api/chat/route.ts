@@ -1,7 +1,7 @@
-const DEEPSEEK_BASE = "https://api.deepseek.com/chat/completions"
+const MIMO_BASE = "https://api.xiaomimimo.com/v1/chat/completions"
 
 export async function POST(req: Request) {
-  const apiKey = process.env.DEEPSEEK_API_KEY
+  const apiKey = process.env.MIMO_API_KEY
   if (!apiKey) {
     return Response.json({ error: "Server API key not configured" }, { status: 500 })
   }
@@ -26,14 +26,14 @@ export async function POST(req: Request) {
 
   const stream = body.stream ?? false
 
-  const response = await fetch(DEEPSEEK_BASE, {
+  const response = await fetch(MIMO_BASE, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: body.model ?? "deepseek-v4-pro",
+      model: body.model ?? "mimo-v2.5-pro",
       messages: body.messages,
       temperature: body.temperature ?? 0.7,
       max_tokens: body.max_tokens ?? 4096,
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
     return Response.json(
-      { error: (error as { message?: string }).message || `DeepSeek API error: ${response.status}` },
+      { error: (error as { message?: string }).message || `MiMo API error: ${response.status}` },
       { status: response.status },
     )
   }

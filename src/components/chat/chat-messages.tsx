@@ -31,7 +31,7 @@ export function ChatMessages({ messages, isStreaming, isThinking, planContent }:
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="flex-1 min-h-0">
       <div className="max-w-3xl mx-auto py-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center px-4">
