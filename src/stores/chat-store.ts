@@ -132,9 +132,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ? personaStore.config.quickSystemPrompt
       : personaStore.config.detailedSystemPrompt
 
-    const checkinContext = checkinReportContext
-      ? `\n\n[学习报告分析模式] ${checkinReportContext}\n\n请根据以上学习报告信息生成今日总结报告。\n\n【判断逻辑】\n若用户填写了困难内容，或状态自评为「很吃力/一般般」，则走【有待提升】分支：\n1. 简短肯定（1-2句，认可用户的努力）\n2. 困难点深度解析（分析根本原因，给出针对性建议）\n3. 生成今日补充学习小计划（使用 [MINI_PLAN] 标记包裹），包含2-3个可在30分钟内完成的微任务，每个任务包含：任务名、具体操作步骤、预计时长。格式如下：\n[MINI_PLAN]\n### 📋 今日补充练习\n- **任务1**：xxx（预计10分钟）\n- **任务2**：xxx（预计10分钟）\n- **任务3**：xxx（预计10分钟）\n[/MINI_PLAN]\n4. 在末尾明确要求用户完成补充计划后返回汇报，例如：「完成后回来告诉我你的练习情况，我会给你反馈 ✨」\n\n若用户没有困难且状态良好，则走【完成优秀】分支：\n1. 个性化祝贺语（1-2句）\n2. 今日亮点总结（2-3个亮点）\n3. 回复末尾包含 [CHECKIN_COMPLETE] 标记\n\n【重要规则】\n- 走【有待提升】分支时，不要使用A/B/C/D选项格式，不要输出任何选择题\n- 语气亲切、专业、有鼓励性\n- 不重复展示原始填写内容，直接输出分析报告`
-      : ""
+    const isReviewMode = checkinReportContext === "[REVIEW_MODE]"
+
+    const checkinContext = isReviewMode
+      ? `\n\n[学习报告反馈审核模式]\n用户之前收到了补充学习小计划，现在正在反馈完成情况。请审核用户的反馈：\n\n【审核标准（从宽处理）】\n- 只要用户表示完成了补充计划中的内容，或描述了与计划相关的完成情况，即判定通过\n- 即使用户只说了「做完了」「完成了」「做好了」等简短确认，也算通过\n- 即使用户的反馈比较含糊（如「差不多做完了」「做了一部分」），也判定通过\n- 只有用户完全没有提及补充计划完成情况时（如聊了其他话题），才不通过\n\n【通过后回复】\n1. 1-2句简短肯定和鼓励\n2. 回复末尾包含 [CHECKIN_COMPLETE] 标记\n3. 绝对不要再生成新的学习计划或迷你计划\n\n【不通过时】\n- 正常回答用户问题\n- 不输出 [CHECKIN_COMPLETE] 标记`
+      : checkinReportContext
+        ? `\n\n[学习报告分析模式] ${checkinReportContext}\n\n请根据以上学习报告信息生成今日总结报告。\n\n【判断逻辑】\n若用户填写了困难内容，或状态自评为「很吃力/一般般」，则走【有待提升】分支：\n1. 简短肯定（1-2句，认可用户的努力）\n2. 困难点深度解析（分析根本原因，给出针对性建议）\n3. 生成今日补充学习小计划（使用 [MINI_PLAN] 标记包裹），包含2-3个可在30分钟内完成的微任务，每个任务包含：任务名、具体操作步骤、预计时长。格式如下：\n[MINI_PLAN]\n### 📋 今日补充练习\n- **任务1**：xxx（预计10分钟）\n- **任务2**：xxx（预计10分钟）\n- **任务3**：xxx（预计10分钟）\n[/MINI_PLAN]\n4. 在末尾明确要求用户完成补充计划后回到聊天中反馈完成情况，例如：「完成后回来告诉我你的练习情况，我会给你反馈 ✨」\n\n若用户没有困难且状态良好，则走【完成优秀】分支：\n1. 个性化祝贺语（1-2句）\n2. 今日亮点总结（2-3个亮点）\n3. 回复末尾包含 [CHECKIN_COMPLETE] 标记\n\n【重要规则】\n- 走【有待提升】分支时，不要使用A/B/C/D选项格式，不要输出任何选择题\n- 语气亲切、专业、有鼓励性\n- 不重复展示原始填写内容，直接输出分析报告`
+        : ""
 
     const CHOICE_FORMAT_INSTRUCTION = `\n\n[回复格式] 当需要用户做选择时，每个选项必须独占一行、不能挤在同一行：\n\n问题正文以？结尾\nA. 选项一\nB. 选项二\nC. 选项三\nD. 选项四\n\n严格遵守：问句独占一行，每个选项独占一行，以 "A." "B." "C." "D." 开头。`
 
@@ -145,9 +149,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const choiceInstruction = checkinReportContext ? "" : CHOICE_FORMAT_INSTRUCTION
     const systemContent = modePrompt + checkinContext + choiceInstruction + LANG_INSTRUCTION + "\n\n[系统功能] 生成完整学习计划后，对话将自动存档至「我的计划」页面，用户可随时回到当前对话继续讨论或调整计划。" + (memoryContext ? `\n\n[长期记忆]\n${memoryContext}` : "")
 
-    // Clear checkin context after injecting it
-    if (checkinReportContext) {
-      set({ checkinReportContext: null })
+    // After first checkin turn: switch to review mode for feedback follow-up
+    if (checkinReportContext && !isReviewMode) {
+      set({ checkinReportContext: "[REVIEW_MODE]" })
     }
 
     const llmMessages: LLMMessage[] = [
@@ -230,6 +234,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (isDetailedPlan) {
         set({ planContent: fullContent })
         get().saveCurrentSession()
+      }
+
+      // Clear checkin review mode when AI signals completion
+      if (isReviewMode && /\[CHECKIN_COMPLETE\]/.test(fullContent)) {
+        set({ checkinReportContext: null })
       }
 
       if (fullContent.length > 0) {

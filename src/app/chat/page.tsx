@@ -42,6 +42,7 @@ function ChatContent() {
   const [debugLog, setDebugLog] = useState<string[]>([])
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationStreakDays, setCelebrationStreakDays] = useState(0)
+  const [showCheckinButton, setShowCheckinButton] = useState(false)
   const isCheckinSource = searchParams.get("source") === "checkin"
   const initialPromptSent = useRef(false)
   const lastParsedContent = useRef<string | null>(null)
@@ -109,6 +110,8 @@ function ChatContent() {
     if (wasStreaming && !isStreaming && isCheckinSource) {
       const lastMsg = messages[messages.length - 1]
       if (lastMsg?.role === "assistant" && lastMsg.content.includes("[CHECKIN_COMPLETE]")) {
+        // Show the checkin complete button
+        setShowCheckinButton(true)
         // Strip the marker from displayed content only — celebration waits for manual button click
         const cleaned = lastMsg.content.replace(/\[CHECKIN_COMPLETE\]/g, "").trim()
         useChatStore.setState((s) => {
@@ -145,6 +148,7 @@ function ChatContent() {
     const promptParam = searchParams.get("prompt")
     if (promptParam && hasStarted && !initialPromptSent.current && messages.length <= 1) {
       initialPromptSent.current = true
+      setShowCheckinButton(false)
       const timer = setTimeout(() => {
         handleSend(promptParam)
       }, 500)
@@ -188,6 +192,7 @@ function ChatContent() {
     setParsedPlanData(null)
     lastParsedContent.current = null
     initialPromptSent.current = false
+    setShowCheckinButton(false)
   }, [resetChat])
 
   // Extract choices from the last AI message (displayed outside the bubble)
@@ -285,8 +290,8 @@ function ChatContent() {
           </div>
         )}
 
-        {/* Checkin complete button (shown for checkin source when AI finishes) */}
-        {isCheckinSource && !isStreaming && messages.length > 1 && (
+        {/* Checkin complete button (shown only after AI approves feedback with [CHECKIN_COMPLETE]) */}
+        {isCheckinSource && !isStreaming && showCheckinButton && (
           <div className="max-w-3xl mx-auto w-full px-4 pb-2">
             <button
               onClick={() => {
