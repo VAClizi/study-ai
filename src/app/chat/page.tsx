@@ -109,7 +109,7 @@ function ChatContent() {
     if (wasStreaming && !isStreaming && isCheckinSource) {
       const lastMsg = messages[messages.length - 1]
       if (lastMsg?.role === "assistant" && lastMsg.content.includes("[CHECKIN_COMPLETE]")) {
-        // Strip the marker from displayed content
+        // Strip the marker from displayed content only — celebration waits for manual button click
         const cleaned = lastMsg.content.replace(/\[CHECKIN_COMPLETE\]/g, "").trim()
         useChatStore.setState((s) => {
           const msgs = [...s.messages]
@@ -117,10 +117,6 @@ function ChatContent() {
           if (last) msgs[msgs.length - 1] = { ...last, content: cleaned }
           return { messages: msgs }
         })
-
-        const streakStore = useCheckinStore.getState()
-        setCelebrationStreakDays(streakStore.streak)
-        setShowCelebration(true)
       }
     }
   }, [isStreaming, messages, isCheckinSource])
