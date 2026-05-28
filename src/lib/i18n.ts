@@ -171,6 +171,30 @@ const translations: TranslationMap = {
   "planDetail.createNewPlan": { "zh-CN": "创建新计划", en: "Create New Plan" },
   "planDetail.loadingPlan": { "zh-CN": "加载学习计划...", en: "Loading plan..." },
 
+  // 路线图
+  "roadmap.title": { "zh-CN": "学习路线图", en: "Learning Roadmap" },
+  "roadmap.expandHint": { "zh-CN": "点击阶段展开", en: "Click stage to expand" },
+  "roadmap.scrollHint": { "zh-CN": "横向滚动", en: "Scroll →" },
+  "roadmap.completed": { "zh-CN": "已完成", en: "Done" },
+  "roadmap.inProgress": { "zh-CN": "进行中", en: "Active" },
+  "roadmap.pending": { "zh-CN": "待开始", en: "Pending" },
+
+  // 天分组
+  "dayGroup.today": { "zh-CN": "今天", en: "Today" },
+  "dayGroup.done": { "zh-CN": "已完成", en: "Done" },
+  "dayGroup.pending": { "zh-CN": "待开始", en: "Pending" },
+  "dayGroup.expand": { "zh-CN": "展开", en: "Expand" },
+  "dayGroup.collapse": { "zh-CN": "收起", en: "Collapse" },
+
+  // 学习资料面板
+  "resource.title": { "zh-CN": "学习资料", en: "Learning Resources" },
+  "resource.paper": { "zh-CN": "必读论文", en: "Papers" },
+  "resource.video": { "zh-CN": "视频讲解", en: "Videos" },
+  "resource.code": { "zh-CN": "配套代码", en: "Code" },
+  "resource.article": { "zh-CN": "推荐阅读", en: "Articles" },
+  "resource.book": { "zh-CN": "参考书籍", en: "Books" },
+  "resource.noResources": { "zh-CN": "暂无学习资料", en: "No resources yet" },
+
   // 计划列表
   "plans.title": { "zh-CN": "我的计划", en: "My Plans" },
   "plans.subtitle": { "zh-CN": "你的 AI 生成学习计划", en: "Your AI-generated learning plans" },
