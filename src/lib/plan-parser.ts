@@ -188,27 +188,62 @@ function buildStage(parsedStage: ParsedStage, globalWeekOffset: number): { stage
   return { stage, weekCount: weeks.length }
 }
 
-// --- Main extraction function ---
+// --- Brace-balanced JSON extraction ---
 
-export function extractPlanData(content: string): ExtractedPlanData | null {
-  // Try full [PLAN_DATA]...[/PLAN_DATA] markers first
-  let match = content.match(/\[PLAN_DATA\]\s*([\s\S]*?)\s*\[\/PLAN_DATA\]/)
+function extractBalancedJson(text: string): string | null {
+  const start = text.indexOf("{")
+  if (start === -1) return null
 
-  // Fallback: [PLAN_DATA] exists but missing [/PLAN_DATA] (AI truncation)
-  if (!match) {
-    const startIdx = content.indexOf("[PLAN_DATA]")
-    if (startIdx !== -1) {
-      const raw = content.slice(startIdx + 11).trim()
-      const objMatch = raw.match(/(\{[\s\S]*\})/)
-      if (objMatch) {
-        match = ["", objMatch[1]]
-      }
+  let depth = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+    if (inString) {
+      if (escaped) { escaped = false; continue }
+      if (ch === "\\") { escaped = true; continue }
+      if (ch === '"') { inString = false; continue }
+      continue
+    }
+    if (ch === '"') { inString = true; continue }
+    if (ch === "{") { depth++ }
+    else if (ch === "}") {
+      depth--
+      if (depth === 0) return text.slice(start, i + 1)
     }
   }
 
-  if (!match) return null
+  // Truncated JSON: auto-close missing braces
+  if (depth > 0) {
+    return text.slice(start) + "}".repeat(depth)
+  }
 
-  let jsonText = stripCodeFences(match[1])
+  return null
+}
+
+// --- Main extraction function ---
+
+export function extractPlanData(content: string): ExtractedPlanData | null {
+  const fullMatch = content.match(/\[PLAN_DATA\]\s*([\s\S]*?)\s*\[\/PLAN_DATA\]/)
+  let jsonCandidate: string | null = null
+
+  if (fullMatch) {
+    jsonCandidate = fullMatch[1]
+  } else {
+    // Fallback: [PLAN_DATA] exists but [/PLAN_DATA] missing (AI truncation)
+    const startIdx = content.indexOf("[PLAN_DATA]")
+    if (startIdx !== -1) {
+      const raw = content.slice(startIdx + 11)
+      // Strip code fences before JSON extraction
+      const cleaned = stripCodeFences(raw)
+      jsonCandidate = extractBalancedJson(cleaned)
+    }
+  }
+
+  if (!jsonCandidate) return null
+
+  let jsonText = stripCodeFences(jsonCandidate)
 
   // Repair common AI JSON mistakes before parsing
   jsonText = jsonText

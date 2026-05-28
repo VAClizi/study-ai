@@ -181,9 +181,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
 
       // Strip [PLAN_DATA] block from displayed content so user doesn't see raw JSON
-      const planDataRegex = /\[PLAN_DATA\][\s\S]*?\[\/PLAN_DATA\]/
-      if (planDataRegex.test(fullContent)) {
-        const displayContent = fullContent.replace(planDataRegex, "").trim()
+      const planDataIdx = fullContent.indexOf("[PLAN_DATA]")
+      if (planDataIdx !== -1) {
+        const after = fullContent.slice(planDataIdx + 11)
+        const endIdx = after.indexOf("[/PLAN_DATA]")
+        const stripped = endIdx !== -1
+          ? fullContent.slice(0, planDataIdx) + after.slice(endIdx + 13)
+          : fullContent.slice(0, planDataIdx)
+        const displayContent = stripped.trim()
         set((s) => {
           const msgs = [...s.messages]
           const lastMsg = msgs[msgs.length - 1]
