@@ -36,12 +36,12 @@ export function DayTaskGroup({
         "rounded-xl border overflow-hidden transition-all duration-200 cursor-pointer",
         isSelected && "border-yellow-500/35 bg-yellow-500/[0.04] shadow-lg shadow-yellow-500/[0.04]",
         isToday && !isSelected && "border-purple-500/15 bg-purple-500/[0.02]",
-        !isToday && !isSelected && allDone && "border-white/[0.04] bg-white/[0.005] opacity-70",
-        !isToday && !isSelected && !allDone && "border-white/[0.04] bg-white/[0.005]"
+        !isToday && !isSelected && allDone && "border-black/[0.06] bg-black/[0.02] dark:border-white/[0.04] dark:bg-white/[0.005] opacity-70",
+        !isToday && !isSelected && !allDone && "border-black/[0.06] bg-black/[0.02] dark:border-white/[0.04] dark:bg-white/[0.005]"
       )}
     >
       {/* Day header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-white/[0.01] border-b border-white/[0.03]">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-black/[0.02] dark:bg-white/[0.01] border-b border-black/[0.04] dark:border-white/[0.03]">
         <div className="flex items-center gap-2.5">
           {isCurrent && <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />}
           <span className={cn(

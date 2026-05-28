@@ -31,7 +31,7 @@ export function RoadmapStageNode({
         "relative flex-shrink-0 w-[140px] p-3.5 rounded-xl border text-left transition-all duration-300 cursor-pointer",
         status === "completed" && "border-green-500/20 bg-green-500/[0.04]",
         status === "active" && "border-purple-500/40 bg-purple-500/[0.08] shadow-lg shadow-purple-500/10",
-        status === "pending" && "border-white/[0.04] bg-white/[0.005]"
+        status === "pending" && "border-black/[0.06] dark:border-white/[0.04] bg-black/[0.02] dark:bg-white/[0.005]"
       )}
     >
       <div className="flex items-center gap-2 mb-2">
@@ -39,7 +39,7 @@ export function RoadmapStageNode({
           "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold",
           status === "completed" && "bg-green-500/20 text-green-400",
           status === "active" && "bg-purple-500/30 text-purple-300",
-          status === "pending" && "bg-white/[0.04] text-zinc-500"
+          status === "pending" && "bg-black/[0.04] dark:bg-white/[0.04] text-zinc-500 dark:text-zinc-400"
         )}>
           {status === "completed" ? "✓" : index + 1}
         </div>
@@ -47,7 +47,7 @@ export function RoadmapStageNode({
           "text-xs font-semibold",
           status === "completed" && "text-green-400",
           status === "active" && "text-purple-300",
-          status === "pending" && "text-zinc-500"
+          status === "pending" && "text-zinc-500 dark:text-zinc-400"
         )}>
           {stage.name}
         </span>
@@ -60,7 +60,7 @@ export function RoadmapStageNode({
         {status === "pending" && <span className="text-zinc-600">· 待开始</span>}
       </div>
 
-      <div className="h-1 rounded-full bg-white/[0.06]">
+      <div className="h-1 rounded-full bg-black/[0.06] dark:bg-white/[0.06]">
         <div
           className={cn(
             "h-full rounded-full transition-all",

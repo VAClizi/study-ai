@@ -1,4 +1,4 @@
-import type { LearningPlan, DayTask, Stage, PlanTheory, LearningResource } from "@/types/plan"
+import type { LearningPlan, DayTask, Stage, PlanTheory } from "@/types/plan"
 import { mockDelay, randomId } from "@/lib/mock-delay"
 import { extractPlanData } from "@/lib/plan-parser"
 
@@ -79,34 +79,56 @@ export const mockPlanService: MockPlanService = {
     await mockDelay(800, 2000)
     const now = new Date()
 
-    // Try to extract goal from chat content
-    const goalMatch = chatContent.match(/(?:目标|学习|掌握|达成)[：:]\s*(.+?)(?:\n|$)/i)
-      || chatContent.match(/为你制定.*?(?:学习|掌握)(.+?)(?:的|，)/)
-    const extractedGoal = goalMatch ? goalMatch[1]?.trim().slice(0, 30) : null
-
-    // Extract structured plan data from AI response (resources + theories)
+    // Try to extract structured plan data from AI response
     const extracted = extractPlanData(chatContent)
+
+    // Use AI-generated stages if available, otherwise fall back to hardcoded template
+    const stages: Stage[] = (extracted?.stages?.length ? extracted.stages : null) ?? generateFallbackStages()
+
+    // Count total days
+    let totalDays = 0
+    for (const stage of stages) {
+      for (const week of stage.weeks) {
+        totalDays += week.days.length
+      }
+    }
+
+    // Extract title/goal from AI data or fall back to regex
+    const title = extracted?.title
+      || (() => {
+        const m = chatContent.match(/(?:目标|学习|掌握|达成)[：:]\s*(.+?)(?:\n|$)/i)
+            || chatContent.match(/为你制定.*?(?:学习|掌握)(.+?)(?:的|，)/)
+        const g = m ? m[1]?.trim().slice(0, 30) : null
+        return g ? `${g}${mode === "quick" ? "快速" : "深度"}学习计划` : `${mode === "quick" ? "快速" : "深度"}学习计划`
+      })()
+
+    const goalTitle = extracted?.goal
+      || (() => {
+        const m = chatContent.match(/(?:目标|学习|掌握|达成)[：:]\s*(.+?)(?:\n|$)/i)
+        return m ? m[1]?.trim().slice(0, 30) : null
+      })()
+      || "掌握目标技能"
 
     const plan: LearningPlan = {
       id: `plan-${randomId()}`,
       userId,
-      title: extractedGoal ? `${extractedGoal}${mode === "quick" ? "快速" : "深度"}学习计划` : `${mode === "quick" ? "快速" : "深度"}学习计划`,
+      title,
       goal: {
-        title: extractedGoal || "掌握目标技能",
+        title: goalTitle,
         description: "通过系统化的学习计划达成学习目标",
-        deadline: new Date(now.getTime() + 56 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        deadline: new Date(now.getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
         currentLevel: "初级",
         targetLevel: "中高级",
       },
       mode,
-      stages: generateStages(extracted?.resourcesByDay),
+      stages,
       theories: extracted?.theories?.length ? extracted.theories : MOCK_THEORIES,
       weeklyGoal: "完成本周所有学习任务，建立稳定的学习节奏",
       monthlyGoal: "完成前两个阶段的学习，掌握核心基础知识和应用能力",
-      phaseGoal: "通过8周系统学习，从基础到实战，实现学习目标",
+      phaseGoal: "通过系统学习，从基础到实战，实现学习目标",
       status: "active",
       createdAt: now.toISOString(),
-      endDate: new Date(now.getTime() + 56 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      endDate: new Date(now.getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
       chatSessionId,
     }
     plans.push(plan)
@@ -157,25 +179,9 @@ export const mockPlanService: MockPlanService = {
   },
 }
 
-const SAMPLE_RESOURCES: Record<number, LearningResource[]> = {
-  22: [
-    { id: "r1", title: "ImageNet Classification with Deep CNNs (AlexNet)", url: "https://arxiv.org/abs/1404.5997", type: "paper", source: "arxiv.org" },
-    { id: "r2", title: "Very Deep Convolutional Networks (VGG)", url: "https://arxiv.org/abs/1409.1556", type: "paper", source: "arxiv.org" },
-    { id: "r3", title: "CNN Fundamentals", url: "https://www.deeplearning.ai/courses", type: "video", source: "DeepLearning.AI" },
-  ],
-  23: [
-    { id: "r4", title: "You Only Look Once: Unified, Real-Time Object Detection", url: "https://arxiv.org/abs/1506.02640", type: "paper", source: "arxiv.org" },
-    { id: "r5", title: "YOLOv3: An Incremental Improvement", url: "https://arxiv.org/abs/1804.02767", type: "paper", source: "arxiv.org" },
-    { id: "r6", title: "C4W3: Object Detection", url: "https://www.deeplearning.ai/courses", type: "video", source: "DeepLearning.AI" },
-    { id: "r7", title: "PyTorch YOLOv3 Implementation", url: "https://github.com/eriklindernoren/PyTorch-YOLOv3", type: "code", source: "GitHub" },
-  ],
-  24: [
-    { id: "r8", title: "COCO Dataset", url: "https://cocodataset.org", type: "article", source: "cocodataset.org" },
-    { id: "r9", title: "mAP (mean Average Precision) Explained", url: "https://github.com/rafaelpadilla/Object-Detection-Metrics", type: "code", source: "GitHub" },
-  ],
-}
+// --- Fallback: hardcoded template plan when AI parsing fails ---
 
-function generateStages(resourcesByDay?: Map<number, LearningResource[]> | null): Stage[] {
+function generateFallbackStages(): Stage[] {
   return [
     {
       id: "stage-1",
@@ -183,7 +189,7 @@ function generateStages(resourcesByDay?: Map<number, LearningResource[]> | null)
       description: "建立学习节奏，掌握基础知识框架",
       durationWeeks: 2,
       goal: "完成基础知识学习，建立稳定的学习习惯",
-      weeks: generateWeeks(1, 2, resourcesByDay),
+      weeks: generateFallbackWeeks(1, 2),
     },
     {
       id: "stage-2",
@@ -191,7 +197,7 @@ function generateStages(resourcesByDay?: Map<number, LearningResource[]> | null)
       description: "深化理解，开始实际应用",
       durationWeeks: 2,
       goal: "掌握核心技能，能独立完成基础项目",
-      weeks: generateWeeks(3, 2, resourcesByDay),
+      weeks: generateFallbackWeeks(3, 2),
     },
     {
       id: "stage-3",
@@ -199,7 +205,7 @@ function generateStages(resourcesByDay?: Map<number, LearningResource[]> | null)
       description: "系统化知识，形成长期记忆",
       durationWeeks: 2,
       goal: "知识体系完整，能够灵活运用",
-      weeks: generateWeeks(5, 2, resourcesByDay),
+      weeks: generateFallbackWeeks(5, 2),
     },
     {
       id: "stage-4",
@@ -207,12 +213,12 @@ function generateStages(resourcesByDay?: Map<number, LearningResource[]> | null)
       description: "通过项目/考试检验成果",
       durationWeeks: 2,
       goal: "通过实战检验学习成果，达成最终目标",
-      weeks: generateWeeks(7, 2, resourcesByDay),
+      weeks: generateFallbackWeeks(7, 2),
     },
   ]
 }
 
-function generateWeeks(startWeek: number, count: number, resourcesByDay?: Map<number, LearningResource[]> | null) {
+function generateFallbackWeeks(startWeek: number, count: number) {
   const weeks = []
   for (let w = 0; w < count; w++) {
     const weekNum = startWeek + w
@@ -221,20 +227,14 @@ function generateWeeks(startWeek: number, count: number, resourcesByDay?: Map<nu
       goal: `第${weekNum}周：${["建立基础习惯", "加强理解与应用", "系统化与深化", "综合实战与检验"][Math.min(weekNum - 1, 3)]}`,
       days: Array.from({ length: 7 }, (_, d) => {
         const dayNum = (weekNum - 1) * 7 + d + 1
-        // Priority: AI-parsed resources → hardcoded SAMPLE → empty
-        const aiResources = resourcesByDay?.get(dayNum)
-        const sampleResources = SAMPLE_RESOURCES[dayNum]
-        const dayResources = aiResources?.length ? aiResources
-          : sampleResources?.length ? sampleResources
-          : []
         return {
           date: `Day ${dayNum}`,
           dayNumber: dayNum,
-          focus: getDayFocus((weekNum - 1) * 7 + d),
-          tasks: generateMockDayTasks(dayNum),
+          focus: ["新知学习", "复习巩固+新知推进", "实战应用", "系统整理", "综合练习", "拓展探索", "周度复盘"][d % 7],
+          tasks: generateFallbackTasks(dayNum),
           totalMinutes: 60 + Math.floor(Math.random() * 30),
           notes: "",
-          resources: dayResources,
+          resources: [],
         }
       }),
     })
@@ -242,15 +242,8 @@ function generateWeeks(startWeek: number, count: number, resourcesByDay?: Map<nu
   return weeks
 }
 
-function getDayFocus(dayIndex: number): string {
-  const focuses = [
-    "新知学习", "复习巩固+新知推进", "实战应用", "系统整理",
-    "综合练习", "拓展探索", "周度复盘",
-  ]
-  return focuses[dayIndex % 7]
-}
-
-function generateMockDayTasks(dayNumber: number): DayTask[] {
+let _fallbackTid = 0
+function generateFallbackTasks(dayNumber: number): DayTask[] {
   const taskTemplates = [
     { title: "学习新知识（视频/阅读）", desc: "理解核心概念和原理", mins: 30, pri: "high" as const, diff: "medium" as const, tag: "学习" },
     { title: "动手练习实践", desc: "跟随教程完成练习任务", mins: 25, pri: "high" as const, diff: "medium" as const, tag: "练习" },
@@ -259,21 +252,21 @@ function generateMockDayTasks(dayNumber: number): DayTask[] {
     { title: "输出学习笔记/总结", desc: "用费曼学习法输出今日所学", mins: 10, pri: "low" as const, diff: "easy" as const, tag: "输出" },
   ]
 
-  // 根据天数变化任务组合
   const tasks: DayTask[] = []
   const numTasks = 3 + (dayNumber % 3)
 
   for (let i = 0; i < numTasks; i++) {
-    const template = taskTemplates[(dayNumber + i) % taskTemplates.length]
+    const tpl = taskTemplates[(dayNumber + i) % taskTemplates.length]
+    _fallbackTid++
     tasks.push({
-      id: `task-${dayNumber}-${i + 1}`,
-      title: template.title,
-      description: template.desc,
-      durationMinutes: template.mins + (i * 5),
-      priority: template.pri,
-      difficulty: template.diff,
+      id: `fallback-task-${_fallbackTid}`,
+      title: tpl.title,
+      description: tpl.desc,
+      durationMinutes: tpl.mins + (i * 5),
+      priority: tpl.pri,
+      difficulty: tpl.diff,
       completed: false,
-      tags: [template.tag],
+      tags: [tpl.tag],
       theoryBasis: i === 0 ? ["晨间优势", "深度工作"][dayNumber % 2] : undefined,
     })
   }

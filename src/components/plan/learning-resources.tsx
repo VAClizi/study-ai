@@ -34,7 +34,7 @@ export function LearningResources({ resources, dayNumber }: LearningResourcesPro
 
   if (resources.length === 0) {
     return (
-      <div className="w-[230px] flex-shrink-0 rounded-xl border border-white/[0.05] p-4 text-center">
+      <div className="w-[230px] flex-shrink-0 rounded-xl border border-black/[0.06] dark:border-white/[0.05] p-4 text-center">
         <p className="text-xs text-zinc-500">{t("resource.noResources")}</p>
       </div>
     )
@@ -44,7 +44,7 @@ export function LearningResources({ resources, dayNumber }: LearningResourcesPro
     <div className="w-[230px] flex-shrink-0 sticky top-16 rounded-xl border border-yellow-500/[0.08] bg-yellow-500/[0.02] p-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
       <div className="flex items-center gap-2 mb-1">
         <span className="text-sm">📚</span>
-        <span className="text-xs font-bold text-zinc-300">Day {dayNumber} {t("resource.title")}</span>
+        <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Day {dayNumber} {t("resource.title")}</span>
       </div>
 
       {Object.entries(grouped).map(([type, items]) => (
@@ -60,10 +60,10 @@ export function LearningResources({ resources, dayNumber }: LearningResourcesPro
                 href={r.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-2 rounded-lg border border-white/[0.04] bg-white/[0.02] hover:bg-white/[0.05] transition-colors group"
+                className="block p-2 rounded-lg border border-black/[0.06] dark:border-white/[0.04] bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-colors group"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="text-[11px] text-zinc-300 group-hover:text-white leading-snug">
+                  <div className="text-[11px] text-zinc-700 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-white leading-snug">
                     {r.title}
                   </div>
                   <ExternalLink className="h-3 w-3 text-zinc-600 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />

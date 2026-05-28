@@ -165,7 +165,7 @@ export default function PlanDetailPage() {
       <div className="mt-6">
         <div className="flex items-center gap-2 mb-4">
           <Lightbulb className="h-4 w-4 text-purple-400" />
-          <h2 className="text-sm font-bold text-zinc-200">{t("planDetail.scientificBasis")}</h2>
+          <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{t("planDetail.scientificBasis")}</h2>
         </div>
         <TheoryPanel theories={currentPlan.theories} />
       </div>

@@ -27,9 +27,9 @@ export function RoadmapWeekNode({
       className={cn(
         "w-[110px] p-2.5 rounded-lg border text-left transition-all duration-200 cursor-pointer",
         isSelected && "border-yellow-500/35 bg-yellow-500/[0.05]",
-        isCompleted && !isSelected && "border-white/[0.04] bg-white/[0.01]",
+        isCompleted && !isSelected && "border-black/[0.06] dark:border-white/[0.04] bg-black/[0.02] dark:bg-white/[0.01]",
         isCurrent && !isSelected && "border-purple-500/20 bg-purple-500/[0.03]",
-        !isCompleted && !isCurrent && !isSelected && "border-white/[0.03] bg-white/[0.005] opacity-60"
+        !isCompleted && !isCurrent && !isSelected && "border-black/[0.04] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.005] opacity-60"
       )}
     >
       <div className={cn(

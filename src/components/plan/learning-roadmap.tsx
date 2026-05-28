@@ -90,7 +90,7 @@ export function LearningRoadmap({ stages, currentDay, onToggleTask }: LearningRo
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="text-base">🗺️</span>
-            <h3 className="text-sm font-bold text-zinc-200">{t("roadmap.title")}</h3>
+            <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{t("roadmap.title")}</h3>
           </div>
           <span className="text-[10px] text-zinc-600">{t("roadmap.scrollHint")}</span>
         </div>
@@ -175,7 +175,7 @@ export function LearningRoadmap({ stages, currentDay, onToggleTask }: LearningRo
           {selectedWeek && (
             <>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-bold text-zinc-200">
+                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200">
                   {tf("planDetail.weekNum", { num: selectedWeek.weekNumber })} · {selectedWeek.goal}
                 </span>
               </div>

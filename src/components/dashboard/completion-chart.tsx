@@ -4,6 +4,8 @@ import type { GrowthMetrics } from "@/types/checkin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts"
 import { TrendingUp } from "lucide-react"
+import { useTheme } from "next-themes"
+import { useMemo } from "react"
 
 interface CompletionChartProps {
   data: GrowthMetrics[]
@@ -24,12 +26,23 @@ export function CompletionChart({
   suffix = "%",
   height = 250,
 }: CompletionChartProps) {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
+
+  const chartColors = useMemo(() => ({
+    grid: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)",
+    tick: isDark ? "#71717a" : "#52525b",
+    tooltipBg: isDark ? "#12121a" : "#ffffff",
+    tooltipBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
+    tooltipText: isDark ? "#e4e4e7" : "#27272a",
+  }), [isDark])
+
   return (
-    <Card className="border-white/[0.04] bg-white/[0.01]">
+    <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white dark:bg-white/[0.01]">
       <CardHeader>
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-          <CardTitle className="text-sm text-white">{title}</CardTitle>
+          <CardTitle className="text-sm text-zinc-900 dark:text-white">{title}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
@@ -41,27 +54,27 @@ export function CompletionChart({
                 <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 10, fill: "#71717a" }}
+              tick={{ fontSize: 10, fill: chartColors.tick }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => v.slice(5)}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: "#71717a" }}
+              tick={{ fontSize: 10, fill: chartColors.tick }}
               tickLine={false}
               axisLine={false}
               domain={[0, 100]}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#12121a",
-                border: "1px solid rgba(255,255,255,0.06)",
+                backgroundColor: chartColors.tooltipBg,
+                border: `1px solid ${chartColors.tooltipBorder}`,
                 borderRadius: "12px",
                 fontSize: "12px",
-                color: "#e4e4e7",
+                color: chartColors.tooltipText,
               }}
               formatter={(value: unknown) => [`${prefix}${value}${suffix}`, ""]}
               labelFormatter={(label: unknown) => `${label}`}

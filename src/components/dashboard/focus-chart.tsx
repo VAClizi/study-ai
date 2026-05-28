@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import { Brain } from "lucide-react"
 import { useT } from "@/lib/i18n"
+import { useTheme } from "next-themes"
+import { useMemo } from "react"
 
 interface FocusChartProps {
   data: GrowthMetrics[]
@@ -13,39 +15,49 @@ interface FocusChartProps {
 export function FocusChart({ data }: FocusChartProps) {
   const weeklyData = data.slice(-7)
   const t = useT()
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
+
+  const chartColors = useMemo(() => ({
+    grid: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)",
+    tick: isDark ? "#71717a" : "#52525b",
+    tooltipBg: isDark ? "#12121a" : "#ffffff",
+    tooltipBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
+    tooltipText: isDark ? "#e4e4e7" : "#27272a",
+  }), [isDark])
 
   return (
-    <Card className="border-white/[0.04] bg-white/[0.01]">
+    <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white dark:bg-white/[0.01]">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Brain className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-          <CardTitle className="text-sm text-white">{t("dashboard.focus7Days")}</CardTitle>
+          <CardTitle className="text-sm text-zinc-900 dark:text-white">{t("dashboard.focus7Days")}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={weeklyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 10, fill: "#71717a" }}
+              tick={{ fontSize: 10, fill: chartColors.tick }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => v.slice(5)}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: "#71717a" }}
+              tick={{ fontSize: 10, fill: chartColors.tick }}
               tickLine={false}
               axisLine={false}
               domain={[0, 10]}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#12121a",
-                border: "1px solid rgba(255,255,255,0.06)",
+                backgroundColor: chartColors.tooltipBg,
+                border: `1px solid ${chartColors.tooltipBorder}`,
                 borderRadius: "12px",
                 fontSize: "12px",
-                color: "#e4e4e7",
+                color: chartColors.tooltipText,
               }}
               formatter={(value: unknown) => [`${value}/10`, t("dashboard.focus")]}
             />
