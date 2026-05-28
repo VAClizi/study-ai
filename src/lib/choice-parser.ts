@@ -1,9 +1,9 @@
-/** Check if text matches A/B/C/D or 1/2/3 choice pattern and parse it */
+/** Check if text matches A-F/1-9 choice pattern and parse it */
 export function parseChoice(text: string): { label: string; text: string } | null {
   const cleaned = text.replace(/\*\*/g, "").trim()
-  const match = cleaned.match(/^([A-Da-d]|\d)[\.\)、:\s：]\s*(.+)$/)
+  const match = cleaned.match(/^([A-Fa-f]|\d)[\.\)、:\s：]\s*(.+)$/)
   if (match && match[2] && match[2].length > 0) {
-    const label = /[A-Da-d]/.test(match[1]) ? match[1].toUpperCase() : match[1]
+    const label = /[A-Fa-f]/.test(match[1]) ? match[1].toUpperCase() : match[1]
     return { label, text: match[2] }
   }
   return null
@@ -47,13 +47,13 @@ function isPromptLike(line: string): boolean {
 /** Parse inline choices: "问题？ A. xxx B. xxx C. xxx D. xxx" on one line */
 function parseInlineChoices(line: string): { choices: ChoiceOption[] } | null {
   const trimmed = line.trim()
-  // Find where choices start — first A./B./C./D. marker
-  const choiceStart = trimmed.search(/(?:^|\s)[A-Da-d][\.\)、:\s：]/)
+  // Find where choices start — first A-F marker
+  const choiceStart = trimmed.search(/(?:^|\s)[A-Fa-f][\.\)、:\s：]/)
   if (choiceStart === -1) return null
 
   const choicePart = trimmed.substring(choiceStart).trim()
-  // Split by A./B./C./D. markers that appear mid-string
-  const parts = choicePart.split(/\s+(?=[A-Da-d][\.\)、:\s：]\s)/)
+  // Split by A-F markers that appear mid-string
+  const parts = choicePart.split(/\s+(?=[A-Fa-f][\.\)、:\s：]\s)/)
   const choices: ChoiceOption[] = []
   for (const part of parts) {
     const c = parseChoice(part.trim())
