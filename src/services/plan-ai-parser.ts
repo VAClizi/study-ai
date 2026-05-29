@@ -183,7 +183,7 @@ export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanR
     // Extract JSON using brace balancing (more robust than greedy regex)
     const startBrace = jsonText.indexOf("{")
     if (startBrace === -1) {
-      console.error("AI parsePlanTextWithAI: no JSON object found in response")
+      if (process.env.NODE_ENV === "development") console.error("AI parsePlanTextWithAI: no JSON object found in response")
       return null
     }
     jsonText = extractJsonFromText(jsonText)
@@ -195,13 +195,13 @@ export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanR
 
     // Basic validation
     if (!parsed.title || !Array.isArray(parsed.stages) || parsed.stages.length === 0) {
-      console.error("AI parsed plan missing required fields:", Object.keys(parsed))
+      if (process.env.NODE_ENV === "development") console.error("AI parsed plan missing required fields:", Object.keys(parsed))
       return null
     }
 
     return parsed as ParsedPlanResult
   } catch (error) {
-    console.error("Failed to parse plan with AI:", error)
+    if (process.env.NODE_ENV === "development") console.error("Failed to parse plan with AI:", error)
     return null
   }
 }

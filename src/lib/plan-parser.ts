@@ -254,7 +254,7 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
   try {
     parsed = JSON.parse(jsonText)
   } catch (e) {
-    console.error("extractPlanData JSON parse error:", e)
+    if (process.env.NODE_ENV === "development") console.error("extractPlanData JSON parse error:", e)
     return null
   }
 

@@ -107,13 +107,25 @@ function ChatContent() {
     }
   }, [isStreaming, messages, isCheckinSource])
 
+  const handleModeSelect = useCallback(async (mode: ChatMode) => {
+    setMode(mode)
+    await createSession(mode)
+    setHasStarted(true)
+  }, [setMode, createSession])
+
+  const handleSend = useCallback(async (content: string) => {
+    setIsThinking(true)
+    await sendMessage(content)
+    setIsThinking(false)
+  }, [sendMessage])
+
   // Start chat from URL mode parameter
   useEffect(() => {
     const modeParam = searchParams.get("mode")
     if (modeParam === "quick" || modeParam === "detailed") {
       handleModeSelect(modeParam)
     }
-  }, [searchParams])
+  }, [searchParams, handleModeSelect])
 
   // Handle ?session= from plans page (resume a previous conversation)
   useEffect(() => {
@@ -137,19 +149,7 @@ function ChatContent() {
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [searchParams, hasStarted, messages.length])
-
-  const handleModeSelect = useCallback(async (mode: ChatMode) => {
-    setMode(mode)
-    await createSession(mode)
-    setHasStarted(true)
-  }, [setMode, createSession])
-
-  const handleSend = useCallback(async (content: string) => {
-    setIsThinking(true)
-    await sendMessage(content)
-    setIsThinking(false)
-  }, [sendMessage])
+  }, [searchParams, hasStarted, messages.length, handleSend])
 
   const handleGeneratePlan = useCallback(async () => {
     if (!parsedPlanData || !user) return null

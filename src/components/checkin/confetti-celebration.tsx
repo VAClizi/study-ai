@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { CheckCircle, Sparkles, PartyPopper } from "lucide-react"
+import { MILESTONES } from "@/lib/checkin-utils"
 
 interface ConfettiCelebrationProps {
   show: boolean
@@ -15,12 +15,6 @@ const COLORS = [
   "bg-purple-500", "bg-violet-500", "bg-pink-500", "bg-rose-500",
   "bg-orange-500", "bg-yellow-400", "bg-emerald-500", "bg-cyan-400",
 ]
-
-const MILESTONES: Record<number, { badge: string; label: string }> = {
-  7: { badge: "🌟", label: "一周里程碑！习惯正在形成" },
-  30: { badge: "🏆", label: "月度里程碑！你已经坚持一个月了" },
-  100: { badge: "👑", label: "百天里程碑！学习已成为你的生活方式" },
-}
 
 // Generate confetti piece configs
 function generatePieces(count: number) {
@@ -41,7 +35,6 @@ export function ConfettiCelebration({ show, message, milestone, onComplete }: Co
   const [visible, setVisible] = useState(false)
   const [showCard, setShowCard] = useState(false)
   const [showMilestone, setShowMilestone] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     if (!show) return

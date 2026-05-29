@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
-  Sparkles, Brain, Zap, Clock, GraduationCap,
+  Sparkles, Brain, Clock, GraduationCap,
   Globe, Send, Activity, Loader2,
 } from "lucide-react"
 import { useT } from "@/lib/i18n"

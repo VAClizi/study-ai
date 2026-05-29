@@ -5,7 +5,7 @@ import { Flame, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/cn"
 import { useT, useTF } from "@/lib/i18n"
 import { StreakDetailDialog } from "./streak-detail-dialog"
-import { getLocalDate, getLocalDateOffset } from "@/lib/date"
+import { buildDayNodes, MILESTONE_DAYS } from "@/lib/checkin-utils"
 
 interface StreakFireBarProps {
   streakDays: number
@@ -14,61 +14,6 @@ interface StreakFireBarProps {
   className?: string
 }
 
-const DAY_LABELS = ["日", "一", "二", "三", "四", "五", "六"]
-const VISIBLE_DAYS = 7
-
-interface DayNode {
-  date: string
-  dayLabel: string
-  dayNum: number
-  status: "completed" | "today" | "missed"
-}
-
-function loadCheckinDates(): Set<string> {
-  if (typeof window === "undefined") return new Set()
-  try {
-    const raw = localStorage.getItem("studyai-checkins")
-    if (!raw) return new Set()
-    const records: { date: string }[] = JSON.parse(raw)
-    return new Set(records.map((r) => r.date))
-  } catch {
-    return new Set()
-  }
-}
-
-function buildDayNodes(checkedInToday: boolean): DayNode[] {
-  const checkedDates = loadCheckinDates()
-  const today = getLocalDate()
-  const nodes: DayNode[] = []
-
-  for (let i = VISIBLE_DAYS - 1; i >= 0; i--) {
-    const date = getLocalDateOffset(-i)
-    const d = new Date(date)
-    const dayOfWeek = d.getDay()
-    const dayNum = d.getDate()
-
-    let status: DayNode["status"]
-    if (date === today) {
-      status = checkedDates.has(date) || checkedInToday ? "completed" : "today"
-    } else if (checkedDates.has(date)) {
-      status = "completed"
-    } else {
-      status = "missed"
-    }
-
-    nodes.push({
-      date,
-      dayLabel: DAY_LABELS[dayOfWeek],
-      dayNum,
-      status,
-    })
-  }
-
-  return nodes
-}
-
-const MILESTONES = [7, 30, 100]
-
 export function StreakFireBar({ streakDays, checkedInToday, tomorrowGoal, className }: StreakFireBarProps) {
   const t = useT()
   const tf = useTF()
@@ -76,7 +21,7 @@ export function StreakFireBar({ streakDays, checkedInToday, tomorrowGoal, classN
 
   const nodes = useMemo(() => buildDayNodes(checkedInToday), [checkedInToday])
 
-  const nextMilestone = MILESTONES.find((m) => m > streakDays)
+  const nextMilestone = MILESTONE_DAYS.find((m) => m > streakDays)
   const progressToNext = nextMilestone ? (streakDays / nextMilestone) * 100 : 100
 
   return (

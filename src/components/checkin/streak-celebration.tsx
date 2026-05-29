@@ -2,67 +2,13 @@
 
 import { useEffect, useState, useRef, useCallback } from "react"
 import { Flame, PartyPopper, Sparkles } from "lucide-react"
-import { getLocalDate, getLocalDateOffset } from "@/lib/date"
+import { buildDayNodes, MILESTONES } from "@/lib/checkin-utils"
 
 interface StreakCelebrationProps {
   show: boolean
   streakDays: number
   userName?: string
   onComplete: () => void
-}
-
-const DAY_LABELS = ["日", "一", "二", "三", "四", "五", "六"]
-const VISIBLE_DAYS = 7
-
-interface DayNode {
-  date: string
-  dayLabel: string
-  dayNum: number
-  status: "completed" | "today" | "future"
-}
-
-function loadCheckinDates(): Set<string> {
-  if (typeof window === "undefined") return new Set()
-  try {
-    const raw = localStorage.getItem("studyai-checkins")
-    if (!raw) return new Set()
-    const records: { date: string }[] = JSON.parse(raw)
-    return new Set(records.map((r) => r.date))
-  } catch {
-    return new Set()
-  }
-}
-
-function buildDayNodes(): DayNode[] {
-  const checkedDates = loadCheckinDates()
-  const today = getLocalDate()
-  const nodes: DayNode[] = []
-
-  for (let i = VISIBLE_DAYS - 1; i >= 0; i--) {
-    const date = getLocalDateOffset(-i)
-    const d = new Date(date)
-    const dayOfWeek = d.getDay()
-    const dayNum = d.getDate()
-
-    let status: DayNode["status"]
-    if (date === today) {
-      status = "today"
-    } else if (checkedDates.has(date)) {
-      status = "completed"
-    } else {
-      status = "future"
-    }
-
-    nodes.push({ date, dayLabel: DAY_LABELS[dayOfWeek], dayNum, status })
-  }
-
-  return nodes
-}
-
-const MILESTONES: Record<number, { badge: string; label: string }> = {
-  7: { badge: "🌟", label: "一周里程碑！习惯正在形成" },
-  30: { badge: "🏆", label: "月度里程碑！你已经坚持一个月了" },
-  100: { badge: "👑", label: "百天里程碑！学习已成为你的生活方式" },
 }
 
 // Animated counter hook
@@ -102,7 +48,7 @@ export function StreakCelebration({ show, streakDays, userName, onComplete }: St
   const [phase, setPhase] = useState<"nodes" | "lighting" | "counter" | "card" | "milestone" | "done">("nodes")
   const [showConfetti, setShowConfetti] = useState(false)
   const [visible, setVisible] = useState(false)
-  const nodes = useRef(buildDayNodes())
+  const nodes = useRef(buildDayNodes(false, "future"))
   const todayIdx = nodes.current.findIndex((n) => n.status === "today")
 
   const animatingCounter = useAnimatedNumber(streakDays, 800, phase === "counter" || phase === "card" || phase === "milestone" || phase === "done")

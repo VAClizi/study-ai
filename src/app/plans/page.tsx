@@ -72,7 +72,7 @@ export default function PlansPage() {
     if (user) {
       loadPlans(user.id)
     }
-  }, [user])
+  }, [user, loadPlans])
 
   useEffect(() => {
     const sessions = getAllStoredSessions()

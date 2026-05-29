@@ -19,7 +19,20 @@ export function ParticleBackground() {
   const mouseRef = useRef({ x: -1000, y: -1000 })
   const rafRef = useRef<number>(0)
   const { isDark } = useTheme()
-  const [reducedMotion, setReducedMotion] = useState(false)
+
+  // Read reduced-motion preference synchronously to avoid initial frame flash
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === "undefined") return false
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  })
+
+  // Listen for real-time changes to reduced-motion preference
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
 
   const initParticles = useCallback((width: number, height: number) => {
     const count = Math.min(Math.floor((width * height) / 12000), 100)
@@ -41,16 +54,8 @@ export function ParticleBackground() {
   }, [])
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    setReducedMotion(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
-    mq.addEventListener("change", handler)
-    return () => mq.removeEventListener("change", handler)
-  }, [])
-
-  useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas || reducedMotion) return
 
     const ctx = canvas.getContext("2d")
     if (!ctx) return
@@ -84,7 +89,6 @@ export function ParticleBackground() {
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
 
-        // Mouse interaction
         const dx = mouse.x - p.x
         const dy = mouse.y - p.y
         const dist = Math.sqrt(dx * dx + dy * dy)
@@ -95,27 +99,22 @@ export function ParticleBackground() {
           p.vy -= (dy / dist) * force * 0.02
         }
 
-        // Update position
         p.x += p.vx
         p.y += p.vy
 
-        // Damping
         p.vx *= 0.999
         p.vy *= 0.999
 
-        // Wrap around edges
         if (p.x < -10) p.x = width + 10
         if (p.x > width + 10) p.x = -10
         if (p.y < -10) p.y = height + 10
         if (p.y > height + 10) p.y = -10
 
-        // Draw particle
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
         ctx.fillStyle = `hsla(${baseHue}, 70%, 65%, ${p.opacity * baseOpacity})`
         ctx.fill()
 
-        // Draw connections
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j]
           const dx2 = p.x - p2.x
@@ -144,7 +143,7 @@ export function ParticleBackground() {
       window.removeEventListener("mousemove", handleMouseMove)
       cancelAnimationFrame(rafRef.current)
     }
-  }, [isDark, initParticles])
+  }, [isDark, initParticles, reducedMotion])
 
   if (reducedMotion) {
     return <div className="fixed inset-0 -z-10 bg-gradient-to-b from-purple-950/5 to-transparent" aria-hidden="true" />
