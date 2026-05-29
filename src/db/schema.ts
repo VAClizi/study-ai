@@ -6,7 +6,7 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core"
 
-export const users = pgTable("users", {
+export const users = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name"),
   email: text("email").notNull().unique(),
@@ -18,7 +18,7 @@ export const users = pgTable("users", {
 })
 
 export const accounts = pgTable(
-  "accounts",
+  "account",
   {
     userId: text("userId")
       .notNull()
@@ -41,7 +41,7 @@ export const accounts = pgTable(
   })
 )
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
@@ -50,7 +50,7 @@ export const sessions = pgTable("sessions", {
 })
 
 export const verificationTokens = pgTable(
-  "verificationTokens",
+  "verificationToken",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),

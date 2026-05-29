@@ -5,15 +5,26 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { compare } from "bcryptjs"
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
-import { users } from "@/db/schema"
+import * as schema from "@/db/schema"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: DrizzleAdapter(db),
+  adapter: DrizzleAdapter(db, {
+    usersTable: schema.users,
+    accountsTable: schema.accounts,
+    sessionsTable: schema.sessions,
+    verificationTokensTable: schema.verificationTokens,
+  }),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
   },
   callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub
@@ -39,8 +50,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const [user] = await db
           .select()
-          .from(users)
-          .where(eq(users.email, email))
+          .from(schema.users)
+          .where(eq(schema.users.email, email))
           .limit(1)
 
         if (!user || !user.hashedPassword) return null
