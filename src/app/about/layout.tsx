@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
-  const lang = cookieStore.get("studyai-language")?.value === "en" ? "en" : "zh-CN"
+  const lang = cookieStore.get("studyai-language")?.value === "zh-CN" ? "zh-CN" : "en"
   return {
     title: lang === "en" ? "About Us - StudyAI" : "关于我们 - StudyAI",
     description: lang === "en"

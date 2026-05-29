@@ -21,7 +21,7 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/svg+xml",
       },
     ],
-    lang: "zh-CN",
+    lang: "en",
     dir: "ltr",
     categories: ["education", "productivity"],
   }

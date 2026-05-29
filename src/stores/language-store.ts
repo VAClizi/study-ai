@@ -10,7 +10,7 @@ interface LanguageState {
 const STORAGE_KEY = "studyai-language"
 
 function getInitialLanguage(): Language {
-  if (typeof window === "undefined") return "zh-CN"
+  if (typeof window === "undefined") return "en"
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored === "zh-CN" || stored === "en") return stored
   const m = document.cookie.match(/(?:^|;\s*)studyai-language=([^;]*)/)

@@ -66,7 +66,7 @@ const METADATA_BY_LANG: Record<string, {
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
   const langCookie = cookieStore.get("studyai-language")?.value
-  const lang = langCookie === "en" ? "en" : "zh-CN"
+  const lang = langCookie === "zh-CN" ? "zh-CN" : "en"
   const m = METADATA_BY_LANG[lang]
 
   return {
