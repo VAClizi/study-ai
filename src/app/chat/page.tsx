@@ -39,7 +39,6 @@ function ChatContent() {
   const [isThinking, setIsThinking] = useState(false)
   const [isParsingPlan, setIsParsingPlan] = useState(false)
   const [parsedPlanData, setParsedPlanData] = useState<ExtractedPlanData | null>(null)
-  const [debugLog, setDebugLog] = useState<string[]>([])
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationStreakDays, setCelebrationStreakDays] = useState(0)
   const [showCheckinButton, setShowCheckinButton] = useState(false)
@@ -53,22 +52,13 @@ function ChatContent() {
     if (!planContent || planContent === lastParsedContent.current) return
     lastParsedContent.current = planContent
 
-    const logs: string[] = []
-    const log = (msg: string) => { logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`) }
-    log(`planContent 已设置，长度=${planContent.length}`)
-    log(`含 [PLAN_DATA]: ${/\[PLAN_DATA\]/.test(planContent)}`)
-    log(`含 [/PLAN_DATA]: ${/\[\/PLAN_DATA\]/.test(planContent)}`)
-
     // Fast path: direct [PLAN_DATA] extraction (instant, no API call)
     const directExtract = extractPlanData(planContent)
     if (directExtract) {
-      log(`直接提取成功: ${directExtract.title}, ${directExtract.stages.length} 个阶段`)
       setParsedPlanData(directExtract)
       setIsParsingPlan(false)
-      setDebugLog(logs)
       return
     }
-    log("直接提取失败，回退到 AI 解析...")
 
     // Slow path: AI parsing fallback (only if AI didn't include [PLAN_DATA] block)
     let cancelled = false
@@ -78,25 +68,18 @@ function ChatContent() {
     parsePlanTextWithAI(planContent).then((result) => {
       if (cancelled) return
       if (result) {
-        log(`AI 解析成功: ${result.title}`)
         const extracted = convertParsedPlanToExtractedData(result)
         setParsedPlanData(extracted)
       } else {
-        log("AI 解析返回 null")
         const fallback = extractPlanData(planContent)
-        if (fallback) { log("回退提取成功"); setParsedPlanData(fallback) }
-        else log("回退提取也失败")
+        if (fallback) setParsedPlanData(fallback)
       }
       setIsParsingPlan(false)
-      setDebugLog(logs)
-    }).catch((e) => {
+    }).catch(() => {
       if (cancelled) return
-      log(`AI 解析异常: ${(e as Error).message}`)
       const fallback = extractPlanData(planContent)
-      if (fallback) { log("异常回退提取成功"); setParsedPlanData(fallback) }
-      else log("异常回退提取也失败")
+      if (fallback) setParsedPlanData(fallback)
       setIsParsingPlan(false)
-      setDebugLog(logs)
     })
 
     return () => { cancelled = true }
@@ -350,21 +333,6 @@ function ChatContent() {
           }}
         />
 
-        {/* Debug Panel */}
-        {debugLog.length > 0 && (
-          <div className="max-w-3xl mx-auto w-full px-4 pb-3">
-            <details className="rounded-lg border border-amber-500/20 bg-amber-50/60 dark:bg-amber-500/5">
-              <summary className="px-3 py-1.5 text-[10px] text-amber-700 dark:text-amber-400 cursor-pointer font-mono select-none">
-                Debug: planContent={planContent ? `${planContent.length}chars` : "null"} | parsedPlanData={parsedPlanData ? "yes" : "null"} | isParsing={String(isParsingPlan)}
-              </summary>
-              <div className="px-3 pb-2 font-mono text-[10px] text-amber-800 dark:text-amber-300 space-y-0.5 max-h-40 overflow-y-auto">
-                {debugLog.map((line, i) => (
-                  <div key={i}>{line}</div>
-                ))}
-              </div>
-            </details>
-          </div>
-        )}
       </div>
     </div>
   )
