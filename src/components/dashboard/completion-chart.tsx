@@ -4,8 +4,7 @@ import type { GrowthMetrics } from "@/types/checkin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts"
 import { TrendingUp } from "lucide-react"
-import { useTheme } from "next-themes"
-import { useMemo } from "react"
+import { useChartColors } from "@/hooks/use-chart-colors"
 
 interface CompletionChartProps {
   data: GrowthMetrics[]
@@ -26,16 +25,7 @@ export function CompletionChart({
   suffix = "%",
   height = 250,
 }: CompletionChartProps) {
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
-
-  const chartColors = useMemo(() => ({
-    grid: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)",
-    tick: isDark ? "#71717a" : "#52525b",
-    tooltipBg: isDark ? "#12121a" : "#ffffff",
-    tooltipBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
-    tooltipText: isDark ? "#e4e4e7" : "#27272a",
-  }), [isDark])
+  const chartColors = useChartColors()
 
   return (
     <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white dark:bg-white/[0.01]">

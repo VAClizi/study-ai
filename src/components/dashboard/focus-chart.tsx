@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import { Brain } from "lucide-react"
 import { useT } from "@/lib/i18n"
-import { useTheme } from "next-themes"
-import { useMemo } from "react"
+import { useChartColors } from "@/hooks/use-chart-colors"
 
 interface FocusChartProps {
   data: GrowthMetrics[]
@@ -15,16 +14,7 @@ interface FocusChartProps {
 export function FocusChart({ data }: FocusChartProps) {
   const weeklyData = data.slice(-7)
   const t = useT()
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
-
-  const chartColors = useMemo(() => ({
-    grid: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)",
-    tick: isDark ? "#71717a" : "#52525b",
-    tooltipBg: isDark ? "#12121a" : "#ffffff",
-    tooltipBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
-    tooltipText: isDark ? "#e4e4e7" : "#27272a",
-  }), [isDark])
+  const chartColors = useChartColors()
 
   return (
     <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white dark:bg-white/[0.01]">

@@ -74,7 +74,7 @@ export default function SettingsPage() {
   }
 
   const handleSaveProfile = async () => {
-    await updateSettings({})
+    await updateSettings({ name })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

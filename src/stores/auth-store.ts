@@ -46,8 +46,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user, isAuthenticated: !!user, isLoading: false })
   },
 
-  updateSettings: (_settings) => {
-    // Stub: settings stored in localStorage by settings page directly
-    // TODO: persist to DB when user settings table is added
+  updateSettings: (settings) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("studyai-settings") || "{}")
+      localStorage.setItem("studyai-settings", JSON.stringify({ ...existing, ...settings }))
+    } catch {
+      // localStorage unavailable, silently ignore
+    }
   },
 }))

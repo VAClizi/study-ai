@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { memo, useMemo, useState } from "react"
 import { cn } from "@/lib/cn"
 import { ChevronDown, ChevronUp, Target, Calendar, Lightbulb, BookOpen, Clock, GripVertical } from "lucide-react"
 import ReactMarkdown from "react-markdown"
@@ -127,7 +127,7 @@ export function PlanSection({ content }: PlanSectionProps) {
   )
 }
 
-function PlanSegmentCard({ segment }: { segment: PlanSegment }) {
+const PlanSegmentCard = memo(function PlanSegmentCard({ segment }: { segment: PlanSegment }) {
   const isH2 = segment.level === "##"
   const table = parseTable(segment.body)
 
@@ -214,4 +214,4 @@ function PlanSegmentCard({ segment }: { segment: PlanSegment }) {
       )}
     </div>
   )
-}
+})
