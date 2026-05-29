@@ -92,7 +92,7 @@ export function GrowthPreview() {
     {
       id: "goal",
       icon: Target,
-      value: `${user?.settings?.weeklyGoalHours ?? 20}`,
+      value: `${typeof window !== "undefined" ? Number(localStorage.getItem("studyai-weekly-goal")) || 20 : 20}`,
       unit: "h",
       label: t("settings.weeklyGoal"),
       bgColor: "bg-purple-500/10",

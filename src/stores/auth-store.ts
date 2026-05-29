@@ -17,6 +17,7 @@ interface AuthState {
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => Promise<void>
   setUser: (user: AuthUser | null) => void
+  updateSettings: (settings: Record<string, unknown>) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -43,5 +44,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setUser: (user) => {
     set({ user, isAuthenticated: !!user, isLoading: false })
+  },
+
+  updateSettings: (_settings) => {
+    // Stub: settings stored in localStorage by settings page directly
+    // TODO: persist to DB when user settings table is added
   },
 }))

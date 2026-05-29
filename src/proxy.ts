@@ -1,12 +1,11 @@
 import { auth } from "@/auth"
 import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
 
 const publicRoutes = ["/", "/login"]
 const staticPattern = /\.(svg|png|jpg|jpeg|gif|ico|json|xml|txt|html|webmanifest)$/
 const ZH_REGIONS = new Set(["CN", "HK", "TW", "SG", "MO"])
 
-export default auth(async function proxy(request: NextRequest) {
+export default auth(async function proxy(request) {
   const { pathname } = request.nextUrl
   const response = NextResponse.next()
 
