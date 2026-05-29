@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
 import { ParticleBackground } from "@/components/shared/particle-background"
-import { AuthInitializer } from "@/components/shared/auth-initializer"
+import { SessionProvider } from "@/components/shared/session-provider"
 import { HtmlLangUpdater } from "@/components/shared/html-lang-updater"
 import { SkipToContent } from "@/components/shared/skip-to-content"
 import { Analytics } from "@vercel/analytics/react"
@@ -124,12 +124,13 @@ export default function RootLayout({
         >
           <TooltipProvider delay={300}>
             <HtmlLangUpdater />
-            <AuthInitializer />
+            <SessionProvider>
             <SkipToContent />
             <ParticleBackground />
             <Navbar />
             <main id="main-content" className="flex-1 flex flex-col">{children}</main>
             <Footer />
+              </SessionProvider>
           </TooltipProvider>
           <Analytics />
           <SpeedInsights />

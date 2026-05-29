@@ -35,6 +35,12 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    if (password.length < 6) {
+      setError(t("login.passwordTooShort"))
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -44,22 +50,18 @@ export default function LoginPage() {
         await register(email, password, name)
       }
       router.push("/chat")
-    } catch {
-      setError(t("login.loginFailed"))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("login.loginFailed"))
     } finally {
       setLoading(false)
     }
   }
 
   const handleGoogleLogin = async () => {
-    setLoading(true)
     try {
       await loginWithGoogle()
-      router.push("/chat")
     } catch {
       setError(t("login.googleFailed"))
-    } finally {
-      setLoading(false)
     }
   }
 

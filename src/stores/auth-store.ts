@@ -1,17 +1,22 @@
 import { create } from "zustand"
-import type { User, UserSettings } from "@/types/user"
-import { mockAuthService } from "@/services/auth.mock"
+import { loginWithCredentials, loginWithGoogle, registerAndLogin, logout as authLogout } from "@/auth/client"
+
+export interface AuthUser {
+  id: string
+  email: string
+  name: string
+  avatarUrl: string
+}
 
 interface AuthState {
-  user: User | null
+  user: AuthUser | null
   isLoading: boolean
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => Promise<void>
-  checkAuth: () => Promise<void>
-  updateSettings: (settings: Partial<UserSettings>) => Promise<void>
+  setUser: (user: AuthUser | null) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -20,36 +25,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   login: async (email: string, password: string) => {
-    const user = await mockAuthService.login(email, password)
-    set({ user, isAuthenticated: true })
+    await loginWithCredentials(email, password)
   },
 
   loginWithGoogle: async () => {
-    const user = await mockAuthService.loginWithGoogle()
-    set({ user, isAuthenticated: true })
+    await loginWithGoogle()
   },
 
   register: async (email: string, password: string, name: string) => {
-    const user = await mockAuthService.register(email, password, name)
-    set({ user, isAuthenticated: true })
+    await registerAndLogin(name, email, password)
   },
 
   logout: async () => {
-    await mockAuthService.logout()
+    await authLogout()
     set({ user: null, isAuthenticated: false })
   },
 
-  checkAuth: async () => {
-    try {
-      const user = await mockAuthService.getCurrentUser()
-      set({ user, isAuthenticated: !!user, isLoading: false })
-    } catch {
-      set({ user: null, isAuthenticated: false, isLoading: false })
-    }
-  },
-
-  updateSettings: async (settings: Partial<UserSettings>) => {
-    const user = await mockAuthService.updateSettings(settings)
-    set({ user })
+  setUser: (user) => {
+    set({ user, isAuthenticated: !!user, isLoading: false })
   },
 }))

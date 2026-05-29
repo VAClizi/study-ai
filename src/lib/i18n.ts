@@ -75,6 +75,7 @@ const translations: TranslationMap = {
   "login.clickAgree": { "zh-CN": "点击 {action} 即表示同意我们的服务条款和隐私政策", en: "By clicking {action}, you agree to our Terms of Service and Privacy Policy" },
   "login.loginFailed": { "zh-CN": "登录失败，请稍后再试。", en: "Login failed, please try again." },
   "login.googleFailed": { "zh-CN": "Google 登录失败", en: "Google login failed" },
+  "login.passwordTooShort": { "zh-CN": "密码至少需要6位", en: "Password must be at least 6 characters" },
 
   // 聊天
   "chat.startPlan": { "zh-CN": "开始 AI 规划", en: "Start AI Planning" },
