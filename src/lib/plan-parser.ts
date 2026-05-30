@@ -242,6 +242,60 @@ function extractBalancedJson(text: string): string | null {
   return null
 }
 
+// Auto-close unterminated JSON string values caused by AI truncation
+function repairUnterminatedStrings(json: string): string {
+  const result: string[] = []
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < json.length; i++) {
+    const ch = json[i]
+    result.push(ch)
+
+    if (inString) {
+      if (escaped) { escaped = false; continue }
+      if (ch === "\\") { escaped = true; continue }
+      if (ch === '"') { inString = false; continue }
+      if (ch === "\n" || ch === "\r") {
+        result.pop()
+        result.push('"')
+        inString = false
+      }
+      continue
+    }
+
+    if (ch === '"') { inString = true }
+  }
+
+  if (inString) { result.push('"') }
+  return result.join("")
+}
+
+// Auto-close unbalanced braces/brackets caused by AI truncation
+function balanceBraces(json: string): string {
+  let depthBraces = 0
+  let depthBrackets = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < json.length; i++) {
+    const ch = json[i]
+    if (inString) {
+      if (escaped) { escaped = false; continue }
+      if (ch === "\\") { escaped = true; continue }
+      if (ch === '"') { inString = false; continue }
+      continue
+    }
+    if (ch === '"') { inString = true; continue }
+    if (ch === "{") { depthBraces++ }
+    else if (ch === "}") { depthBraces-- }
+    else if (ch === "[") { depthBrackets++ }
+    else if (ch === "]") { depthBrackets-- }
+  }
+
+  return json + "]".repeat(Math.max(0, depthBrackets)) + "}".repeat(Math.max(0, depthBraces))
+}
+
 // --- Main extraction function ---
 
 export function extractPlanData(content: string): ExtractedPlanData | null {
@@ -271,6 +325,11 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
     .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // unquoted keys
     .replace(/:\s*"([^"]*)"\s*:/g, ': "$1",')      // missing comma between string values
     .replace(/:\s*(\d+)\s*"/g, ': $1, "')           // missing comma between number and string
+
+  // Auto-close unterminated strings (AI truncation)
+  jsonText = repairUnterminatedStrings(jsonText)
+  // Auto-close unbalanced braces and brackets
+  jsonText = balanceBraces(jsonText)
     .replace(/:\s*(\d+)\s*\{/g, ': $1, {')           // missing comma between number and object start
 
   let parsed: Record<string, unknown>

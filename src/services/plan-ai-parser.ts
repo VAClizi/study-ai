@@ -172,7 +172,7 @@ export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanR
         { role: "system", content: PARSE_SYSTEM_PROMPT },
         { role: "user", content: `Convert the following learning plan text into structured JSON as specified:\n\n${inputText}` },
       ],
-      { model: "mimo-v2-flash", temperature: 0.1, maxTokens: 4096 },
+      { model: "mimo-v2-flash", temperature: 0.1, maxTokens: 8192 },
     )
 
     let jsonText = response.trim()

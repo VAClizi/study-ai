@@ -46,7 +46,7 @@ export async function* streamChat(
       messages,
       model: options?.model ?? "mimo-v2.5",
       temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.maxTokens ?? 4096,
+      max_tokens: options?.maxTokens ?? 8192,
       stream: true,
     }),
   })
@@ -96,7 +96,7 @@ export async function chat(
       messages,
       model: options?.model ?? "mimo-v2.5",
       temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.maxTokens ?? 4096,
+      max_tokens: options?.maxTokens ?? 8192,
       stream: false,
     }),
   })
