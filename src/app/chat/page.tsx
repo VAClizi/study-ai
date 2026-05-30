@@ -6,6 +6,7 @@ import type { ChatMode } from "@/types/chat"
 import { useChatStore } from "@/stores/chat-store"
 import { usePlanStore } from "@/stores/plan-store"
 import { useAuthStore } from "@/stores/auth-store"
+import { usePersonaStore } from "@/stores/persona-store"
 import { ChatMessages } from "@/components/chat/chat-messages"
 import { ChatInput } from "@/components/chat/chat-input"
 import { ModeSelector } from "@/components/chat/mode-selector"
@@ -36,6 +37,7 @@ function ChatContent() {
 
   const { createPlanFromParsedData } = usePlanStore()
   const { user } = useAuthStore()
+  const contentPreference = usePersonaStore((s) => s.contentPreference)
 
   const [hasStarted, setHasStarted] = useState(false)
   const [isThinking, setIsThinking] = useState(false)
@@ -66,7 +68,7 @@ function ChatContent() {
       planTitle: data.title ?? "",
     }))
 
-    const groups = await replenishResources(fullContexts)
+    const groups = await replenishResources(fullContexts, contentPreference)
     if (replenishAbortRef.current) return
 
     // 构建 dayNumber → 补生成资源的映射
@@ -103,7 +105,7 @@ function ChatContent() {
       stages: updatedStages,
       droppedResourceContexts: undefined,
     } : null)
-  }, [])
+  }, [contentPreference])
 
   // When planContent is set, parse it into structured plan data
   useEffect(() => {
@@ -126,7 +128,7 @@ function ChatContent() {
     setParsedPlanData(null)
 
     const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 15000))
-    Promise.race([parsePlanTextWithAI(planContent), timeout]).then((result) => {
+    Promise.race([parsePlanTextWithAI(planContent, contentPreference), timeout]).then((result) => {
       if (cancelled) return
       if (result) {
         const extracted = convertParsedPlanToExtractedData(result)

@@ -1,4 +1,5 @@
 import { chat } from "./llm"
+import type { ContentPreference } from "@/stores/persona-store"
 
 export interface ParsedDayResource {
   title: string
@@ -73,7 +74,14 @@ function extractJsonFromText(text: string): string {
   return text
 }
 
-const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任务是将给定的学习计划文本转换为结构化 JSON。
+function buildParsePrompt(contentPreference?: ContentPreference): string {
+  const prefClause = contentPreference === "video"
+    ? "\n- **用户偏好：该用户更喜欢视频类学习资料（Bilibili、YouTube 等），请优先推荐 video 类型，其次是 article/paper 类型**"
+    : contentPreference === "article"
+    ? "\n- **用户偏好：该用户更喜欢文章类学习资料（博客、论文、文档等），请优先推荐 article/paper 类型，其次是 video 类型**"
+    : ""
+
+  return `你是一个学习计划数据提取器。你的任务是将给定的学习计划文本转换为结构化 JSON。
 
 **输出格式（严格按此 JSON Schema）：**
 
@@ -142,13 +150,15 @@ const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任
 - 只输出 JSON，不要输出任何其他文字、解释或 markdown 代码围栏
 - 如果文本中某信息缺失，根据上下文合理推断，但不要留空字符串
 - **resources 必须放在每天的 day 对象内部，不要放在 week 对象上**（week 上的 resources 会被忽略），每天的资料根据当天学习主题变化
-- **resources 的 URL、标题、来源必须具体真实，禁止任何占位或虚假内容。如果找不到合适的资料，留空数组，不要编造。推荐资源应为公开、合法的教育内容，禁止推荐盗版资源、付费破解内容或侵权材料**`
+- **resources 的 URL、标题、来源必须具体真实，禁止任何占位或虚假内容。如果找不到合适的资料，留空数组，不要编造。推荐资源应为公开、合法的教育内容，禁止推荐盗版资源、付费破解内容或侵权材料**
+	- **推荐的学习资料必须是最新的（优先近 2-3 年内发布的），避免推荐过时或已失效的链接**${prefClause}`
+}
 
 /**
  * Call AI to parse plan text into structured JSON.
  * Returns the parsed plan data or null on failure.
  */
-export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanResult | null> {
+export async function parsePlanTextWithAI(planText: string, contentPreference?: ContentPreference): Promise<ParsedPlanResult | null> {
   try {
     // Prioritize [PLAN_DATA] section: keep intro context short, preserve full JSON block
     let inputText: string
@@ -170,7 +180,7 @@ export async function parsePlanTextWithAI(planText: string): Promise<ParsedPlanR
 
     const response = await chat(
       [
-        { role: "system", content: PARSE_SYSTEM_PROMPT },
+        { role: "system", content: buildParsePrompt(contentPreference) },
         { role: "user", content: `Convert the following learning plan text into structured JSON as specified:\n\n${inputText}` },
       ],
       { model: "mimo-v2-flash", temperature: 0.1, maxTokens: 8192 },

@@ -3,6 +3,7 @@ import type { Language } from "./language-store"
 import { QUICK_MODE_RULES, DETAILED_MODE_RULES } from "@/prompts/core-rules"
 
 export type CoachPersona = "strict" | "gentle" | "data-driven"
+export type ContentPreference = "video" | "article" | "balanced"
 
 export interface PersonaConfig {
   id: CoachPersona
@@ -141,9 +142,12 @@ interface PersonaState {
   persona: CoachPersona
   config: PersonaConfig
   setPersona: (persona: CoachPersona) => void
+  contentPreference: ContentPreference
+  setContentPreference: (pref: ContentPreference) => void
 }
 
 const PERSONA_STORAGE = "studyai-persona"
+const CONTENT_PREF_STORAGE = "studyai-content-pref"
 
 function getStoredPersona(): CoachPersona {
   if (typeof window === "undefined") return "gentle"
@@ -152,8 +156,16 @@ function getStoredPersona(): CoachPersona {
   return "gentle"
 }
 
+function getStoredContentPreference(): ContentPreference {
+  if (typeof window === "undefined") return "balanced"
+  const stored = localStorage.getItem(CONTENT_PREF_STORAGE)
+  if (stored === "video" || stored === "article" || stored === "balanced") return stored
+  return "balanced"
+}
+
 export const usePersonaStore = create<PersonaState>((set) => {
   const initial = getStoredPersona()
+  const initialPref = getStoredContentPreference()
   return {
     persona: initial,
     config: PERSONAS[initial],
@@ -166,6 +178,11 @@ export const usePersonaStore = create<PersonaState>((set) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ persona }),
       }).catch(() => {})
+    },
+    contentPreference: initialPref,
+    setContentPreference: (contentPreference) => {
+      localStorage.setItem(CONTENT_PREF_STORAGE, contentPreference)
+      set({ contentPreference })
     },
   }
 })
