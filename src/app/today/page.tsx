@@ -54,7 +54,7 @@ export default function TodayPage() {
 
   useEffect(() => {
     if (user) {
-      loadPlans(user.id)
+      loadPlans()
     }
   }, [user, loadPlans])
 

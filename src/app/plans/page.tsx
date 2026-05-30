@@ -70,7 +70,7 @@ export default function PlansPage() {
 
   useEffect(() => {
     if (user) {
-      loadPlans(user.id)
+      loadPlans()
     }
   }, [user, loadPlans])
 

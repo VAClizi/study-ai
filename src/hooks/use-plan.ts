@@ -21,7 +21,7 @@ export function usePlan(planId?: string) {
 
   useEffect(() => {
     if (user) {
-      loadPlans(user.id)
+      loadPlans()
     }
   }, [user, loadPlans])
 

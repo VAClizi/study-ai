@@ -3,7 +3,7 @@ import { mockDelay, randomId } from "@/lib/mock-delay"
 import { extractPlanData, type ExtractedPlanData } from "@/lib/plan-parser"
 import { getLocalDate } from "@/lib/date"
 
-const MOCK_THEORIES: PlanTheory[] = [
+export const MOCK_THEORIES: PlanTheory[] = [
   {
     name: "间隔重复",
     description: "根据艾宾浩斯遗忘曲线，在遗忘临界点进行复习，记忆效率提升300%",
@@ -187,7 +187,7 @@ export const mockPlanService: MockPlanService = {
 
 // --- Fallback: hardcoded template plan when AI parsing fails ---
 
-function generateFallbackStages(): Stage[] {
+export function generateFallbackStages(): Stage[] {
   return [
     {
       id: "stage-1",

@@ -155,7 +155,7 @@ function ChatContent() {
     if (!parsedPlanData || !user) return null
     const mode = currentMode || "quick"
     const sessionId = currentSession?.id
-    const plan = await createPlanFromParsedData(parsedPlanData, user.id, mode, sessionId)
+    const plan = await createPlanFromParsedData(parsedPlanData, mode, sessionId)
     if (plan) {
       useChatStore.setState((s) => {
         if (s.currentSession) {

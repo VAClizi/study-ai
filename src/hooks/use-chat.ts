@@ -38,7 +38,7 @@ export function useChat() {
   const generatePlan = useCallback(async () => {
     if (!planContent || !user) return null
     const mode = currentMode || "quick"
-    return await createPlanFromChat(planContent, user.id, mode)
+    return await createPlanFromChat(planContent, mode)
   }, [planContent, currentMode, user, createPlanFromChat])
 
   return {

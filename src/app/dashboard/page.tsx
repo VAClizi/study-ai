@@ -87,7 +87,7 @@ export default function DashboardPage() {
   }, [stats, user])
 
   useEffect(() => {
-    if (user) loadPlans(user.id)
+    if (user) loadPlans()
   }, [user, loadPlans])
 
   useEffect(() => {
