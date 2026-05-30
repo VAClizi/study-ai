@@ -42,6 +42,8 @@ function ChatContent() {
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationStreakDays, setCelebrationStreakDays] = useState(0)
   const [showCheckinButton, setShowCheckinButton] = useState(false)
+  const [planSaveError, setPlanSaveError] = useState<string | null>(null)
+  const [isSavingPlan, setIsSavingPlan] = useState(false)
   const isCheckinSource = searchParams.get("source") === "checkin"
   const initialPromptSent = useRef(false)
   const lastParsedContent = useRef<string | null>(null)
@@ -65,7 +67,8 @@ function ChatContent() {
     setIsParsingPlan(true)
     setParsedPlanData(null)
 
-    parsePlanTextWithAI(planContent).then((result) => {
+    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 15000))
+    Promise.race([parsePlanTextWithAI(planContent), timeout]).then((result) => {
       if (cancelled) return
       if (result) {
         const extracted = convertParsedPlanToExtractedData(result)
@@ -153,21 +156,40 @@ function ChatContent() {
   }, [searchParams, hasStarted, messages.length, handleSend])
 
   const handleGeneratePlan = useCallback(async () => {
-    if (!parsedPlanData || !user) return null
-    const mode = currentMode || "quick"
-    const sessionId = currentSession?.id
-    const plan = await createPlanFromParsedData(parsedPlanData, mode, sessionId)
-    if (plan) {
-      useChatStore.setState((s) => {
-        if (s.currentSession) {
-          s.currentSession = { ...s.currentSession, planId: plan.id }
-        }
-        return {}
-      })
-      saveCurrentSession()
-      router.push(`/plan/${plan.id}`)
+    if (!user) return null
+    setPlanSaveError(null)
+    setIsSavingPlan(true)
+
+    // If parsing succeeded, use the extracted data; otherwise build a minimal fallback
+    const data = parsedPlanData ?? {
+      title: currentMode === "quick" ? "快速学习计划" : "深度学习计划",
+      goal: "系统化学习计划",
+      stages: [],
+      theories: [],
     }
-    return plan
+
+    try {
+      const mode = currentMode || "quick"
+      const sessionId = currentSession?.id
+      const plan = await createPlanFromParsedData(data, mode, sessionId)
+      if (plan) {
+        useChatStore.setState((s) => {
+          if (s.currentSession) {
+            s.currentSession = { ...s.currentSession, planId: plan.id }
+          }
+          return {}
+        })
+        saveCurrentSession()
+        router.push(`/plan/${plan.id}`)
+      }
+      return plan
+    } catch (err) {
+      console.error("Failed to save plan:", err)
+      setPlanSaveError("保存计划失败，请重试")
+      return null
+    } finally {
+      setIsSavingPlan(false)
+    }
   }, [parsedPlanData, currentMode, user, currentSession, createPlanFromParsedData, saveCurrentSession, router])
 
   const handleNewChat = useCallback(() => {
@@ -294,7 +316,7 @@ function ChatContent() {
 
         {/* Plan parsing / save banner */}
         {planContent && (
-          <div className="max-w-3xl mx-auto w-full px-4 pb-1">
+          <div className="max-w-3xl mx-auto w-full px-4 pb-1 space-y-2">
             {isParsingPlan ? (
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-purple-200/60 dark:border-purple-500/20 bg-purple-50/60 dark:bg-purple-500/5">
                 <Loader2 className="h-4 w-4 text-purple-500 animate-spin" />
@@ -310,11 +332,23 @@ function ChatContent() {
                 <Button
                   onClick={() => handleGeneratePlan()}
                   size="sm"
-                  disabled={!parsedPlanData}
+                  disabled={isSavingPlan}
                   className="bg-purple-600 hover:bg-purple-700 text-white text-xs h-8 disabled:opacity-50"
                 >
-                  {t("chat.saveToMyPlan")}
+                  {isSavingPlan ? (
+                    <span className="flex items-center gap-1.5">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      保存中...
+                    </span>
+                  ) : (
+                    t("chat.saveToMyPlan")
+                  )}
                 </Button>
+              </div>
+            )}
+            {planSaveError && (
+              <div className="px-4 py-2 rounded-xl border border-red-200/60 dark:border-red-500/20 bg-red-50/60 dark:bg-red-500/5">
+                <span className="text-sm text-red-600 dark:text-red-400">{planSaveError}</span>
               </div>
             )}
           </div>

@@ -143,14 +143,17 @@ function normalizeTheory(t: ParsedTheory): PlanTheory {
 // --- Build WeekPlan from AI parsed week data ---
 
 function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
-  const tasks = parsedWeek.tasks ?? []
-  const allResources = (parsedWeek.resources ?? []).map((r, i) => normalizeResource(r, weekNumber, i))
+  const tasks = Array.isArray(parsedWeek.tasks) ? parsedWeek.tasks : []
+  const rawResources = Array.isArray(parsedWeek.resources) ? parsedWeek.resources : []
+  const allResources = rawResources.map((r, i) => normalizeResource(r, weekNumber, i))
 
   // Build a map of day-specific resources from dailyResources
   const dailyResourcesMap = new Map<number, LearningResource[]>()
-  if (parsedWeek.dailyResources) {
+  if (Array.isArray(parsedWeek.dailyResources)) {
     for (const dr of parsedWeek.dailyResources) {
-      const dayResources = (dr.resources ?? []).map((r, i) => normalizeResource(r, weekNumber, i))
+      if (!dr || typeof dr.dayOfWeek !== "number") continue
+      const drResources = Array.isArray(dr.resources) ? dr.resources : []
+      const dayResources = drResources.map((r, i) => normalizeResource(r, weekNumber, i))
       dailyResourcesMap.set(dr.dayOfWeek, dayResources)
     }
   }
@@ -186,7 +189,7 @@ function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
 
 function buildStage(parsedStage: ParsedStage, globalWeekOffset: number): { stage: Stage; weekCount: number } {
   const weeks: WeekPlan[] = []
-  const parsedWeeks = parsedStage.weeks ?? []
+  const parsedWeeks = Array.isArray(parsedStage.weeks) ? parsedStage.weeks : []
 
   for (let w = 0; w < parsedWeeks.length; w++) {
     const weekNum = globalWeekOffset + w + 1
@@ -266,12 +269,15 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
   jsonText = jsonText
     .replace(/,(\s*[}\]])/g, "$1")       // trailing commas
     .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // unquoted keys
+    .replace(/:\s*"([^"]*)"\s*:/g, ': "$1",')      // missing comma between string values
+    .replace(/:\s*(\d+)\s*"/g, ': $1, "')           // missing comma between number and string
+    .replace(/:\s*(\d+)\s*\{/g, ': $1, {')           // missing comma between number and object start
 
   let parsed: Record<string, unknown>
   try {
     parsed = JSON.parse(jsonText)
   } catch (e) {
-    if (process.env.NODE_ENV === "development") console.error("extractPlanData JSON parse error:", e)
+    console.error("extractPlanData JSON parse error:", e instanceof Error ? e.message : e, "JSON preview:", jsonText.slice(0, 200))
     return null
   }
 
@@ -296,8 +302,9 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
     theories: [],
   }
 
-  if (!isLegacy && (p as ParsedPlanData).stages) {
-    const parsedStages = (p as ParsedPlanData).stages!
+  const rawStages = (p as ParsedPlanData).stages
+  if (!isLegacy && Array.isArray(rawStages)) {
+    const parsedStages = rawStages!
     let weekOffset = 0
     for (const ps of parsedStages) {
       const { stage, weekCount } = buildStage(ps, weekOffset)
@@ -323,8 +330,9 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
     data.stages = legacyStages
   }
 
-  if (Array.isArray(parsed.theories)) {
-    for (const t of parsed.theories) {
+  const rawTheories = parsed.theories
+  if (Array.isArray(rawTheories)) {
+    for (const t of rawTheories) {
       if (!t || !t.name) continue
       data.theories.push(normalizeTheory(t as ParsedTheory))
     }
