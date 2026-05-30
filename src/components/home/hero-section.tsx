@@ -61,14 +61,14 @@ export function HeroSection() {
       setIsActivating(false)
       setPrompt("")
     }, 900)
-    router.push(`/chat?prompt=${encodeURIComponent(prompt.trim())}&mode=quick`)
+    router.push(`/chat?prompt=${encodeURIComponent(prompt.trim())}`)
   }, [prompt, isActivating, isAuthenticated, router])
 
   const handleSuggestionClick = useCallback((key: string) => {
     if (!isAuthenticated) { router.push("/login"); return }
     setIsActivating(true)
     setTimeout(() => setIsActivating(false), 900)
-    router.push(`/chat?prompt=${encodeURIComponent(t(key))}&mode=quick`)
+    router.push(`/chat?prompt=${encodeURIComponent(t(key))}`)
   }, [isAuthenticated, router, t])
 
   return (
