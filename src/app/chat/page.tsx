@@ -49,6 +49,7 @@ function ChatContent() {
   const [showCheckinButton, setShowCheckinButton] = useState(false)
   const [planSaveError, setPlanSaveError] = useState<string | null>(null)
   const [isSavingPlan, setIsSavingPlan] = useState(false)
+  const [isLoadingCheckin, setIsLoadingCheckin] = useState(false)
   const isCheckinSource = searchParams.get("source") === "checkin"
   const planIdParam = searchParams.get("planId")
   const initialPromptSent = useRef(false)
@@ -227,18 +228,41 @@ function ChatContent() {
   useEffect(() => {
     const sessionId = searchParams.get("session")
     if (sessionId && !hasStarted) {
+      if (isCheckinSource) setIsLoadingCheckin(true)
       loadStoredSession(sessionId).then((loaded) => {
         if (loaded) {
           setHasStarted(true)
+        } else if (isCheckinSource) {
+          // Session not found — fall back to creating a new one
+          handleModeSelect("quick").finally(() => {
+            setIsLoadingCheckin(false)
+          })
+          return
         }
+        if (isCheckinSource) setIsLoadingCheckin(false)
       })
     }
-  }, [searchParams, hasStarted])
+  }, [searchParams, hasStarted, isCheckinSource, loadStoredSession, handleModeSelect])
+
+  // Handle checkin source without session/mode — auto-create session
+  useEffect(() => {
+    const hasSession = searchParams.get("session")
+    const hasMode = searchParams.get("mode")
+    if (isCheckinSource && !hasSession && !hasMode && !hasStarted) {
+      setIsLoadingCheckin(true)
+      handleModeSelect("quick").finally(() => {
+        setIsLoadingCheckin(false)
+      })
+    }
+  }, [searchParams, hasStarted, isCheckinSource, handleModeSelect])
 
   // Handle ?prompt= from homepage or checkin
   useEffect(() => {
     const promptParam = searchParams.get("prompt")
-    if (promptParam && hasStarted && !initialPromptSent.current && messages.length <= 1) {
+    const shouldAutoSend = isCheckinSource
+      ? hasStarted && !initialPromptSent.current
+      : hasStarted && !initialPromptSent.current && messages.length <= 1
+    if (promptParam && shouldAutoSend) {
       initialPromptSent.current = true
       setShowCheckinButton(false)
 
@@ -366,8 +390,15 @@ function ChatContent() {
     )
   }
 
-  // Mode selection
+  // Mode selection — show loading for checkin while session loads
   if (!hasStarted) {
+    if (isCheckinSource || isLoadingCheckin) {
+      return (
+        <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
+          <LoadingSpinner size="lg" text="正在进入打卡..." />
+        </div>
+      )
+    }
     return <ModeSelector onSelect={handleModeSelect} />
   }
 
