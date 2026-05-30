@@ -38,7 +38,18 @@ export async function PATCH(
   }
 
   const { id } = await params
-  const body = await req.json()
+
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
+  }
+
+  // Strip protected fields that should never be updated via API
+  delete body.id
+  delete body.userId
+  delete body.createdAt
 
   const [updated] = await db
     .update(plans)
