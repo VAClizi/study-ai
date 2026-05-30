@@ -112,13 +112,28 @@ D. 选项D
               "tag": "学习"
             }
           ],
-          "resources": [
-            {
-              "title": "资料标题",
-              "url": "https://...",
-              "type": "paper",
-              "source": "来源"
-            }
+          "dailyResources": [
+            { "dayOfWeek": 0, "resources": [
+              { "title": "周一资料标题", "url": "https://...", "type": "article", "source": "来源" }
+            ]},
+            { "dayOfWeek": 1, "resources": [
+              { "title": "周二资料标题", "url": "https://...", "type": "video", "source": "来源" }
+            ]},
+            { "dayOfWeek": 2, "resources": [
+              { "title": "周三资料标题", "url": "https://...", "type": "code", "source": "来源" }
+            ]},
+            { "dayOfWeek": 3, "resources": [
+              { "title": "周四资料标题", "url": "https://...", "type": "article", "source": "来源" }
+            ]},
+            { "dayOfWeek": 4, "resources": [
+              { "title": "周五资料标题", "url": "https://...", "type": "paper", "source": "来源" }
+            ]},
+            { "dayOfWeek": 5, "resources": [
+              { "title": "周六资料标题", "url": "https://...", "type": "video", "source": "来源" }
+            ]},
+            { "dayOfWeek": 6, "resources": [
+              { "title": "周日资料标题", "url": "https://...", "type": "book", "source": "来源" }
+            ]}
           ]
         }
       ]
@@ -152,11 +167,13 @@ D. 选项D
       - priority: "high" / "medium" / "low"
       - difficulty: "easy" / "medium" / "hard"
       - tag: "学习" / "练习" / "复习" / "输出" / "项目"
-    - resources: 该周推荐的学习资料（1-3个即可）
-      - title: 资料名称
-      - url: HTTPS链接
-      - type: "paper" / "video" / "code" / "article" / "book"
-      - source: 来源平台
+    - dailyResources: 每天专属的学习资料（极其重要！每周必须包含7天，dayOfWeek 0-6各一条，每天1-2个与当天主题匹配的资料）
+      - dayOfWeek: 0-6（0=周一，6=周日）
+      - resources: 该天推荐的学习资料
+        - title: 资料名称
+        - url: HTTPS链接
+        - type: "paper" / "video" / "code" / "article" / "book"
+        - source: 来源平台
 - theories: 理论依据数组（3-5个）
   - name: 理论名称
   - description: 一句话简述
@@ -167,6 +184,7 @@ D. 选项D
 - 任务 title/desc 必须与用户学习主题直接相关，禁止使用"学习新知识"之类的通用占位文字
 - 每个阶段定义合适数量周数，共约 8 周
 - 每周定义 3-5 个具体任务
+- **dailyResources 每周必须包含全部7天（dayOfWeek 0-6），每天至少1个资料，资料内容必须与当天学习主题和学习进度匹配**
 - JSON 必须合法可解析`
 
 // 深度模式核心规则
@@ -283,13 +301,28 @@ D. 选项D
               "tag": "学习"
             }
           ],
-          "resources": [
-            {
-              "title": "资料标题",
-              "url": "https://...",
-              "type": "paper",
-              "source": "来源"
-            }
+          "dailyResources": [
+            { "dayOfWeek": 0, "resources": [
+              { "title": "周一资料标题", "url": "https://...", "type": "article", "source": "来源" }
+            ]},
+            { "dayOfWeek": 1, "resources": [
+              { "title": "周二资料标题", "url": "https://...", "type": "video", "source": "来源" }
+            ]},
+            { "dayOfWeek": 2, "resources": [
+              { "title": "周三资料标题", "url": "https://...", "type": "code", "source": "来源" }
+            ]},
+            { "dayOfWeek": 3, "resources": [
+              { "title": "周四资料标题", "url": "https://...", "type": "article", "source": "来源" }
+            ]},
+            { "dayOfWeek": 4, "resources": [
+              { "title": "周五资料标题", "url": "https://...", "type": "paper", "source": "来源" }
+            ]},
+            { "dayOfWeek": 5, "resources": [
+              { "title": "周六资料标题", "url": "https://...", "type": "video", "source": "来源" }
+            ]},
+            { "dayOfWeek": 6, "resources": [
+              { "title": "周日资料标题", "url": "https://...", "type": "book", "source": "来源" }
+            ]}
           ]
         }
       ]
@@ -323,11 +356,13 @@ D. 选项D
       - priority: "high" / "medium" / "low"
       - difficulty: "easy" / "medium" / "hard"
       - tag: "学习" / "练习" / "复习" / "输出" / "项目"
-    - resources: 该周推荐的学习资料（1-3个即可）
-      - title: 资料名称
-      - url: HTTPS链接
-      - type: "paper" / "video" / "code" / "article" / "book"
-      - source: 来源平台
+    - dailyResources: 每天专属的学习资料（极其重要！每周必须包含7天，dayOfWeek 0-6各一条，每天1-2个与当天主题匹配的资料）
+      - dayOfWeek: 0-6（0=周一，6=周日）
+      - resources: 该天推荐的学习资料
+        - title: 资料名称
+        - url: HTTPS链接
+        - type: "paper" / "video" / "code" / "article" / "book"
+        - source: 来源平台
 - theories: 理论依据数组（3-5个）
   - name: 理论名称
   - description: 一句话简述
@@ -338,4 +373,5 @@ D. 选项D
 - 任务 title/desc 必须与用户学习主题直接相关，禁止使用"学习新知识"之类的通用占位文字
 - 每个阶段定义合适数量周数，共约 8 周
 - 每周定义 3-5 个具体任务
+- **dailyResources 每周必须包含全部7天（dayOfWeek 0-6），每天至少1个资料，资料内容必须与当天学习主题和学习进度匹配**
 - JSON 必须合法可解析`

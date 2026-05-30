@@ -19,10 +19,16 @@ interface ParsedResource {
   source: string
 }
 
+interface ParsedDailyResources {
+  dayOfWeek: number
+  resources: ParsedResource[]
+}
+
 interface ParsedWeek {
   goal: string
   tasks: ParsedTask[]
   resources: ParsedResource[]
+  dailyResources?: ParsedDailyResources[]
 }
 
 interface ParsedStage {
@@ -140,12 +146,23 @@ function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
   const tasks = parsedWeek.tasks ?? []
   const allResources = (parsedWeek.resources ?? []).map((r, i) => normalizeResource(r, weekNumber, i))
 
+  // Build a map of day-specific resources from dailyResources
+  const dailyResourcesMap = new Map<number, LearningResource[]>()
+  if (parsedWeek.dailyResources) {
+    for (const dr of parsedWeek.dailyResources) {
+      const dayResources = (dr.resources ?? []).map((r, i) => normalizeResource(r, weekNumber, i))
+      dailyResourcesMap.set(dr.dayOfWeek, dayResources)
+    }
+  }
+
   const days: DayPlan[] = Array.from({ length: 7 }, (_, d) => {
     const dayNumber = (weekNumber - 1) * 7 + d + 1
     const dayTasks = tasks.map((t, ti) => normalizeTask(t, dayNumber, ti))
     const totalMinutes = dayTasks.reduce((sum, t) => sum + t.durationMinutes, 0)
-    // Distribute resources across days instead of copying all to every day
-    const dayResources = allResources.filter((_, ri) => ri % 7 === d)
+    // Merge day-specific resources (from dailyResources) + distributed week-level resources
+    const specificResources = dailyResourcesMap.get(d) ?? []
+    const distributedResources = allResources.filter((_, ri) => ri % 7 === d)
+    const dayResources = [...specificResources, ...distributedResources]
 
     return {
       date: `Day ${dayNumber}`,
