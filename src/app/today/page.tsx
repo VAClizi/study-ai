@@ -188,16 +188,25 @@ export default function TodayPage() {
 
       {/* Tasks */}
       {todayTasks ? (
-        <TaskChecklist
-          tasks={todayTasks.tasks}
-          dayNumber={todayTasks.dayNumber}
-          date={todayTasks.date}
-          onToggleTask={(taskId, completed) => {
-            if (activePlan) {
-              updateTask(activePlan.id, todayTasks.dayNumber, taskId, completed)
-            }
-          }}
-        />
+        <>
+          <TaskChecklist
+            tasks={todayTasks.tasks}
+            dayNumber={todayTasks.dayNumber}
+            date={todayTasks.date}
+            onToggleTask={(taskId, completed) => {
+              if (activePlan) {
+                updateTask(activePlan.id, todayTasks.dayNumber, taskId, completed)
+              }
+            }}
+          />
+          <Button
+            onClick={handleStartCheckin}
+            className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white gap-2 shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 transition-all h-11 rounded-xl font-semibold"
+          >
+            {t("today.completeCheckin")}
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </>
       ) : (
         <EmptyState
           title={t("today.loadingTasks")}
