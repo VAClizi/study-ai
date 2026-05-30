@@ -268,20 +268,20 @@ export function HeroSection() {
 
       {/* ===== Navigation Overlay ===== */}
       {isActivating && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
-          <div className="relative mb-8">
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl animate-fade-in-up">
+          <div className="relative mb-8 animate-scale-in">
             <div className="w-20 h-20 rounded-2xl bg-purple-600/20 flex items-center justify-center">
               <Loader2 className="h-10 w-10 text-purple-500 animate-spin" />
             </div>
             <div className="absolute -inset-2 rounded-2xl bg-purple-500/10 blur-xl animate-pulse" />
           </div>
-          <p className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
+          <p className="text-lg font-medium text-zinc-900 dark:text-white mb-2 animate-stagger-2">
             {t("home.activating")}
           </p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 animate-stagger-3">
             {t("home.activatingDesc")}
           </p>
-          <div className="flex gap-1.5 mt-6">
+          <div className="flex gap-1.5 mt-6 animate-stagger-4">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
