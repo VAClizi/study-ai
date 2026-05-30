@@ -174,6 +174,10 @@ const translations: TranslationMap = {
   "planDetail.planNotFoundDesc": { "zh-CN": "找不到这个学习计划，它可能已被删除。", en: "This learning plan cannot be found. It may have been deleted." },
   "planDetail.createNewPlan": { "zh-CN": "创建新计划", en: "Create New Plan" },
   "planDetail.loadingPlan": { "zh-CN": "加载学习计划...", en: "Loading plan..." },
+  "planDetail.delete": { "zh-CN": "删除计划", en: "Delete Plan" },
+  "planDetail.deleteConfirm": { "zh-CN": "确定要删除这个学习计划吗？此操作不可撤销，所有打卡记录将一并删除。", en: "Are you sure you want to delete this plan? This cannot be undone and all check-in records will be deleted." },
+  "planDetail.cancel": { "zh-CN": "取消", en: "Cancel" },
+  "planDetail.confirmDelete": { "zh-CN": "确定删除", en: "Confirm Delete" },
 
   // 路线图
   "roadmap.title": { "zh-CN": "学习路线图", en: "Learning Roadmap" },

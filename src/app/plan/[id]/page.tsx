@@ -1,6 +1,7 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useState } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { usePlan } from "@/hooks/use-plan"
 import { useAuthStore } from "@/stores/auth-store"
 import { LearningRoadmap } from "@/components/plan/learning-roadmap"
@@ -10,17 +11,32 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { EmptyState } from "@/components/shared/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, BookOpen, Calendar, Target, Lightbulb } from "lucide-react"
+import { ArrowLeft, BookOpen, Calendar, Target, Lightbulb, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useT, useTF } from "@/lib/i18n"
 
 export default function PlanDetailPage() {
   const params = useParams()
   const planId = params.id as string
+  const router = useRouter()
   const { isAuthenticated } = useAuthStore()
-  const { currentPlan, isLoading, toggleTask } = usePlan(planId)
+  const { currentPlan, isLoading, toggleTask, deletePlan } = usePlan(planId)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const t = useT()
   const tf = useTF()
+
+  const handleDelete = async () => {
+    if (!currentPlan) return
+    setIsDeleting(true)
+    try {
+      await deletePlan(currentPlan.id)
+      router.push("/plans")
+    } catch {
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
+  }
 
   if (!isAuthenticated) {
     return (
@@ -110,6 +126,13 @@ export default function PlanDetailPage() {
           <Link href="/today" className="inline-flex items-center justify-center rounded-lg border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium h-8 px-3 py-1 transition-all">
             {t("planDetail.todayCheckin")}
           </Link>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="inline-flex items-center gap-1.5 justify-center rounded-lg border border-red-200 dark:border-red-500/20 text-red-500 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 text-sm font-medium h-8 px-3 py-1 transition-all"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {t("planDetail.delete")}
+          </button>
         </div>
       </div>
 
@@ -169,6 +192,42 @@ export default function PlanDetailPage() {
         </div>
         <TheoryPanel theories={currentPlan.theories} />
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-2xl p-6 max-w-md w-full mx-4 animate-in fade-in zoom-in">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
+              {t("planDetail.delete")}
+            </h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
+              {t("planDetail.deleteConfirm")}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="inline-flex items-center justify-center rounded-lg border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium h-9 px-4 py-2 transition-all disabled:opacity-50"
+              >
+                {t("planDetail.cancel")}
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+                {t("planDetail.confirmDelete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
