@@ -1,5 +1,6 @@
 import type { LearningResource, PlanTheory, DayTask, DayPlan, WeekPlan, Stage } from "@/types/plan"
 import type { ParsedPlanResult } from "@/services/plan-ai-parser"
+import { filterValidResources, filterValidResourcesWithReport } from "@/lib/resource-validator"
 
 // --- Incoming JSON shape from AI ---
 
@@ -70,11 +71,22 @@ interface ParsedLegacyData {
 
 // --- Output types ---
 
+/** 被丢弃资源的上下文（用于 AI 补生成） */
+export interface DroppedResourceContext {
+  dayNumber: number
+  weekName: string
+  stageName: string
+  taskTitles: string[]
+  droppedCount: number
+}
+
 export interface ExtractedPlanData {
   title?: string
   goal?: string
   stages: Stage[]
   theories: PlanTheory[]
+  /** 被校验丢弃的资源上下文，非空时触发 AI 补生成 */
+  droppedResourceContexts?: DroppedResourceContext[]
 }
 
 // --- Constants ---
@@ -145,7 +157,8 @@ function normalizeTheory(t: ParsedTheory): PlanTheory {
 function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
   const tasks = Array.isArray(parsedWeek.tasks) ? parsedWeek.tasks : []
   const rawResources = Array.isArray(parsedWeek.resources) ? parsedWeek.resources : []
-  const allResources = rawResources.map((r, i) => normalizeResource(r, weekNumber, i))
+  const validResources = filterValidResources(rawResources)
+  const allResources = validResources.map((r, i) => normalizeResource(r, weekNumber, i))
 
   // Build a map of day-specific resources from dailyResources
   const dailyResourcesMap = new Map<number, LearningResource[]>()
@@ -153,7 +166,8 @@ function buildWeekPlan(parsedWeek: ParsedWeek, weekNumber: number): WeekPlan {
     for (const dr of parsedWeek.dailyResources) {
       if (!dr || typeof dr.dayOfWeek !== "number") continue
       const drResources = Array.isArray(dr.resources) ? dr.resources : []
-      const dayResources = drResources.map((r, i) => normalizeResource(r, weekNumber, i))
+      const validDrResources = filterValidResources(drResources)
+      const dayResources = validDrResources.map((r, i) => normalizeResource(r, weekNumber, i))
       dailyResourcesMap.set(dr.dayOfWeek, dayResources)
     }
   }
@@ -376,8 +390,9 @@ export function extractPlanData(content: string): ExtractedPlanData | null {
     const legacy = p as ParsedLegacyData
     const byWeek = new Map<number, LearningResource[]>()
     if (Array.isArray(legacy.resources)) {
-      for (let i = 0; i < legacy.resources.length; i++) {
-        const r = legacy.resources[i]
+      const validLegacyResources = filterValidResources(legacy.resources)
+      for (let i = 0; i < validLegacyResources.length; i++) {
+        const r = validLegacyResources[i]
         if (!r || typeof r.week !== "number" || !r.title || !r.url) continue
         const res = normalizeResource(r, r.week, i)
         const list = byWeek.get(r.week) ?? []
@@ -495,6 +510,7 @@ const DIFFICULTY_MAP: Record<string, DayTask["difficulty"]> = {
 
 export function convertParsedPlanToExtractedData(parsed: ParsedPlanResult): ExtractedPlanData {
   const stages: Stage[] = []
+  const droppedContexts: DroppedResourceContext[] = []
   let globalDayOffset = 0
 
   for (const ps of parsed.stages) {
@@ -519,13 +535,25 @@ export function convertParsedPlanToExtractedData(parsed: ParsedPlanResult): Extr
 
         // Only use per-day resources — no week-level fallback
         const rawResources = pd.resources ?? []
-        const resources: LearningResource[] = rawResources.map((r, ri) => ({
+        const { valid: validResources, dropped } = filterValidResourcesWithReport(rawResources)
+        const resources: LearningResource[] = validResources.map((r, ri) => ({
           id: nextResourceId(),
           title: String(r.title ?? ""),
           url: String(r.url ?? ""),
           type: (["paper", "video", "code", "article", "book"].includes(r.type) ? r.type : "article") as LearningResource["type"],
           source: String(r.source ?? ""),
         }))
+
+        // 收集被丢弃资源的上下文，用于后续 AI 补生成
+        if (dropped.length > 0) {
+          droppedContexts.push({
+            dayNumber: pd.day,
+            weekName: wd.name ?? `第${wd.week}周`,
+            stageName: ps.name ?? `第${ps.stage}阶段`,
+            taskTitles: (pd.tasks ?? []).map(t => String(t.title ?? "")),
+            droppedCount: dropped.length,
+          })
+        }
 
         days.push({
           date: `Day ${pd.day}`,
@@ -567,5 +595,6 @@ export function convertParsedPlanToExtractedData(parsed: ParsedPlanResult): Extr
     goal: parsed.stages[0]?.name ?? "",
     stages,
     theories,
+    droppedResourceContexts: droppedContexts.length > 0 ? droppedContexts : undefined,
   }
 }

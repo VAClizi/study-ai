@@ -133,7 +133,7 @@ const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任
 6. **tasks**: 每天 3-5 个具体任务，title 和 description 必须从计划文本中提取或合理推断，**禁止使用通用占位文字**（如"学习新知识"）
 7. **duration**: 任务时长以分钟为单位，合理估算
 8. **priority**: "高优先" / "中优先" / "低优先"
-9. **resources（天级别）**: 为每天提取该天特定的学习资料（不是整周共享的），根据当天学习主题推荐合适资料。type 为 "paper"/"video"/"code"/"article"/"book"，source 为来源平台名称。每天 1-3 个资料，没有则留空数组
+9. **resources（天级别）**: 为每天提取该天特定的学习资料（不是整周共享的），根据当天学习主题推荐合适资料。type 为 "paper"/"video"/"code"/"article"/"book"，source 为真实平台名称（如 Bilibili、知乎、Coursera、GitHub、YouTube、arXiv）。每天 1-3 个资料，没有则留空数组。**URL 必须是真实可访问的链接，严禁使用 example.com、localhost、test.com、placeholder 等占位地址。标题必须具体描述资料内容，严禁使用"学习资料"、"参考资料"、"TBD"、"待定"等通用占位文字。来源严禁使用"未知"、"其他"、"N/A" 等无效占位名**
 10. **theories**: 识别计划中涉及的学习理论（如番茄工作法、间隔重复、刻意练习等），icon 从 "brain","focus","timer","zap","layers","sunrise","repeat","book" 中选择
 
 **关键要求：**
@@ -141,7 +141,8 @@ const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任
 - JSON 必须合法可解析
 - 只输出 JSON，不要输出任何其他文字、解释或 markdown 代码围栏
 - 如果文本中某信息缺失，根据上下文合理推断，但不要留空字符串
-- **resources 必须放在每天的 day 对象内部，不要放在 week 对象上**（week 上的 resources 会被忽略），每天的资料根据当天学习主题变化`
+- **resources 必须放在每天的 day 对象内部，不要放在 week 对象上**（week 上的 resources 会被忽略），每天的资料根据当天学习主题变化
+- **resources 的 URL、标题、来源必须具体真实，禁止任何占位或虚假内容。如果找不到合适的资料，留空数组，不要编造**`
 
 /**
  * Call AI to parse plan text into structured JSON.

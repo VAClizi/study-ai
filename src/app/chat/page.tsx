@@ -15,6 +15,8 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { extractChoices } from "@/lib/choice-parser"
 import { parsePlanTextWithAI } from "@/services/plan-ai-parser"
 import { convertParsedPlanToExtractedData, extractPlanData, type ExtractedPlanData } from "@/lib/plan-parser"
+import { replenishResources } from "@/lib/resource-replenisher"
+import type { LearningResource } from "@/types/plan"
 import { ArrowLeft, Plus, MessageSquare, Loader2, CheckCircle } from "lucide-react"
 import { StreakCelebration } from "@/components/checkin/streak-celebration"
 import { useCheckinStore } from "@/stores/checkin-store"
@@ -48,17 +50,72 @@ function ChatContent() {
   const initialPromptSent = useRef(false)
   const lastParsedContent = useRef<string | null>(null)
   const lastStreamingRef = useRef(false)
+  const replenishAbortRef = useRef(false)
+
+  // 触发 AI 补生成被丢弃的学习资料，并合并回 plan data
+  const replenishAndUpdate = useCallback(async (data: ExtractedPlanData) => {
+    const contexts = data.droppedResourceContexts
+    if (!contexts?.length) return
+
+    replenishAbortRef.current = false
+
+    // 注入计划标题到每个 context
+    const fullContexts = contexts.map(ctx => ({
+      ...ctx,
+      planTitle: data.title ?? "",
+    }))
+
+    const groups = await replenishResources(fullContexts)
+    if (replenishAbortRef.current) return
+
+    // 构建 dayNumber → 补生成资源的映射
+    const replenishByDay = new Map<number, LearningResource[]>()
+    for (let i = 0; i < contexts.length; i++) {
+      const resources = groups[i] ?? []
+      if (resources.length > 0) {
+        replenishByDay.set(contexts[i].dayNumber, resources)
+      }
+    }
+
+    if (replenishByDay.size === 0) return
+
+    // 将补生成资源合并回对应 day
+    const updatedStages = data.stages.map(stage => ({
+      ...stage,
+      weeks: stage.weeks.map(week => ({
+        ...week,
+        days: week.days.map(day => {
+          const extras = replenishByDay.get(day.dayNumber)
+          if (extras?.length) {
+            return {
+              ...day,
+              resources: [...(day.resources ?? []), ...extras],
+            }
+          }
+          return day
+        }),
+      })),
+    }))
+
+    setParsedPlanData(prev => prev ? {
+      ...prev,
+      stages: updatedStages,
+      droppedResourceContexts: undefined,
+    } : null)
+  }, [])
 
   // When planContent is set, parse it into structured plan data
   useEffect(() => {
     if (!planContent || planContent === lastParsedContent.current) return
     lastParsedContent.current = planContent
+    replenishAbortRef.current = true
 
     // Fast path: direct [PLAN_DATA] extraction (instant, no API call)
     const directExtract = extractPlanData(planContent)
     if (directExtract) {
       setParsedPlanData(directExtract)
       setIsParsingPlan(false)
+      replenishAndUpdate(directExtract)
       return
     }
 
@@ -73,15 +130,16 @@ function ChatContent() {
       if (result) {
         const extracted = convertParsedPlanToExtractedData(result)
         setParsedPlanData(extracted)
+        replenishAndUpdate(extracted)
       } else {
         const fallback = extractPlanData(planContent)
-        if (fallback) setParsedPlanData(fallback)
+        if (fallback) { setParsedPlanData(fallback); replenishAndUpdate(fallback) }
       }
       setIsParsingPlan(false)
     }).catch(() => {
       if (cancelled) return
       const fallback = extractPlanData(planContent)
-      if (fallback) setParsedPlanData(fallback)
+      if (fallback) { setParsedPlanData(fallback); replenishAndUpdate(fallback) }
       setIsParsingPlan(false)
     })
 

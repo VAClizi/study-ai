@@ -259,7 +259,29 @@ Body: { chatSessions, checkins, settings, memories }
 
 ---
 
-## 6. 不纳入本次范围
+## 6. 学习资料校验规则
+
+**规则：所有 AI 生成给用户的学习资料（resources），在展示/保存前必须经过可用性和合理性检查。**
+
+### 6.1 可用性检查
+
+- **URL 格式**：必须是合法的 `http://` 或 `https://` URL，hostname 长度 >= 4
+- **URL 黑名单**：过滤占位 URL，如 `example.com`、`localhost`、`...`、`xxx`、`placeholder`、`sample`、`fake` 等
+
+### 6.2 合理性检查
+
+- **标题**：不能是通用占位文字（如"学习资料"、"参考资料"、"TBD"、"TODO"、"待定"、"未命名"、"无"等）
+- **来源**：不能是无效占位文字（如"未知"、"其他"、"N/A"、"TBD"等）
+
+### 6.3 处理方式
+
+- 校验不通过的资源**静默丢弃**，不展示给用户
+- 同时在浏览器 console 输出 warn 日志，便于调试 AI 输出质量
+- 实现位置：`src/lib/resource-validator.ts`，在 `plan-parser.ts` 的资源规范化阶段调用
+
+---
+
+## 7. 不纳入本次范围
 
 - WebSocket 实时同步（当前单设备使用场景，无需多端实时推送）
 - 离线模式（不引入 Service Worker / IndexedDB 备份）

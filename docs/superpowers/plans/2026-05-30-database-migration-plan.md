@@ -1963,7 +1963,52 @@ git -C /e/study-ai add src/
 git -C /e/study-ai commit -m "fix: update checkin-utils callers to use async API loader"
 ```
 
-### Task 20: 端到端验证
+### Task 20: 添加学习资料校验规则
+
+**Files:**
+- Create: `src/lib/resource-validator.ts`
+- Modify: `src/lib/plan-parser.ts`
+
+- [x] **Step 1: 创建 `src/lib/resource-validator.ts`**
+
+```typescript
+// src/lib/resource-validator.ts
+// 校验 AI 生成的 learning resources 的可用性和合理性
+// 详见规范第 6 节
+```
+
+包含：
+- `isValidUrlFormat(url)` — URL 格式校验（http/https，有效 hostname）
+- `isReasonableTitle(title)` — 标题非占位检查（过滤"学习资料"等通用文字）
+- `isReasonableSource(source)` — 来源合理性检查
+- `isAvailableUrl(url)` — URL 可用性校验（格式 + 黑名单过滤 example.com、localhost...）
+- `validateResource(r)` → `{ valid, reason? }` — 综合校验
+- `filterValidResources<T>(resources)` → `T[]` — 过滤有效资源（泛型保留调用方字段）
+
+- [x] **Step 2: 集成到 plan-parser.ts**
+
+在三个资源规范化点调用 `filterValidResources()`：
+1. `buildWeekPlan()` — 过滤 week-level resources 和 dailyResources
+2. `convertParsedPlanToExtractedData()` — 过滤 per-day resources
+3. `extractPlanData()` — 过滤 legacy 格式 resources
+
+- [x] **Step 3: TypeScript 编译验证**
+
+```bash
+cd /e/study-ai && npx tsc --noEmit --pretty
+```
+预期：无错误输出
+
+- [ ] **Step 4: Commit**
+
+```bash
+git -C /e/study-ai add src/lib/resource-validator.ts src/lib/plan-parser.ts
+git -C /e/study-ai commit -m "feat: add AI resource validation for availability and reasonableness"
+```
+
+---
+
+### Task 21: 端到端验证
 
 - [ ] **Step 1: 清理浏览器 localStorage 中的所有 studyai key**
 
@@ -2028,6 +2073,8 @@ git -C /e/study-ai commit -m "fix: issues found during end-to-end testing"
 | **修改** | `src/app/settings/page.tsx` — API 替换 localStorage |
 | **修改** | `src/app/dashboard/page.tsx` — API 替换 localStorage |
 | **修改** | `src/lib/checkin-utils.ts` — 异步 API 版本 |
+| **新建** | `src/lib/resource-validator.ts` — 学习资料校验 |
+| **修改** | `src/lib/plan-parser.ts` — 集成资源校验 |
 | **新建** | `src/hooks/use-app-init.ts` |
 | **新建** | `src/components/shared/app-initializer.tsx` |
 | **修改** | `src/app/layout.tsx` — 集成 AppInitializer |
