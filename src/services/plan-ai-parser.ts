@@ -142,7 +142,7 @@ const PARSE_SYSTEM_PROMPT = `你是一个学习计划数据提取器。你的任
 - 只输出 JSON，不要输出任何其他文字、解释或 markdown 代码围栏
 - 如果文本中某信息缺失，根据上下文合理推断，但不要留空字符串
 - **resources 必须放在每天的 day 对象内部，不要放在 week 对象上**（week 上的 resources 会被忽略），每天的资料根据当天学习主题变化
-- **resources 的 URL、标题、来源必须具体真实，禁止任何占位或虚假内容。如果找不到合适的资料，留空数组，不要编造**`
+- **resources 的 URL、标题、来源必须具体真实，禁止任何占位或虚假内容。如果找不到合适的资料，留空数组，不要编造。推荐资源应为公开、合法的教育内容，禁止推荐盗版资源、付费破解内容或侵权材料**`
 
 /**
  * Call AI to parse plan text into structured JSON.

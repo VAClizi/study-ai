@@ -29,6 +29,12 @@ export default function PrivacyPage() {
         <h2>{t("privacy.userRights")}</h2>
         <p>{t("privacy.userRightsText")}</p>
 
+        <h2>{t("privacy.gdpr")}</h2>
+        <p>{t("privacy.gdprText")}</p>
+
+        <h2>{t("privacy.pipl")}</h2>
+        <p>{t("privacy.piplText")}</p>
+
         <h2>{t("privacy.changes")}</h2>
         <p>{t("privacy.changesText")}</p>
 
