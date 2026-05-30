@@ -18,6 +18,8 @@ export function LearningRoadmap({ stages, currentDay, onToggleTask }: LearningRo
   const t = useT()
   const tf = useTF()
 
+  if (!Array.isArray(stages)) return null
+
   // Lazy initializers: auto-select stage/week/day containing currentDay on first render
   const [expandedStageId, setExpandedStageId] = useState<string | null>(() => {
     for (const stage of stages) {

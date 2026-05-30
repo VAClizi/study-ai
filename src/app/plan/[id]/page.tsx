@@ -66,7 +66,7 @@ export default function PlanDetailPage() {
   let totalTasks = 0
   let completedTasks = 0
   let totalDays = 0
-  for (const stage of currentPlan.stages) {
+  for (const stage of currentPlan.stages ?? []) {
     for (const week of stage.weeks) {
       for (const day of week.days) {
         totalTasks += day.tasks.length

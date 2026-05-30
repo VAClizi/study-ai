@@ -24,7 +24,7 @@ function calcPlanStats(plan: LearningPlan) {
   let completedTasks = 0
   let totalMinutes = 0
 
-  for (const stage of plan.stages) {
+  for (const stage of plan.stages ?? []) {
     for (const week of stage.weeks) {
       for (const day of week.days) {
         for (const task of day.tasks) {

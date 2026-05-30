@@ -56,6 +56,7 @@ function ChatContent() {
   const replenishAndUpdate = useCallback(async (data: ExtractedPlanData) => {
     const contexts = data.droppedResourceContexts
     if (!contexts?.length) return
+    if (!Array.isArray(data.stages)) return
 
     replenishAbortRef.current = false
 
