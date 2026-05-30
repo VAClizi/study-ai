@@ -64,7 +64,7 @@ export const verificationTokens = pgTable(
   })
 )
 
-// ==================== 业务数据表 ====================
+// ==================== Business data tables ====================
 
 export const plans = pgTable("plan", {
   id: text("id").primaryKey(),
@@ -81,7 +81,7 @@ export const plans = pgTable("plan", {
   phaseGoal: text("phaseGoal"),
   status: text("status").notNull().default("active"),
   endDate: text("endDate"),
-  chatSessionId: text("chatSessionId"),
+  chatSessionId: text("chatSessionId"), // soft FK to chatSession: no .references() to avoid circular FK issues during creation
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 })
 
@@ -92,7 +92,7 @@ export const chatSessions = pgTable("chatSession", {
     .references(() => users.id, { onDelete: "cascade" }),
   mode: text("mode").notNull(), // "quick" | "detailed"
   title: text("title").notNull(),
-  planId: text("planId"),
+  planId: text("planId"), // soft FK to plan: no .references() to avoid circular FK issues during creation
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 })
