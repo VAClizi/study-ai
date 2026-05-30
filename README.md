@@ -53,7 +53,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-打开 [http://localhost:3000](http://localhost:3000) 即可体验。
+
 
 ## 环境变量
 
