@@ -38,7 +38,7 @@ export function DayTaskCard({ task, onToggle, disabled }: DayTaskCardProps) {
         "border transition-all relative group",
         task.completed
           ? "border-green-500/10 bg-green-500/[0.02] opacity-70"
-          : "border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01] hover:border-black/[0.08] dark:hover:border-white/[0.08]"
+          : "border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm hover:border-black/[0.08] dark:hover:border-white/[0.08]"
       )}
     >
       <CardContent className="p-4">

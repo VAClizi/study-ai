@@ -34,7 +34,7 @@ export function TheoryPanel({ theories }: TheoryPanelProps) {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <CollapsibleTrigger className="flex items-center justify-between w-full text-left group">
             <div className="flex items-center gap-2">

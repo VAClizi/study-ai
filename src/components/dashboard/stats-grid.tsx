@@ -52,7 +52,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {statItems.map((item, i) => (
-        <Card key={i} className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+        <Card key={i} className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm animate-fade-in-up" style={{ animationDelay: `${0.15 + i * 0.06}s` }}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className={`w-8 h-8 rounded-lg ${item.bgColor} flex items-center justify-center`}>

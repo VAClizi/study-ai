@@ -99,7 +99,7 @@ export default function PlansPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 animate-fade-in-up">
         <div className="w-10 h-10 rounded-xl bg-purple-600/10 dark:bg-purple-500/15 flex items-center justify-center">
           <ClipboardList className="h-5 w-5 text-purple-600 dark:text-purple-400" />
         </div>
@@ -131,7 +131,8 @@ export default function PlansPage() {
             return (
               <Card
                 key={plan.id}
-                className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm hover:border-purple-500/20 dark:hover:border-purple-500/20 transition-all"
+                className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm hover:border-purple-500/20 dark:hover:border-purple-500/20 transition-all animate-fade-in-up"
+                style={{ animationDelay: `${0.1 + plans.indexOf(plan) * 0.06}s` }}
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-4">

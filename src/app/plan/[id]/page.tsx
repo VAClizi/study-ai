@@ -10,6 +10,7 @@ import { PlanProgressBar } from "@/components/plan/progress-bar"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { EmptyState } from "@/components/shared/empty-state"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, BookOpen, Calendar, Target, Lightbulb, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
@@ -138,7 +139,7 @@ export default function PlanDetailPage() {
 
       {/* Goal & Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Target className="h-4 w-4 text-purple-500 dark:text-purple-400" />
@@ -147,7 +148,7 @@ export default function PlanDetailPage() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{currentPlan.goal.title}</p>
           </CardContent>
         </Card>
-        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="h-4 w-4 text-purple-500 dark:text-purple-400" />
@@ -156,7 +157,7 @@ export default function PlanDetailPage() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{tf("planDetail.stagesFormat", { stages: currentPlan.stages.length, days: totalDays })}</p>
           </CardContent>
         </Card>
-        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="h-4 w-4 text-purple-500 dark:text-purple-400" />
@@ -205,17 +206,17 @@ export default function PlanDetailPage() {
               {t("planDetail.deleteConfirm")}
             </p>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
-                className="inline-flex items-center justify-center rounded-lg border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium h-9 px-4 py-2 transition-all disabled:opacity-50"
               >
                 {t("planDetail.cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium h-9 px-4 py-2 transition-all disabled:opacity-50"
               >
                 {isDeleting ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -223,7 +224,7 @@ export default function PlanDetailPage() {
                   <Trash2 className="h-3.5 w-3.5" />
                 )}
                 {t("planDetail.confirmDelete")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

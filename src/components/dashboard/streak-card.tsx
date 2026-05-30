@@ -14,7 +14,7 @@ export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCa
   const t = useT()
   return (
     <div className="grid grid-cols-3 gap-3">
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01] relative overflow-hidden">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm relative overflow-hidden animate-stagger-2">
         <div className="absolute inset-0 bg-gradient-to-b from-orange-600/5 to-transparent" />
         <CardContent className="p-4 relative z-10">
           <div className="flex items-center gap-2 mb-3">
@@ -27,7 +27,7 @@ export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCa
         </CardContent>
       </Card>
 
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01] relative overflow-hidden">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm relative overflow-hidden animate-stagger-3">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-600/5 to-transparent" />
         <CardContent className="p-4 relative z-10">
           <div className="flex items-center gap-2 mb-3">
@@ -40,7 +40,7 @@ export function StreakCard({ currentStreak, longestStreak, totalDays }: StreakCa
         </CardContent>
       </Card>
 
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01] relative overflow-hidden">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm relative overflow-hidden animate-stagger-4">
         <div className="absolute inset-0 bg-gradient-to-b from-green-600/5 to-transparent" />
         <CardContent className="p-4 relative z-10">
           <div className="flex items-center gap-2 mb-3">

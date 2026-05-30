@@ -94,11 +94,11 @@ export default function SettingsPage() {
   const personaList: CoachPersona[] = ["strict", "gentle", "data-driven"]
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("settings.title")}</h1>
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <h1 className="text-2xl font-bold text-zinc-900 dark:text-white animate-fade-in-up">{t("settings.title")}</h1>
 
       {/* Profile */}
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm animate-stagger-1">
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
@@ -143,7 +143,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Appearance */}
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm animate-stagger-2">
         <CardHeader>
           <CardTitle className="text-zinc-900 dark:text-white text-lg">{t("settings.appearance")}</CardTitle>
           <CardDescription>{t("settings.chooseTheme")}</CardDescription>
@@ -175,7 +175,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* AI Coach Personality */}
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm animate-stagger-3">
         <CardHeader>
           <CardTitle className="text-zinc-900 dark:text-white text-lg flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-500" />
@@ -223,7 +223,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Preferences */}
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm animate-stagger-4">
         <CardHeader>
           <CardTitle className="text-zinc-900 dark:text-white text-lg">{t("settings.preferences")}</CardTitle>
         </CardHeader>
@@ -316,7 +316,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Memory Management */}
-      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+      <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm animate-stagger-5">
         <CardHeader>
           <CardTitle className="text-zinc-900 dark:text-white text-lg flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-500" />
@@ -337,7 +337,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-red-500/10 bg-red-500/[0.01]">
+      <Card className="border-red-500/10 bg-red-500/[0.01] animate-stagger-6">
         <CardHeader>
           <CardTitle className="text-red-400 text-lg">{t("settings.dangerZone")}</CardTitle>
         </CardHeader>

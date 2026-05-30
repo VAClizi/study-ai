@@ -40,7 +40,7 @@ export function PlanTimeline({ stages, currentDayNumber = 1 }: PlanTimelineProps
 
               <Card className={cn(
                 "border transition-all",
-                isCurrentStage ? "border-purple-500/20 bg-purple-600/[0.02]" : "border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]"
+                isCurrentStage ? "border-purple-500/20 bg-purple-600/[0.02]" : "border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm"
               )}>
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">

@@ -146,8 +146,8 @@ export default function TodayPage() {
   // Already checked in today
   if (todayCheckin) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center gap-2">
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+        <div className="flex items-center gap-2 animate-fade-in-up">
           <Flame className="h-5 w-5 text-orange-400" />
           <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{t("today.completed")}</h1>
           <Badge className="bg-green-600/20 text-green-400">{t("today.checkedIn")}</Badge>
@@ -161,7 +161,7 @@ export default function TodayPage() {
 
         <DailySummary checkin={todayCheckin} />
 
-        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+        <Card className="border-black/[0.04] dark:border-white/[0.04] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
           <CardContent className="p-4 text-center">
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-3">{t("today.aiCoachMessage")}</p>
             <p className="text-zinc-900 dark:text-white font-medium">
@@ -183,9 +183,9 @@ export default function TodayPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-stagger-1">
         <div>
           <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{t("today.title")}</h1>
           <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">

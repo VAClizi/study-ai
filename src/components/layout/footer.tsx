@@ -29,7 +29,7 @@ export function Footer() {
   const t = useT()
 
   return (
-    <footer className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white/60 dark:bg-[#0a0a0f]/60">
+    <footer className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white/95 dark:bg-[#0a0a0f]/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col gap-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">

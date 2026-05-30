@@ -120,7 +120,7 @@ export default function DashboardPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div>
+      <div className="animate-stagger-1">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("dashboard.title")}</h1>
         <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">{t("dashboard.subtitle")}</p>
       </div>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
       <StatsGrid stats={stats} />
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-stagger-4">
         <CompletionChart
           data={stats.weeklyGrowth}
           title={t("dashboard.weeklyCompletion")}
@@ -159,7 +159,7 @@ export default function DashboardPage() {
       <AIObservations />
 
       {/* AI Coach Summary */}
-      <Card className="border-purple-500/10 bg-gradient-to-r from-purple-600/[0.03] to-transparent">
+      <Card className="border-purple-500/10 bg-gradient-to-r from-purple-600/[0.03] to-transparent animate-stagger-5">
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-600/20 flex items-center justify-center flex-shrink-0">
@@ -216,7 +216,7 @@ function AIObservations() {
     .slice(0, 5)
 
   return (
-    <Card className="border-purple-500/10 dark:border-purple-500/15 bg-purple-600/[0.02] dark:bg-purple-500/[0.03] backdrop-blur-xl">
+    <Card className="border-purple-500/10 dark:border-purple-500/15 bg-purple-600/[0.02] dark:bg-purple-500/[0.03] backdrop-blur-xl animate-stagger-5">
       <CardContent className="p-5">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 rounded-lg bg-purple-600/10 flex items-center justify-center">
