@@ -17,7 +17,7 @@ interface AuthState {
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => Promise<void>
   setUser: (user: AuthUser | null) => void
-  updateSettings: (settings: Record<string, unknown>) => void
+  updateSettings: (settings: Record<string, unknown>) => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -46,12 +46,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user, isAuthenticated: !!user, isLoading: false })
   },
 
-  updateSettings: (settings) => {
+  updateSettings: async (settings: Record<string, unknown>) => {
     try {
-      const existing = JSON.parse(localStorage.getItem("studyai-settings") || "{}")
-      localStorage.setItem("studyai-settings", JSON.stringify({ ...existing, ...settings }))
+      await fetch("/api/user/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      })
     } catch {
-      // localStorage unavailable, silently ignore
+      // silently ignore
     }
   },
 }))

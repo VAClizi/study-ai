@@ -160,6 +160,12 @@ export const usePersonaStore = create<PersonaState>((set) => {
     setPersona: (persona) => {
       localStorage.setItem(PERSONA_STORAGE, persona)
       set({ persona, config: PERSONAS[persona] })
+      // Sync to server (fire-and-forget)
+      fetch("/api/user/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persona }),
+      }).catch(() => {})
     },
   }
 })

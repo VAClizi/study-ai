@@ -22,8 +22,8 @@ interface ChatState {
   setMode: (mode: ChatMode) => void
   loadSessions: () => Promise<void>
   loadSession: (id: string) => Promise<void>
-  loadStoredSession: (sessionId: string) => boolean
-  saveCurrentSession: () => void
+  loadStoredSession: (sessionId: string) => Promise<boolean>
+  saveCurrentSession: () => Promise<void>
   getCoachMessage: (type: "streak" | "reminder" | "encouragement", params?: Record<string, number>) => string
   resetChat: () => void
   appendToLastMessage: (chunk: string) => void
@@ -32,30 +32,14 @@ interface ChatState {
   setCheckinReportContext: (context: string | null) => void
 }
 
-const STORAGE_KEY = "studyai-chat-sessions"
-
-function loadAllStoredSessions(): Record<string, ChatSession> {
-  if (typeof window === "undefined") return {}
+export async function getAllStoredSessions(): Promise<ChatSession[]> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
+    const res = await fetch("/api/chat-sessions")
+    if (!res.ok) return []
+    return res.json()
   } catch {
-    return {}
+    return []
   }
-}
-
-function saveAllStoredSessions(sessions: Record<string, ChatSession>) {
-  if (typeof window === "undefined") return
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
-  } catch { /* storage full */ }
-}
-
-export function getAllStoredSessions(): ChatSession[] {
-  const map = loadAllStoredSessions()
-  return Object.values(map).sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  )
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -233,7 +217,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       )
       if (isDetailedPlan) {
         set({ planContent: fullContent })
-        get().saveCurrentSession()
+        await get().saveCurrentSession()
       }
 
       // Clear checkin review mode when AI signals completion
@@ -272,8 +256,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   loadSessions: async () => {
-    const sessions = await mockChatService.getSessions()
-    set({ sessions })
+    const res = await fetch("/api/chat-sessions")
+    if (res.ok) {
+      const sessions: ChatSession[] = await res.json()
+      set({ sessions })
+    }
   },
 
   loadSession: async (id: string) => {
@@ -283,10 +270,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  loadStoredSession: (sessionId: string) => {
-    const all = loadAllStoredSessions()
-    const session = all[sessionId]
-    if (!session) return false
+  loadStoredSession: async (sessionId: string) => {
+    const res = await fetch(`/api/chat-sessions/${sessionId}`)
+    if (!res.ok) return false
+    const session: ChatSession = await res.json()
     set({
       currentSession: session,
       messages: session.messages,
@@ -296,10 +283,35 @@ export const useChatStore = create<ChatState>((set, get) => ({
     return true
   },
 
-  saveCurrentSession: () => {
-    const { currentSession, messages, currentMode, planContent } = get()
+  saveCurrentSession: async () => {
+    const { currentSession, messages, currentMode } = get()
     if (!currentSession || !currentMode) return
-    const all = loadAllStoredSessions()
+
+    // Upsert session metadata
+    await fetch("/api/chat-sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: currentSession.id,
+        userId: currentSession.userId,
+        mode: currentMode,
+        title: currentSession.title,
+        planId: currentSession.planId,
+        updatedAt: new Date().toISOString(),
+      }),
+    })
+
+    // Post new messages (not already in currentSession.messages)
+    const existingIds = new Set(currentSession.messages.map((m) => m.id))
+    const newMessages = messages.filter((m) => !existingIds.has(m.id))
+    if (newMessages.length > 0) {
+      await fetch(`/api/chat-sessions/${currentSession.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMessages }),
+      })
+    }
+
     const updated: ChatSession = {
       ...currentSession,
       mode: currentMode,
@@ -307,8 +319,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       planId: currentSession.planId,
       updatedAt: new Date().toISOString(),
     }
-    all[currentSession.id] = updated
-    saveAllStoredSessions(all)
     set({ currentSession: updated })
   },
 

@@ -131,10 +131,11 @@ function ChatContent() {
   useEffect(() => {
     const sessionId = searchParams.get("session")
     if (sessionId && !hasStarted) {
-      const loaded = loadStoredSession(sessionId)
-      if (loaded) {
-        setHasStarted(true)
-      }
+      loadStoredSession(sessionId).then((loaded) => {
+        if (loaded) {
+          setHasStarted(true)
+        }
+      })
     }
   }, [searchParams, hasStarted])
 

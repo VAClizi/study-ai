@@ -1,25 +1,5 @@
 import type { CheckinRecord, CheckinFeedback } from "@/types/checkin"
-import { mockDelay, randomId } from "@/lib/mock-delay"
 import { getLocalDate, getLocalDateOffset } from "@/lib/date"
-
-const STORAGE_KEY = "studyai-checkins"
-
-function loadCheckins(): CheckinRecord[] {
-  if (typeof window === "undefined") return []
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function saveCheckins(records: CheckinRecord[]) {
-  if (typeof window === "undefined") return
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records))
-  } catch { /* storage full */ }
-}
 
 /** Compute current streak from sorted unique checkin dates */
 function computeStreak(dates: string[]): number {
@@ -50,46 +30,34 @@ export interface MockCheckinService {
 }
 
 export const mockCheckinService: MockCheckinService = {
-  async getTodayCheckin(userId: string, planId: string) {
-    await mockDelay(200, 400)
+  async getTodayCheckin(_userId: string, planId: string) {
     const today = getLocalDate()
-    const records = loadCheckins()
-    return records.find(c => c.userId === userId && c.planId === planId && c.date === today) || null
+    const res = await fetch(`/api/checkins?date=${encodeURIComponent(today)}&planId=${encodeURIComponent(planId)}`)
+    if (!res.ok) return null
+    const checkins: CheckinRecord[] = await res.json()
+    return checkins[0] || null
   },
 
   async submitCheckin(userId: string, planId: string, data) {
-    await mockDelay(500, 1000)
-    const records = loadCheckins()
-    const record: CheckinRecord = {
-      id: `checkin-${randomId()}`,
-      userId,
-      planId,
-      date: getLocalDate(),
-      tasks: data.tasks.map(t => ({
-        taskId: t.taskId,
-        completed: t.completed,
-        actualMinutes: t.actualMinutes,
-        difficultyRating: t.difficultyRating,
-      })),
-      feedback: data.feedback,
-      focusLevel: data.focusLevel,
-      moodRating: data.moodRating,
-      createdAt: new Date().toISOString(),
-    }
-    records.push(record)
-    saveCheckins(records)
-    return record
+    const res = await fetch("/api/checkins", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, planId, ...data }),
+    })
+    if (!res.ok) throw new Error("Failed to submit checkin")
+    return res.json()
   },
 
-  async getCheckinHistory(userId: string, planId: string) {
-    await mockDelay(300, 600)
-    const records = loadCheckins()
-    return records.filter(c => c.userId === userId && c.planId === planId)
+  async getCheckinHistory(_userId: string, planId: string) {
+    const res = await fetch(`/api/checkins?planId=${encodeURIComponent(planId)}`)
+    if (!res.ok) return []
+    return res.json()
   },
 
   async getStreak(userId: string) {
-    await mockDelay(200, 400)
-    const records = loadCheckins()
+    const res = await fetch("/api/checkins")
+    if (!res.ok) return 0
+    const records: CheckinRecord[] = await res.json()
     const dates = records
       .filter(c => c.userId === userId)
       .map(c => c.date)

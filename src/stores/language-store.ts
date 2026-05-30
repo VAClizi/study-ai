@@ -25,5 +25,11 @@ export const useLanguageStore = create<LanguageState>((set) => ({
   setLanguage: (language) => {
     localStorage.setItem(STORAGE_KEY, language)
     set({ language })
+    // Sync to server (fire-and-forget)
+    fetch("/api/user/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language }),
+    }).catch(() => {})
   },
 }))

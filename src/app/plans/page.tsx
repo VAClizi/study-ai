@@ -75,8 +75,9 @@ export default function PlansPage() {
   }, [user, loadPlans])
 
   useEffect(() => {
-    const sessions = getAllStoredSessions()
-    setStoredSessionIds(new Set(sessions.map((s) => s.id)))
+    getAllStoredSessions().then((sessions) => {
+      setStoredSessionIds(new Set(sessions.map((s) => s.id)))
+    })
   }, [plans])
 
   if (!isAuthenticated) {

@@ -12,6 +12,8 @@ export interface MemoryEntry {
 
 interface MemoryState {
   entries: MemoryEntry[]
+  isLoaded: boolean
+  loadMemories: () => Promise<void>
   addMemory: (entry: Omit<MemoryEntry, "id" | "createdAt">) => void
   updateMemory: (id: string, updates: Partial<MemoryEntry>) => void
   forgetMemory: (id: string) => void
@@ -22,30 +24,28 @@ interface MemoryState {
   extractAndSaveMemories: (conversationText: string) => MemoryEntry[]
 }
 
-const MEMORY_STORAGE = "studyai-memories"
-
-function getStoredMemories(): MemoryEntry[] {
-  if (typeof window === "undefined") return []
-  try {
-    const stored = localStorage.getItem(MEMORY_STORAGE)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
-  }
-}
-
-function saveMemories(entries: MemoryEntry[]) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(MEMORY_STORAGE, JSON.stringify(entries))
-}
-
 let idCounter = Date.now()
 function genId(): string {
   return `mem_${++idCounter}`
 }
 
 export const useMemoryStore = create<MemoryState>((set, get) => ({
-  entries: getStoredMemories(),
+  entries: [],
+  isLoaded: false,
+
+  loadMemories: async () => {
+    try {
+      const res = await fetch("/api/memories")
+      if (res.ok) {
+        const entries: MemoryEntry[] = await res.json()
+        set({ entries, isLoaded: true })
+      } else {
+        set({ isLoaded: true })
+      }
+    } catch {
+      set({ isLoaded: true })
+    }
+  },
 
   addMemory: (entry) => {
     const newEntry: MemoryEntry = {
@@ -55,9 +55,14 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
     }
     set((s) => {
       const updated = [...s.entries, newEntry]
-      saveMemories(updated)
       return { entries: updated }
     })
+    // Sync to server (fire-and-forget)
+    fetch("/api/memories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entries: [newEntry] }),
+    }).catch(() => {})
   },
 
   updateMemory: (id, updates) => {
@@ -65,22 +70,29 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
       const updated = s.entries.map((e) =>
         e.id === id ? { ...e, ...updates } : e,
       )
-      saveMemories(updated)
       return { entries: updated }
     })
+    // Sync updated entry to server (fire-and-forget)
+    const entry = get().entries.find((e) => e.id === id)
+    if (entry) {
+      fetch(`/api/memories/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry),
+      }).catch(() => {})
+    }
   },
 
   forgetMemory: (id) => {
     set((s) => {
       const updated = s.entries.filter((e) => e.id !== id)
-      saveMemories(updated)
       return { entries: updated }
     })
   },
 
   clearAllMemories: () => {
-    saveMemories([])
     set({ entries: [] })
+    fetch("/api/memories", { method: "DELETE" }).catch(() => {})
   },
 
   getContextString: () => {
@@ -178,9 +190,14 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
     if (newMemories.length > 0) {
       set((s) => {
         const updated = [...s.entries, ...newMemories]
-        saveMemories(updated)
         return { entries: updated }
       })
+      // Sync extracted memories to server (fire-and-forget)
+      fetch("/api/memories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: newMemories }),
+      }).catch(() => {})
     }
 
     return newMemories
