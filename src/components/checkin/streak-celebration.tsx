@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react"
 import { Flame, PartyPopper, Sparkles } from "lucide-react"
-import { buildDayNodes, MILESTONES } from "@/lib/checkin-utils"
+import { buildDayNodes, MILESTONES, loadCheckinDatesAsync } from "@/lib/checkin-utils"
 
 interface StreakCelebrationProps {
   show: boolean
@@ -48,7 +48,16 @@ export function StreakCelebration({ show, streakDays, userName, onComplete }: St
   const [phase, setPhase] = useState<"nodes" | "lighting" | "counter" | "card" | "milestone" | "done">("nodes")
   const [showConfetti, setShowConfetti] = useState(false)
   const [visible, setVisible] = useState(false)
-  const nodes = useRef(buildDayNodes(false, "future"))
+  const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set())
+  const nodes = useRef(buildDayNodes(new Set(), false, "future"))
+
+  useEffect(() => {
+    loadCheckinDatesAsync().then((dates) => {
+      setCheckedDates(dates)
+      nodes.current = buildDayNodes(dates, false, "future")
+    })
+  }, [])
+
   const todayIdx = nodes.current.findIndex((n) => n.status === "today")
 
   const animatingCounter = useAnimatedNumber(streakDays, 800, phase === "counter" || phase === "card" || phase === "milestone" || phase === "done")

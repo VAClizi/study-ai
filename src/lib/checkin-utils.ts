@@ -20,6 +20,7 @@ export interface DayNode {
   status: DayNodeStatus
 }
 
+/** @deprecated Use loadCheckinDatesAsync instead */
 export function loadCheckinDates(): Set<string> {
   if (typeof window === "undefined") return new Set()
   try {
@@ -32,8 +33,23 @@ export function loadCheckinDates(): Set<string> {
   }
 }
 
-export function buildDayNodes(checkedInToday: boolean, statusForMissed: "missed" | "future" = "missed"): DayNode[] {
-  const checkedDates = loadCheckinDates()
+export async function loadCheckinDatesAsync(): Promise<Set<string>> {
+  if (typeof window === "undefined") return new Set()
+  try {
+    const res = await fetch("/api/checkins")
+    if (!res.ok) return new Set()
+    const records: { date: string }[] = await res.json()
+    return new Set(records.map((r) => r.date))
+  } catch {
+    return new Set()
+  }
+}
+
+export function buildDayNodes(
+  checkedDates: Set<string>,
+  checkedInToday: boolean,
+  statusForMissed: "missed" | "future" = "missed"
+): DayNode[] {
   const today = getLocalDate()
   const nodes: DayNode[] = []
 

@@ -21,24 +21,23 @@ import { chat } from "@/services/llm"
 import { useT, useTF } from "@/lib/i18n"
 import { useLanguageStore } from "@/stores/language-store"
 
-function getCacheKey(userId: string) {
-  return `studyai-dashboard-insight-${userId}`
-}
-
-function getCachedInsight(userId: string): { date: string; text: string } | null {
-  if (typeof window === "undefined") return null
+async function fetchCachedInsight(): Promise<{ date: string; text: string } | null> {
   try {
-    const raw = localStorage.getItem(getCacheKey(userId))
-    return raw ? JSON.parse(raw) : null
+    const res = await fetch("/api/user/settings")
+    if (!res.ok) return null
+    const settings = await res.json()
+    return settings.lastDashboardInsight ?? null
   } catch { return null }
 }
 
-function setCachedInsight(userId: string, text: string) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(getCacheKey(userId), JSON.stringify({
-    date: getLocalDate(),
-    text,
-  }))
+async function saveCachedInsight(text: string) {
+  fetch("/api/user/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      lastDashboardInsight: { date: getLocalDate(), text },
+    }),
+  }).catch(() => {})
 }
 
 export default function DashboardPage() {
@@ -53,7 +52,7 @@ export default function DashboardPage() {
   const generateInsight = useCallback(async () => {
     if (!stats || !user) return
     const today = getLocalDate()
-    const cached = getCachedInsight(user.id)
+    const cached = await fetchCachedInsight()
     if (cached?.date === today) {
       setAiInsight(cached.text)
       return
@@ -77,7 +76,7 @@ export default function DashboardPage() {
       )
       if (result) {
         setAiInsight(result)
-        setCachedInsight(user.id, result)
+        await saveCachedInsight(result)
       }
     } catch {
       // Fall back to template below

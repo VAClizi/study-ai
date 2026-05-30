@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Flame, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/cn"
 import { useT, useTF } from "@/lib/i18n"
 import { StreakDetailDialog } from "./streak-detail-dialog"
-import { buildDayNodes, MILESTONE_DAYS } from "@/lib/checkin-utils"
+import { buildDayNodes, MILESTONE_DAYS, loadCheckinDatesAsync } from "@/lib/checkin-utils"
 
 interface StreakFireBarProps {
   streakDays: number
@@ -18,8 +18,13 @@ export function StreakFireBar({ streakDays, checkedInToday, tomorrowGoal, classN
   const t = useT()
   const tf = useTF()
   const [detailOpen, setDetailOpen] = useState(false)
+  const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set())
 
-  const nodes = useMemo(() => buildDayNodes(checkedInToday), [checkedInToday])
+  useEffect(() => {
+    loadCheckinDatesAsync().then(setCheckedDates)
+  }, [])
+
+  const nodes = useMemo(() => buildDayNodes(checkedDates, checkedInToday), [checkedDates, checkedInToday])
 
   const nextMilestone = MILESTONE_DAYS.find((m) => m > streakDays)
   const progressToNext = nextMilestone ? (streakDays / nextMilestone) * 100 : 100

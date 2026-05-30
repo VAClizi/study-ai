@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuthStore } from "@/stores/auth-store"
 import { useLanguageStore, type Language } from "@/stores/language-store"
 import { usePersonaStore, type CoachPersona, PERSONAS } from "@/stores/persona-store"
@@ -30,26 +30,38 @@ export default function SettingsPage() {
   const { persona, setPersona } = usePersonaStore()
   const { clearAllMemories } = useMemoryStore()
 
-  // Preferences state (persisted to localStorage)
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    if (typeof window === "undefined") return true
-    return localStorage.getItem("studyai-notifications") !== "false"
-  })
-  const [weeklyGoalHours, setWeeklyGoalHours] = useState(() => {
-    if (typeof window === "undefined") return 10
-    return Number(localStorage.getItem("studyai-weekly-goal")) || 10
-  })
+  // Preferences state (loaded from API)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const [weeklyGoalHours, setWeeklyGoalHours] = useState(10)
+
+  useEffect(() => {
+    fetch("/api/user/settings")
+      .then((r) => r.json())
+      .then((s) => {
+        if (s.notifications !== undefined) setNotificationsEnabled(s.notifications)
+        if (s.weeklyGoal !== undefined) setWeeklyGoalHours(Number(s.weeklyGoal))
+      })
+      .catch(() => {})
+  }, [])
 
   const toggleNotifications = () => {
     const next = !notificationsEnabled
     setNotificationsEnabled(next)
-    localStorage.setItem("studyai-notifications", String(next))
+    fetch("/api/user/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notifications: next }),
+    }).catch(() => {})
   }
 
   const handleWeeklyGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Math.max(1, Math.min(40, Number(e.target.value) || 1))
     setWeeklyGoalHours(val)
-    localStorage.setItem("studyai-weekly-goal", String(val))
+    fetch("/api/user/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ weeklyGoal: val }),
+    }).catch(() => {})
   }
 
   // Profile
