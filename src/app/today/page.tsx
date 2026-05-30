@@ -188,7 +188,7 @@ export default function TodayPage() {
 
       {/* Tasks */}
       {todayTasks ? (
-        <>
+        <div className="space-y-4">
           <TaskChecklist
             tasks={todayTasks.tasks}
             dayNumber={todayTasks.dayNumber}
@@ -206,7 +206,7 @@ export default function TodayPage() {
             {t("today.completeCheckin")}
             <ArrowRight className="h-4 w-4" />
           </Button>
-        </>
+        </div>
       ) : (
         <EmptyState
           title={t("today.loadingTasks")}
