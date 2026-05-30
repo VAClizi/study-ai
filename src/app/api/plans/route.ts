@@ -15,6 +15,8 @@ export async function GET() {
       id: plans.id,
       title: plans.title,
       mode: plans.mode,
+      goal: plans.goal,
+      stages: plans.stages,
       status: plans.status,
       endDate: plans.endDate,
       chatSessionId: plans.chatSessionId,

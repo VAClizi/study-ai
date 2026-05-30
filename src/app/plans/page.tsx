@@ -139,7 +139,7 @@ export default function PlansPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="text-base font-semibold text-zinc-900 dark:text-white truncate">
-                          {plan.goal.title}
+                          {plan.goal?.title ?? plan.title ?? "未命名计划"}
                         </h3>
                         <Badge className={cn("text-[10px] border", modeBadge.color)}>
                           <ModeIcon className="h-3 w-3 mr-1" />
@@ -151,7 +151,7 @@ export default function PlansPage() {
                       </div>
 
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-3 line-clamp-1">
-                        {plan.goal.description}
+                        {plan.goal?.description ?? ""}
                       </p>
 
                       {/* Stats row */}
