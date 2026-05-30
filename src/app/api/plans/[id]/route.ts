@@ -64,9 +64,14 @@ export async function DELETE(
 
   const { id } = await params
 
-  await db
+  const [deleted] = await db
     .delete(plans)
     .where(and(eq(plans.id, id), eq(plans.userId, session.user.id)))
+    .returning()
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
 
   return NextResponse.json({ success: true })
 }
