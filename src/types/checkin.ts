@@ -26,6 +26,24 @@ export interface CheckinFeedback {
   tomorrowGoal: string
 }
 
+export interface CheckinTaskSnapshot {
+  taskId: string
+  title: string
+  description: string
+  completed: boolean
+  difficulty: "easy" | "medium" | "hard"
+  durationMinutes: number
+}
+
+export interface CheckinInitData {
+  planId: string
+  planTitle: string
+  todayDayNumber: number
+  tasks: CheckinTaskSnapshot[]
+  streak: number
+  planChatSessionId: string | null
+}
+
 export interface GrowthMetrics {
   date: string
   streakDays: number

@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { ChatMessage, ChatMode, ChatSession } from "@/types/chat"
+import type { CheckinInitData } from "@/types/checkin"
 import { mockChatService } from "@/services/chat.mock"
 import { streamChat, type LLMMessage } from "@/services/llm"
 import { usePersonaStore } from "./persona-store"
@@ -15,6 +16,7 @@ interface ChatState {
   planContent: string | null
   abortController: AbortController | null
   checkinReportContext: string | null
+  checkinInitData: CheckinInitData | null
 
   createSession: (mode: ChatMode) => Promise<void>
   sendMessage: (content: string) => Promise<void>
@@ -30,6 +32,7 @@ interface ChatState {
   finalizeLastMessage: () => void
   replaceLastMessage: (content: string) => void
   setCheckinReportContext: (context: string | null) => void
+  setCheckinInitData: (data: CheckinInitData | null) => void
 }
 
 export async function getAllStoredSessions(): Promise<ChatSession[]> {
@@ -42,6 +45,73 @@ export async function getAllStoredSessions(): Promise<ChatSession[]> {
   }
 }
 
+function buildCheckinPrompt(data: CheckinInitData): string {
+  const taskList = data.tasks.map((t) =>
+    `  * ${t.title}（${t.difficulty === "hard" ? "困难" : t.difficulty === "medium" ? "中等" : "简单"}）- ${t.completed ? "已完成" : "未完成"}，预计 ${t.durationMinutes} 分钟`
+  ).join("\n")
+
+  return `
+[每日打卡模式]
+
+你是用户的个人AI学习教练。用户刚刚完成了今日学习任务，来进行每日打卡复盘。
+
+【用户今日学习背景】
+- 学习计划：${data.planTitle}
+- 今天是学习的第 ${data.todayDayNumber} 天
+- 今日任务：
+${taskList}
+- 当前连续打卡：${data.streak} 天
+
+【你的任务】
+
+阶段一：生成定制学习问卷
+根据用户今日的具体学习内容，在对话中逐步提问，生成一份高度个性化的学习复盘问卷。
+- 问题必须与用户今日实际学习的具体内容紧密相关（必须提到具体的知识点、技能点、概念名称）
+- 一次只问一个问题，像自然对话一样推进，不要一次抛出所有问题
+- 需要覆盖的维度（按顺序逐步推进）：今日学了什么 → 理解程度 → 遇到的困难 → 时间投入和专注度 → 知识盲区自查
+- 问题要具体，比如"今天你在学[具体知识点]的时候，有没有哪个概念让你觉得理解起来比较模糊？"而不是"今天学得怎么样？"
+- 总共 3-5 个核心问题，逐步推进
+
+【快捷通道（极其重要！最高优先级！）】
+如果用户在对话中（包括首条消息）明确表示以下任一情况，立即走快捷通道：
+- "忙"、"没时间"、"今天比较忙"、"今天没空"
+- "有事"、"有事情"、"临时有事"、"今天有事"
+- "今天不想"、"今天算了"、"改天"、"下次"、"不想填"、"不想回答"
+- "太累了"、"状态不好"、"今天很累"、"没精力"
+- "直接打卡"、"快速打卡"、"简单打卡"、"跳过"
+- 任何表示今天不想深入填写问卷、想快速完成打卡的信号
+
+快捷通道处理（严格遵守！）：
+1. 1-2 句理解和支持的简短回应（如"完全理解，今天辛苦了"），绝对不要追问原因
+2. 在回复末尾直接输出 [CHECKIN_COMPLETE]
+3. 不要继续问问卷问题，不要分析，不要给建议
+
+阶段二：分析复盘
+当用户完成了问卷所有回答（回答了 3-5 个问题）后：
+- 综合分析用户的学习质量，识别哪些知识点是真正掌握的，哪些理解还比较模糊
+- 明确指出具体的知识盲区和未完全理解的知识点（必须说出知识点名称，不能笼统地说"有些地方还需要加强"）
+- 用关心但专业的语气告知用户具体的薄弱环节和潜在影响
+- 然后询问用户："你想针对这些薄弱点做一些补充练习再打卡，还是今天先到这里？"
+
+阶段三：补充指导（用户选择补充练习时）
+- 针对已识别的知识盲区，给出 2-3 个具体的、可操作的补充学习建议
+- 每个建议要对应一个具体的知识点，用"去做什么"的方式表述（如"去看XX教程的第3章关于YY的部分"），而不是笼统的"去学XX"
+- 控制在 30 分钟内可以完成
+- 用户完成后回来汇报结果 → 简短确认用户反馈 → [CHECKIN_COMPLETE]
+
+阶段三备选：直接完成（用户不补充，或分析后没有发现明显问题）
+- 简短的学习总结（2-3 句今日亮点概括 + 1 个明天的小建议）
+- [CHECKIN_COMPLETE]
+
+【重要规则】
+- 不要使用 A/B/C/D 选择题格式进行问卷提问，采用开放式问题
+- 语气专业、有温度、有督导感（像一位真正关心你成长的教练）
+- 绝对不要在问卷阶段生成任何学习计划、补充计划或 [MINI_PLAN]
+- 绝对不要在用户还没回答完问卷时就输出 [CHECKIN_COMPLETE]（除非触发快捷通道）
+- [CHECKIN_COMPLETE] 只能出现在打卡确认完成的回复末尾
+`
+}
+
 export const useChatStore = create<ChatState>((set, get) => ({
   sessions: [],
   currentSession: null,
@@ -51,6 +121,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   planContent: null,
   abortController: null,
   checkinReportContext: null,
+  checkinInitData: null,
 
   createSession: async (mode: ChatMode) => {
     const personaStore = usePersonaStore.getState()
@@ -110,19 +181,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const languageStore = useLanguageStore.getState()
 
     const memoryContext = memoryStore.getContextString()
-    const { checkinReportContext } = get()
+    const { checkinInitData } = get()
 
     const modePrompt = currentMode === "quick"
       ? personaStore.config.quickSystemPrompt
       : personaStore.config.detailedSystemPrompt
 
-    const isReviewMode = checkinReportContext === "[REVIEW_MODE]"
-
-    const checkinContext = isReviewMode
-      ? `\n\n[学习报告反馈审核模式]\n用户之前收到了AI的学习报告分析，现在正在回复。\n\n【核心原则】先倾听用户，理解真实情况后再决定行动。用户可能因为太累、太忙、内容太难、状态不好等原因导致学习效果不佳，这些都是正常的。\n\n【响应逻辑】\n首先检查对话历史中是否已有 [MINI_PLAN]：\n\n→ 如果对话中已有 [MINI_PLAN]（说明用户之前收到了补充计划，现在正在反馈完成情况）：\n从宽审核用户的反馈：\n- 用户如实反馈了完成情况（无论全部完成、部分完成、还是没做），即判定通过\n- 用户表达了真实感受（「太累了没做」「状态不好」「只做了一部分」「今天不想做」等），也判定通过\n- 用户说明了原因（「加班没时间」「有其他事情」等），也判定通过\n- 只有用户完全没有提及补充计划相关内容时（如聊了完全不相关的话题），才不通过\n\n通过后：1-2句理解和支持的简短回应 + 回复末尾包含 [CHECKIN_COMPLETE] 标记\n绝对不要生成新的学习计划或迷你计划！\n不通过：正常回答用户问题，不输出 [CHECKIN_COMPLETE]\n\n→ 如果对话中没有 [MINI_PLAN]（说明用户正在解释自己的困难，AI还没有给补充计划）：\n1. 先认可用户的坦诚表达，表达理解\n2. 根据用户的具体情况判断如何回应：\n   - 用户表达了想加强练习 / 需要帮助 → 生成 [MINI_PLAN]（2-3个可在30分钟内完成的微任务），邀请用户按自己的节奏试试，不强制完成\n   - 用户只是状态不好 / 太忙 / 太累 / 今天不想做 → 表达理解和支持，鼓励休息和调整，回复末尾加 [CHECKIN_COMPLETE]\n   - 用户的回复不够清楚，需要更多信息才能判断 → 温和地再问一个跟进问题\n3. 如果生成了 [MINI_PLAN]，格式如下：\n[MINI_PLAN]\n### 📋 今日补充练习\n- **任务1**：xxx（预计10分钟）\n- **任务2**：xxx（预计10分钟）\n- **任务3**：xxx（预计10分钟）\n[/MINI_PLAN]\n末尾友好邀请用户按自己的节奏来反馈，不强制完成\n\n【重要规则】\n- 不要使用A/B/C/D选项格式，不要输出任何选择题\n- 语气亲切、专业、有鼓励性\n- 不要输出 [CHECKIN_COMPLETE] 除非用户的情况已经被妥善回应`
-      : checkinReportContext
-        ? `\n\n[学习报告分析模式] ${checkinReportContext}\n\n请根据以上学习报告信息生成今日总结报告。\n\n【判断逻辑】\n若用户填写了困难内容，或状态自评为「很吃力/一般般」，则走【有待提升】分支：\n1. 简短肯定（1-2句，认可用户的努力）\n2. 困难点深度解析（分析根本原因，给出针对性建议）\n3. 用关心的语气询问用户1-2个关于困难的开放问题，了解用户今天的真实情况。例如：「今天具体是哪个部分让你觉得比较吃力？」、「是内容太难、时间不够、还是今天状态不太好？你自己觉得是什么原因呢？」\n4. 绝对不要在这一步生成任何学习计划、补充计划或 [MINI_PLAN]！先倾听用户，等用户回复后再判断是否需要补充练习。\n\n若用户没有困难且状态良好，则走【完成优秀】分支：\n1. 个性化祝贺语（1-2句）\n2. 今日亮点总结（2-3个亮点）\n3. 回复末尾包含 [CHECKIN_COMPLETE] 标记\n\n【重要规则】\n- 走【有待提升】分支时，不要使用A/B/C/D选项格式，不要输出任何选择题\n- 语气亲切、专业、有鼓励性\n- 不重复展示原始填写内容，直接输出分析报告`
-        : ""
+    const checkinContext = checkinInitData ? buildCheckinPrompt(checkinInitData) : ""
 
     const CHOICE_FORMAT_INSTRUCTION = `\n\n[回复格式] 当需要用户做选择时，每个选项必须独占一行、不能挤在同一行：\n\n问题正文以？结尾\nA. 选项一\nB. 选项二\nC. 选项三\nD. 选项四\n\n严格遵守：问句独占一行，每个选项独占一行，以 "A." "B." "C." "D." 开头。`
 
@@ -130,13 +195,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ? "\n\nIMPORTANT: The user is using the English interface. You MUST respond in English only. All questions, choices, and explanations must be in English."
       : ""
 
-    const choiceInstruction = checkinReportContext ? "" : CHOICE_FORMAT_INSTRUCTION
+    const choiceInstruction = checkinInitData ? "" : CHOICE_FORMAT_INSTRUCTION
     const systemContent = modePrompt + checkinContext + choiceInstruction + LANG_INSTRUCTION + "\n\n[系统功能] 生成完整学习计划后，对话将自动存档至「我的计划」页面，用户可随时回到当前对话继续讨论或调整计划。" + (memoryContext ? `\n\n[长期记忆]\n${memoryContext}` : "")
-
-    // After first checkin turn: switch to review mode for feedback follow-up
-    if (checkinReportContext && !isReviewMode) {
-      set({ checkinReportContext: "[REVIEW_MODE]" })
-    }
 
     const llmMessages: LLMMessage[] = [
       { role: "system", content: systemContent },
@@ -220,10 +280,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
         await get().saveCurrentSession()
       }
 
-      // Clear checkin review mode when AI signals completion
-      if (isReviewMode && /\[CHECKIN_COMPLETE\]/.test(fullContent)) {
-        set({ checkinReportContext: null })
-      }
+      // Note: checkinInitData is preserved after [CHECKIN_COMPLETE] so chat page can save the checkin record.
+      // It will be cleared by the chat page after celebration completes.
 
       if (fullContent.length > 0) {
         memoryStore.extractAndSaveMemories(content + "\n" + fullContent)
@@ -369,5 +427,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setCheckinReportContext: (context: string | null) => {
     set({ checkinReportContext: context })
+  },
+
+  setCheckinInitData: (data: CheckinInitData | null) => {
+    set({ checkinInitData: data })
   },
 }))

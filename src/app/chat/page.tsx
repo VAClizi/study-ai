@@ -33,6 +33,7 @@ function ChatContent() {
   const {
     messages, isStreaming, currentMode, currentSession, planContent,
     createSession, sendMessage, setMode, resetChat, loadStoredSession, saveCurrentSession,
+    checkinInitData, setCheckinInitData,
   } = useChatStore()
 
   const { createPlanFromParsedData } = usePlanStore()
@@ -49,6 +50,7 @@ function ChatContent() {
   const [planSaveError, setPlanSaveError] = useState<string | null>(null)
   const [isSavingPlan, setIsSavingPlan] = useState(false)
   const isCheckinSource = searchParams.get("source") === "checkin"
+  const planIdParam = searchParams.get("planId")
   const initialPromptSent = useRef(false)
   const lastParsedContent = useRef<string | null>(null)
   const lastStreamingRef = useRef(false)
@@ -157,19 +159,49 @@ function ChatContent() {
     if (wasStreaming && !isStreaming && isCheckinSource) {
       const lastMsg = messages[messages.length - 1]
       if (lastMsg?.role === "assistant" && lastMsg.content.includes("[CHECKIN_COMPLETE]")) {
-        // Show the checkin complete button
-        setShowCheckinButton(true)
-        // Strip the marker from displayed content only — celebration waits for manual button click
         const cleaned = lastMsg.content.replace(/\[CHECKIN_COMPLETE\]/g, "").trim()
+
+        // Strip the marker from displayed content
         useChatStore.setState((s) => {
           const msgs = [...s.messages]
           const last = msgs[msgs.length - 1]
           if (last) msgs[msgs.length - 1] = { ...last, content: cleaned }
           return { messages: msgs }
         })
+
+        // Save checkin record from initData
+        const initData = useChatStore.getState().checkinInitData
+        if (initData && user) {
+          const checkinStore = useCheckinStore.getState()
+          checkinStore.submitCheckin(user.id, initData.planId, {
+            tasks: initData.tasks.map((t) => ({
+              taskId: t.taskId,
+              completed: t.completed,
+              actualMinutes: t.durationMinutes,
+              difficultyRating: t.difficulty === "hard" ? 4 : t.difficulty === "medium" ? 3 : 2,
+            })),
+            feedback: {
+              stuckPoints: "",
+              difficulties: "",
+              summary: cleaned.slice(0, 200),
+              focusScore: 7,
+              needAdjustment: false,
+              tomorrowGoal: "",
+            },
+            focusLevel: 7,
+            moodRating: 7,
+          }).then(() => {
+            checkinStore.loadStreak(user.id)
+          }).catch((err) => {
+            console.error("Failed to save checkin:", err)
+          })
+        }
+
+        // Show the checkin complete button
+        setShowCheckinButton(true)
       }
     }
-  }, [isStreaming, messages, isCheckinSource])
+  }, [isStreaming, messages, isCheckinSource, user])
 
   const handleModeSelect = useCallback(async (mode: ChatMode) => {
     setMode(mode)
@@ -203,18 +235,59 @@ function ChatContent() {
     }
   }, [searchParams, hasStarted])
 
-  // Handle ?prompt= from homepage
+  // Handle ?prompt= from homepage or checkin
   useEffect(() => {
     const promptParam = searchParams.get("prompt")
     if (promptParam && hasStarted && !initialPromptSent.current && messages.length <= 1) {
       initialPromptSent.current = true
       setShowCheckinButton(false)
+
+      // Recover checkinInitData from plan if lost (e.g. page refresh)
+      if (isCheckinSource && planIdParam && !checkinInitData) {
+        fetch(`/api/plans/${planIdParam}`)
+          .then((r) => r.json())
+          .then((plan) => {
+            if (plan?.stages) {
+              const startDate = new Date(plan.createdAt)
+              const dayDiff = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+              const dayNumber = Math.max(1, Math.min(dayDiff + 1, 365))
+              // Find today's tasks from plan
+              let todayTasks: typeof plan.stages[0]["weeks"][0]["days"][0]["tasks"] = []
+              for (const stage of plan.stages) {
+                for (const week of stage.weeks) {
+                  for (const day of week.days) {
+                    if (day.dayNumber === dayNumber) {
+                      todayTasks = day.tasks ?? []
+                    }
+                  }
+                }
+              }
+              setCheckinInitData({
+                planId: plan.id,
+                planTitle: plan.title ?? plan.goal?.title ?? "",
+                todayDayNumber: dayNumber,
+                tasks: todayTasks.map((t: any) => ({
+                  taskId: t.id ?? "",
+                  title: t.title ?? "",
+                  description: t.description ?? "",
+                  completed: t.completed ?? false,
+                  difficulty: (t.difficulty as "easy" | "medium" | "hard") ?? "medium",
+                  durationMinutes: t.durationMinutes ?? 30,
+                })),
+                streak: useCheckinStore.getState().streak,
+                planChatSessionId: plan.chatSessionId ?? null,
+              })
+            }
+          })
+          .catch(() => {})
+      }
+
       const timer = setTimeout(() => {
         handleSend(promptParam)
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [searchParams, hasStarted, messages.length, handleSend])
+  }, [searchParams, hasStarted, messages.length, handleSend, isCheckinSource, planIdParam, checkinInitData, setCheckinInitData])
 
   const handleGeneratePlan = useCallback(async () => {
     if (!user) return null
@@ -425,6 +498,7 @@ function ChatContent() {
           userName={user?.name}
           onComplete={() => {
             setShowCelebration(false)
+            useChatStore.getState().setCheckinInitData(null)
             router.push("/today")
           }}
         />

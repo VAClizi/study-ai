@@ -7,8 +7,8 @@ import { usePlanStore } from "@/stores/plan-store"
 import { useCheckin } from "@/hooks/use-checkin"
 import { useCheckinStore } from "@/stores/checkin-store"
 import { useChatStore } from "@/stores/chat-store"
+import type { CheckinInitData } from "@/types/checkin"
 import { TaskChecklist } from "@/components/checkin/task-checklist"
-import { LearningReportDialog, type LearningReportData } from "@/components/checkin/learning-report-dialog"
 import { StreakFireBar } from "@/components/checkin/streak-fire-bar"
 import { DailySummary } from "@/components/checkin/daily-summary"
 import { EmptyState } from "@/components/shared/empty-state"
@@ -19,26 +19,6 @@ import { Sparkles, Flame, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useT, useTF } from "@/lib/i18n"
 
-function getRatingLabel(key: string): string {
-  const map: Record<string, string> = {
-    "report.ratingHard": "很吃力",
-    "report.ratingMeh": "一般般",
-    "report.ratingGood": "还不错",
-    "report.ratingGreat": "超级顺畅",
-  }
-  return map[key] ?? key
-}
-
-function getDurationLabel(value: string): string {
-  const map: Record<string, string> = {
-    "<15": "< 15 分钟",
-    "15-30": "15–30 分钟",
-    "30-60": "30–60 分钟",
-    ">60": "> 60 分钟",
-  }
-  return map[value] ?? value
-}
-
 export default function TodayPage() {
   const { isAuthenticated, user } = useAuthStore()
   const t = useT()
@@ -47,9 +27,8 @@ export default function TodayPage() {
   const { plans, loadPlans } = usePlanStore()
   const activePlan = plans.find((p) => p.status === "active")
   const { todayTasks, loadTodayTasks, updateTask } = usePlanStore()
-  const { todayCheckin, streak, submitCheckin } = useCheckin(activePlan?.id)
-  const setCheckinReportContext = useChatStore((s) => s.setCheckinReportContext)
-  const [reportOpen, setReportOpen] = useState(false)
+  const { todayCheckin, streak } = useCheckin(activePlan?.id)
+  const setCheckinInitData = useChatStore((s) => s.setCheckinInitData)
   const [allCompleted, setAllCompleted] = useState(false)
 
   useEffect(() => {
@@ -70,44 +49,42 @@ export default function TodayPage() {
     }
   }, [todayTasks])
 
-  const handleReportComplete = async (data: LearningReportData) => {
-    if (!activePlan || !todayTasks || !user) return
+  const handleStartCheckin = () => {
+    if (!activePlan || !todayTasks) return
 
-    // Save checkin record
-    await submitCheckin({
+    const initData: CheckinInitData = {
+      planId: activePlan.id,
+      planTitle: activePlan.title,
+      todayDayNumber: todayTasks.dayNumber,
       tasks: todayTasks.tasks.map((t) => ({
         taskId: t.id,
+        title: t.title,
+        description: t.description,
         completed: t.completed,
-        actualMinutes: t.durationMinutes,
-        difficultyRating: t.difficulty === "hard" ? 4 : t.difficulty === "medium" ? 3 : 2,
+        difficulty: t.difficulty,
+        durationMinutes: t.durationMinutes,
       })),
-      feedback: {
-        stuckPoints: data.difficulties || "",
-        difficulties: data.difficulties || "",
-        summary: data.content || "",
-        focusScore: data.selfRating.includes("Hard") || data.selfRating.includes("Meh") ? 6 : 8,
-        needAdjustment: data.selfRating.includes("Hard") || data.selfRating.includes("Meh"),
-        tomorrowGoal: data.tomorrowFocus || "",
-      },
-      focusLevel: data.selfRating.includes("Hard") ? 5 : data.selfRating.includes("Meh") ? 6 : 8,
-      moodRating: 7,
-    })
+      streak: useCheckinStore.getState().streak,
+      planChatSessionId: activePlan.chatSessionId ?? null,
+    }
 
-    // Build checkin context for AI injection
-    const context = `
-你是用户的个人 AI 学习教练，语气亲切、专业、有鼓励性。
-用户刚刚完成了今日学习任务并提交了学习报告，内容如下：
+    setCheckinInitData(initData)
 
-- 今日学习内容：${data.content}
-- 遇到的困难：${data.difficulties || "无"}
-- 状态自评：${getRatingLabel(data.selfRating)}
-- 学习时长：${getDurationLabel(data.studyDuration)}
-- 明日希望重点：${data.tomorrowFocus || "未指定"}
-- 用户当前学习计划：${activePlan.title}
-- 当前连续打卡天数：${useCheckinStore.getState().streak}`
+    const autoPrompt = "我来打卡今日学习"
 
-    setCheckinReportContext(context)
-    router.push(`/chat?prompt=${encodeURIComponent("请分析我的今日学习报告")}&mode=quick&source=checkin`)
+    if (activePlan.chatSessionId) {
+      router.push(
+        `/chat?session=${activePlan.chatSessionId}` +
+        `&prompt=${encodeURIComponent(autoPrompt)}` +
+        `&source=checkin`
+      )
+    } else {
+      router.push(
+        `/chat?prompt=${encodeURIComponent(autoPrompt)}` +
+        `&source=checkin` +
+        `&planId=${activePlan.id}`
+      )
+    }
   }
 
   if (!isAuthenticated) {
@@ -194,7 +171,7 @@ export default function TodayPage() {
         </div>
         {allCompleted && todayTasks && todayTasks.tasks.length > 0 && (
           <Button
-            onClick={() => setReportOpen(true)}
+            onClick={handleStartCheckin}
             className="bg-gradient-to-r from-purple-600 to-violet-600 text-white gap-2 shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 transition-all"
           >
             {t("today.completeCheckin")}
@@ -246,15 +223,6 @@ export default function TodayPage() {
           </CardContent>
         </Card>
       )}
-
-      {/* Learning Report Dialog */}
-      <LearningReportDialog
-        open={reportOpen}
-        onOpenChange={setReportOpen}
-        onComplete={handleReportComplete}
-        planName={activePlan.title}
-        streakDays={streak}
-      />
     </div>
   )
 }
